@@ -41,7 +41,6 @@ class SocketService {
   };
 
   sendCodeChange = (content: string) => {
-    console.log("Code change: ", content);
     this.socket.emit(SocketEvent.CODE_CHANGE, {
       roomId: this.roomId,
       content: content,
@@ -51,14 +50,12 @@ class SocketService {
   receiveCodeUpdate = (
     setCurrentCode: React.Dispatch<React.SetStateAction<string>>
   ) => {
-    console.log("Code updating..");
     this.socket.on(SocketEvent.CODE_UPDATE, (content: string) => {
       setCurrentCode(content);
     });
   };
 
   sendChatMessage = (message: ChatMessage) => {
-    console.log("sending message: ", message);
     this.socket.emit(SocketEvent.SEND_CHAT_MESSAGE, {
       roomId: this.roomId,
       message: message,
@@ -69,7 +66,6 @@ class SocketService {
     setNewMessages: React.Dispatch<React.SetStateAction<ChatMessage>>
   ) => {
     this.socket.on(SocketEvent.UPDATE_CHAT_MESSAGE, (message: ChatMessage) => {
-      console.log("newMessage:", message);
       setNewMessages(message);
     });
   };

@@ -1,20 +1,20 @@
 import supertest from "supertest";
 import createServer from "../utils/server";
-import questionDb from "../../models/database/schema/question";
 import * as TestPayload from "../utils/payloads";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
+import db from "../../models/db";
 
 const app = createServer();
-const dbMock = questionDb as jest.Mocked<typeof questionDb>;
+const dbMock = db as jest.Mocked<typeof db>;
 
 describe("DELETE /api/questions/:questionId", () => {
   describe("Given an existing question id", () => {
     it("should return 204 with no content", async () => {
       const questionId = "existingquestionid123";
-      dbMock.findById = jest
+      dbMock.question.findFirst = jest
         .fn()
         .mockResolvedValue(TestPayload.getQuestionPayload(questionId));
-      dbMock.deleteOne = jest.fn().mockResolvedValue(null);
+      dbMock.question.delete = jest.fn().mockResolvedValue(null);
 
       const { statusCode } = await supertest(app).delete(
         `/api/questions/${questionId}`
@@ -27,7 +27,7 @@ describe("DELETE /api/questions/:questionId", () => {
   describe("Given a non-existing question id", () => {
     it("should return 404 with a not found message", async () => {
       const questionId = "nonexistingquestionid123";
-      dbMock.findById = jest.fn().mockResolvedValue(null);
+      dbMock.question.findFirst = jest.fn().mockResolvedValue(null);
 
       const { body, statusCode } = await supertest(app).delete(
         `/api/questions/${questionId}`
@@ -44,10 +44,10 @@ describe("DELETE /api/questions/:questionId", () => {
   describe("Given an unexpected error", () => {
     it("should return 500 with an unexpected error message", async () => {
       const questionId = "existingquestionid123";
-      dbMock.findById = jest
+      dbMock.question.findFirst = jest
         .fn()
         .mockResolvedValue(TestPayload.getQuestionPayload(questionId));
-      dbMock.deleteOne = jest
+      dbMock.question.delete = jest
         .fn()
         .mockRejectedValue(new Error("Unexpected error"));
 

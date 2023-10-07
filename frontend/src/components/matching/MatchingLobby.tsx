@@ -1,16 +1,11 @@
 "use client";
 import { getLogger } from "@/helpers/logger";
-import { getMatchingSocketConfig } from "@/helpers/matching/matching_api_wrappers";
-import { useAuthContext } from "@/contexts/auth";
-import Partner from "@/types/partner";
 import { Modal, ModalContent } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import MatchingLobbyErrorView from "./MatchingLobbyErrorView";
 import MatchingLobbyMatchingView from "./MatchingLobbyMatchingView";
 import MatchingLobbyNoMatchView from "./MatchingLobbyNoMatchView";
-import MatchingLobbySuccessView, {
-  MatchingSuccessState,
-} from "./MatchingLobbySuccessView";
+import MatchingLobbySuccessView from "./MatchingLobbySuccessView";
 import { MATCHING_STAGE } from "@/types/enums";
 import SocketService from "@/helpers/matching/socket_service";
 import MatchingLobbyPrepCollabView from "./MatchingLobbyPrepCollabView";
@@ -71,8 +66,8 @@ export default function MatchingLobby({
 
   const handleRedirect = (socket: SocketService, room: any) => {
     const partnerId = socket.getRoomPartner()!.id;
+
     const path = `${CLIENT_ROUTES.COLLABORATION}/${room.id}?partnerId=${partnerId}&questionId=${room.questionId}&language=${room.language}`;
-    console.log(path);
     router.push(path);
   };
 

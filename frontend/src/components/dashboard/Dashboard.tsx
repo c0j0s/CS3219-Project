@@ -7,7 +7,7 @@ import QuestionStatisticsCard from "./QuestionStatisticsCard";
 
 const Dashboard = () => {
   return (
-    <div className="grid md:grid-rows-2 md:grid-cols-4 gap-4 p-[30px] sm:grid-row-3 sm:grid-cols-2 container mx-auto">
+    <div className="grid md:grid-rows-2 md:grid-cols-4 gap-4 p-[30px] h-[92vh] sm:grid-row-3 sm:grid-cols-2 container mx-auto">
       <div className="row-start-1 col-start-1">
         <ProfileDashboardCard />
       </div>

@@ -19,7 +19,7 @@ export const CreateQuestionValidator = z.object({
   examples: z
     .array(
       z.object({
-        input: z.string().min(1).max(1000),
+        input: z.string().min(1).max(10000),
         output: z.string().min(1).max(1000),
         explanation: z.string().min(3).max(10000).optional(),
       })

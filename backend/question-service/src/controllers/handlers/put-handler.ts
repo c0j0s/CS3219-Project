@@ -1,9 +1,12 @@
 import { Request, Response } from "express";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
-import { UpdateQuestionValidator } from "../../lib/validators/UpdateQuestionValidator";
+import {
+  UpdateQuestionRequestBody,
+  UpdateQuestionValidator,
+} from "../../lib/validators/UpdateQuestionValidator";
 import { ZodError } from "zod";
-import questionDb from "../../models/database/schema/question";
 import { formatErrorMessage } from "../../lib/utils/errorUtils";
+import db from "../../models/db";
 
 export const updateQuestion = async (request: Request, response: Response) => {
   try {
@@ -17,7 +20,11 @@ export const updateQuestion = async (request: Request, response: Response) => {
 
     const { questionId } = request.params;
 
-    const question = await questionDb.findById(questionId);
+    const question = await db.question.findFirst({
+      where: {
+        id: questionId,
+      },
+    });
 
     if (!question) {
       response.status(HttpStatusCode.NOT_FOUND).json({
@@ -26,59 +33,67 @@ export const updateQuestion = async (request: Request, response: Response) => {
       });
       return;
     }
-    // console.log(request.body)
-    const updatedQuestionBody = UpdateQuestionValidator.parse(request.body);
+
+    const updatedQuestionBody: UpdateQuestionRequestBody =
+      UpdateQuestionValidator.parse(request.body);
 
     // Check no existing question with the same question name in the database
     if (updatedQuestionBody.title) {
-      const duplicateCheck = await questionDb.findOne({
-        _id: { $ne: questionId },
-        title: updatedQuestionBody.title,
+      const existingNameQuestion = await db.question.findFirst({
+        where: {
+          title: updatedQuestionBody.title,
+          id: {
+            not: questionId,
+          },
+        },
       });
 
-      if (duplicateCheck) {
+      if (existingNameQuestion) {
         response.status(HttpStatusCode.CONFLICT).json({
           error: "CONFLICT",
           message: "Question title already exists",
         });
         return;
       }
-
-      question.title = updatedQuestionBody.title;
     }
 
-    // Update question in database using the updatedQuestionBody
-    if (updatedQuestionBody.description) {
-      question.description = updatedQuestionBody.description;
+    // update question in database
+    await db.question.update({
+      where: {
+        id: questionId,
+      },
+      data: {
+        title: updatedQuestionBody.title,
+        description: updatedQuestionBody.description,
+        topics: updatedQuestionBody.topics,
+        complexity: updatedQuestionBody.complexity,
+        url: updatedQuestionBody.url,
+        author: updatedQuestionBody.author,
+        constraints: updatedQuestionBody.constraints,
+      },
+    });
+
+    if (
+      updatedQuestionBody.examples &&
+      updatedQuestionBody.examples.length > 0
+    ) {
+      // delete existing examples
+      await db.example.deleteMany({
+        where: {
+          questionId: questionId,
+        },
+      });
+
+      // insert new examples
+      await db.example.createMany({
+        data: updatedQuestionBody.examples.map((example) => ({
+          questionId: questionId,
+          input: example.input,
+          output: example.output,
+          explanation: example.explanation,
+        })),
+      });
     }
-
-    if (updatedQuestionBody.topics) {
-      question.topics = updatedQuestionBody.topics;
-    }
-
-    if (updatedQuestionBody.complexity) {
-      question.complexity = updatedQuestionBody.complexity;
-    }
-
-    if (updatedQuestionBody.url) {
-      question.url = updatedQuestionBody.url;
-    }
-
-    if (updatedQuestionBody.author) {
-      question.author = updatedQuestionBody.author;
-    }
-
-    if (updatedQuestionBody.examples) {
-      question.examples = updatedQuestionBody.examples;
-    }
-
-    if (updatedQuestionBody.constraints) {
-      question.constraints = updatedQuestionBody.constraints;
-    }
-
-    question.updatedOn = new Date(Date.now());
-
-    await questionDb.updateOne({ _id: questionId }, question);
 
     response.status(HttpStatusCode.NO_CONTENT).send();
   } catch (error) {

@@ -7,9 +7,16 @@ import User from "@/types/user";
 import { notFound } from "next/navigation";
 import { createContext, useContext, useRef, useState } from "react";
 import { useAuthContext } from "./auth";
+import { verifyRoomParamsIntegrity } from "@/utils/hashUtils";
+import { PeerPrepErrors } from "@/types/PeerPrepErrors";
 
 interface ICollabContext {
-  handleConnectToRoom: (roomId: string) => Promise<void>;
+  handleConnectToRoom: (
+    roomId: string,
+    questionId: string,
+    partnerId: string,
+    matchedLanguage: string
+  ) => Promise<void>;
   initializeSocket: (roomId: string) => Promise<void>;
   handleDisconnectFromRoom: () => void;
   isLoading: boolean;
@@ -20,6 +27,7 @@ interface ICollabContext {
   user: User | undefined;
   question: Question | undefined;
   matchedLanguage: string;
+  isNotFoundError: boolean;
 }
 
 interface ICollabProvider {
@@ -38,6 +46,7 @@ const CollabContext = createContext<ICollabContext>({
   user: undefined,
   question: undefined,
   matchedLanguage: "",
+  isNotFoundError: false,
 });
 
 const useCollabContext = () => useContext(CollabContext);
@@ -48,10 +57,11 @@ const CollabProvider = ({ children }: ICollabProvider) => {
   const [isSocketConnected, setIsSocketConnected] = useState<boolean>(false);
   const [roomId, setRoomId] = useState<string>("");
   const intervalRef = useRef<NodeJS.Timeout>();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [partner, setPartner] = useState<User>();
   const [question, setQuestion] = useState<Question>();
   const [matchedLanguage, setMatchedLanguage] = useState<string>("");
+  const [isNotFoundError, setIsNotFoundError] = useState<boolean>(false);
 
   const initializeSocket = async (roomId: string) => {
     setRoomId(roomId);
@@ -73,43 +83,63 @@ const CollabProvider = ({ children }: ICollabProvider) => {
     }, 500);
   };
 
-  const handleConnectToRoom = async (roomId: string) => {
-    if (isLoading) return;
+  const handleConnectToRoom = async (
+    roomId: string,
+    questionId: string,
+    partnerId: string,
+    matchedLanguage: string
+  ) => {
     setIsLoading(true);
     try {
-      // TODO: update this when matching service is available
-      // check if a match is established => at least a partner, a question, and a room id is returned
-      const { secondUserId, questionId, matchedLanguage } =
-        MatchingService.getMatchedRecord({
-          firstUserId: user.id ?? "cln1l7jer0000t2ykbb11njys",
-          secondUserId: "cln1arksi00007k9wxqsyxpzv",
-          questionId: "650a5979bf32dcb1ae15bf11",
-          matchedLanguage: "javascript",
+      console.log("Enter handleConnectToRoom");
+      // check if we have an authenticated user, a not-null partnerId, questionId, matchedLanguage, and roomId
+      if (!user || !partnerId || !questionId || !matchedLanguage || !roomId) {
+        setIsNotFoundError(true);
+        return;
+      }
+
+      // verify parameters integrity
+      const isValidParams = verifyRoomParamsIntegrity(
+        roomId,
+        user.id!,
+        partnerId,
+        questionId,
+        matchedLanguage
+      );
+
+      if (!isValidParams) {
+        setIsNotFoundError(true);
+        return;
+      }
+
+      setMatchedLanguage(matchedLanguage.toLowerCase());
+
+      const promises = [
+        UserService.getUserById(partnerId),
+        getQuestionById(questionId),
+      ];
+
+      Promise.all(promises)
+        .then((responses) => {
+          const partner = responses[0] as User;
+          const question = responses[1] as Question;
+
+          if (!partner || !question) {
+            setIsNotFoundError(true);
+            return;
+          }
+
+          setPartner(partner);
+          setQuestion(question);
+        })
+        .catch((error) => {
+          setIsNotFoundError(true);
         });
 
-      if (!matchedLanguage) {
-        return notFound();
+      if (isNotFoundError) {
+        return;
       }
 
-      setMatchedLanguage(matchedLanguage);
-
-      // TODO: refactor this to Promise.all
-
-      const partner = await UserService.getUserById(secondUserId);
-
-      if (!partner) {
-        return notFound();
-      }
-
-      setPartner(partner);
-
-      const question = (await getQuestionById(questionId)) as Question;
-
-      if (!question) {
-        return notFound();
-      }
-
-      setQuestion(question);
       await initializeSocket(roomId);
     } catch (error) {
       console.log(error);
@@ -142,6 +172,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
     user,
     question,
     matchedLanguage,
+    isNotFoundError,
   };
 
   return (

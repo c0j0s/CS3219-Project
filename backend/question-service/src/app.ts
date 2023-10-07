@@ -4,7 +4,6 @@ import bodyParser from "body-parser";
 import cors from "./middleware/cors";
 import HttpStatusCode from "./lib/enums/HttpStatusCode";
 import dotenv from "dotenv";
-import { connectToMongoDb } from "./models/database/dbConfig";
 
 dotenv.config();
 
@@ -15,9 +14,6 @@ app.use(cors);
 
 // implement body-parser for parsing request body
 app.use(bodyParser.json());
-
-// connect to MongoDB
-connectToMongoDb();
 
 // implement routes for API endpoints
 app.use("/api", router);

@@ -1,5 +1,4 @@
 type ChatMessage = {
-  uuid: string;
   content: string;
   senderId: string;
 };

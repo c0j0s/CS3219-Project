@@ -5,19 +5,19 @@ export type Example = {
 };
 
 type Question = {
-  _id?: string;
+  id?: string;
   title: string;
   complexity: string;
   topics: string[];
   description: string;
+  url: string;
+
+  author?: string;
   examples?: Example[];
   constraints?: string[];
-  category?: string[];
-  status?: string;
+
   createdOn?: string;
   updatedOn?: string;
-  author?: string;
-  url?: string;
 };
 
 export default Question;

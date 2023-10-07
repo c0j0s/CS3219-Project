@@ -1,20 +1,22 @@
-import questionDb from "../../models/database/schema/question";
 import * as TestPayload from "../utils/payloads";
 import createServer from "../utils/server";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import supertest from "supertest";
+import db from "../../models/db";
 
 const app = createServer();
 
-const dbMock = questionDb as jest.Mocked<typeof questionDb>;
+const dbMock = db as jest.Mocked<typeof db>;
 
 describe("POST /questions", () => {
   describe("Given a valid question payload", () => {
     it("should return 201 with a question created message", async () => {
       // Arrange
       const questionPayload = TestPayload.getCreateQuestionRequestBody();
-      dbMock.findOne = jest.fn().mockResolvedValue(null);
-      dbMock.create = jest.fn().mockResolvedValue(null);
+      const question = TestPayload.getQuestionPayload();
+      dbMock.question.findFirst = jest.fn().mockResolvedValue(null);
+      dbMock.question.create = jest.fn().mockResolvedValue(question);
+      dbMock.example.createMany = jest.fn().mockResolvedValue(null);
 
       // Act
       const { body, statusCode } = await supertest(app)
@@ -23,7 +25,10 @@ describe("POST /questions", () => {
 
       // Assert
       expect(statusCode).toEqual(HttpStatusCode.CREATED);
-      expect(body).toEqual({ message: "Question created." });
+      expect(body).toEqual({
+        id: "testquestionid123",
+        message: "Question created.",
+      });
     });
   });
 
@@ -31,7 +36,7 @@ describe("POST /questions", () => {
     it("should return 409 with a conflict message", async () => {
       // Arrange
       const questionPayload = TestPayload.getCreateQuestionRequestBody();
-      dbMock.findOne = jest
+      dbMock.question.findFirst = jest
         .fn()
         .mockResolvedValue(TestPayload.getQuestionPayload());
 

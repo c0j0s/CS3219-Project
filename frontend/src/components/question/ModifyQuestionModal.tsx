@@ -16,6 +16,7 @@ import Question, { Example } from "@/types/question";
 import QuestionExamplesTable from "./QuestionExamplesTable";
 import QuestionConstrainsTable from "./QuestionConstrainsTable";
 import {
+  getQuestionById,
   postQuestion,
   updateQuestion,
 } from "@/helpers/question/question_api_wrappers";
@@ -25,15 +26,15 @@ export default function ModifyQuestionModal({
   isOpen,
   onOpenChange,
   closeCallback,
-  question,
+  questionId,
 }: {
   isOpen: boolean;
   onOpenChange: () => void;
   closeCallback: () => void;
-  question?: Question;
+  questionId?: string;
 }) {
   // component mode and const
-  const editMode = question != null;
+  const editMode = questionId != null;
   const topicSelections = Object.values(TOPIC).map((k) => ({ value: k }));
   const complexitySelections = Object.values(COMPLEXITY).map((k) => ({
     value: k,
@@ -49,25 +50,35 @@ export default function ModifyQuestionModal({
   const [complexity, setComplexity] = useState("EASY");
   const [topics, setTopics] = useState<string[]>([]);
   const [description, setDescription] = useState("");
-  const [constrains, setConstrains] = useState<string[]>([]);
+  const [constraints, setConstraints] = useState<string[]>([]);
   const [examples, setExamples] = useState<Example[]>([]);
   const [url, setUrl] = useState("");
+
+  const retrieveQuestionDetail = async (questionId: string) => {
+    try {
+      const question = (await getQuestionById(questionId)) as Question;
+      setId(question.id!);
+      setTitle(question.title);
+      setComplexity(question.complexity);
+      setTopics(question.topics);
+      setDescription(question.description);
+      if (question.constraints) {
+        setConstraints(question.constraints);
+      }
+      if (question.examples) {
+        setExamples(question.examples);
+      }
+      setUrl(question.url);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   // prefill form base on mode
   useEffect(() => {
     if (isOpen && editMode) {
-      console.log(
-        "[ModifyQuestionModal]: prefill form with qid:" + question?._id,
-      );
-
-      setId(question!._id!);
-      setTitle(question!.title);
-      setComplexity(question!.complexity);
-      setTopics(question!.topics);
-      setDescription(question!.description!);
-      setConstrains(question!.constraints!);
-      setExamples(question!.examples!);
-      setUrl(question!.url!);
+      console.log("[ModifyQuestionModal]: prefill form with qid:" + questionId);
+      retrieveQuestionDetail(questionId);
     } else {
       console.log("[ModifyQuestionModal]: close or open with empty form");
       setId("");
@@ -75,7 +86,7 @@ export default function ModifyQuestionModal({
       setComplexity("EASY");
       setTopics([]);
       setDescription("");
-      setConstrains([]);
+      setConstraints([]);
       setExamples([]);
       setError("");
       setUrl("");
@@ -89,23 +100,21 @@ export default function ModifyQuestionModal({
     setError("");
 
     try {
-      question = {
-        // id: id,
+      const question = {
         title: title.trim(),
         complexity: complexity,
         topics: Array.from(topics.values()),
         description: description.trim(),
         url: url.trim(),
+        constraints:
+          constraints.length > 0
+            ? constraints.filter((x) => x !== "")
+            : undefined,
+        examples:
+          examples.length > 0
+            ? examples.filter((x) => x.input !== "" && x.output !== "")
+            : undefined,
       };
-
-      constrains.length > 0
-        ? (question.constraints = constrains.filter((x) => x !== ""))
-        : {};
-      examples.length > 0
-        ? (question.examples = examples.filter(
-            (x) => x.input !== "" && x.output !== "",
-          ))
-        : {};
 
       const response = editMode
         ? await updateQuestion(id, question)
@@ -148,22 +157,6 @@ export default function ModifyQuestionModal({
                 <ModalBody>
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-row gap-2">
-                      {/* ID and Title fields */}
-                      {/* <Input
-                        name="id"
-                        type="number"
-                        label="No."
-                        labelPlacement="outside"
-                        placeholder="000"
-                        className="flex-none w-20"
-                        // isRequired
-                        value={id}
-                        isReadOnly={editMode}
-                        // onValueChange={(v) =>
-                        //   Number(v) > 0 ? setId(v) : setId("0")
-                        // }
-                        disabled={isLoading}
-                      ></Input> */}
                       <Input
                         name="title"
                         type="text"
@@ -244,8 +237,8 @@ export default function ModifyQuestionModal({
                     <div className="flex flex-row gap-2">
                       <div className="flex flex-col basis-1/2">
                         <QuestionConstrainsTable
-                          value={constrains}
-                          onValueChange={(v) => setConstrains(v)}
+                          value={constraints}
+                          onValueChange={(v) => setConstraints(v)}
                           disabled={isLoading}
                         ></QuestionConstrainsTable>
                       </div>

@@ -38,7 +38,7 @@ export default function QuestionConstrainsTable({
       ]);
     } else if (value[value.length - 2] === "") {
       setConstrains(
-        value.slice(0, -1).map((v, idx) => ({ id: idx, value: v })),
+        value.slice(0, -1).map((v, idx) => ({ id: idx, value: v }))
       );
     }
   }, [value, disabled]);

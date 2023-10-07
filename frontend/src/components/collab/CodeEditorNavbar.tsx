@@ -16,8 +16,7 @@ interface CodeEditorNavbarProps {
 const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
   handleResetToDefaultCode,
 }) => {
-  const { partner, matchedLanguage, roomId, socketService, isSocketConnected } =
-    useCollabContext();
+  const { partner, matchedLanguage, isSocketConnected } = useCollabContext();
   const language = matchedLanguage || "";
   const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
   const [isReady, setIsReady] = useState<boolean>(false);
@@ -58,7 +57,6 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
 
   return (
     <div className="flex items-center justify-between h-11 w-full">
-      {/* Show the coding language matched */}
       <div className="flex items-center m-2">
         <div className="text-lg">
           <Icons.BsFileEarmarkCode />
@@ -148,7 +146,7 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
               End Session
             </Button>
           </CodeEditorNavBarTooltip>
-          <EndSessionModal roomId={roomId} onClose={onClose} isOpen={isOpen} />
+          <EndSessionModal onClose={onClose} isOpen={isOpen} />
         </div>
       </div>
     </div>

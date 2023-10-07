@@ -97,7 +97,6 @@ const AuthProvider = ({ children }: IAuthProvider) => {
   };
 
   const isAuthenticated = () => {
-    console.log(user.id);
     return !!user.id;
   };
 

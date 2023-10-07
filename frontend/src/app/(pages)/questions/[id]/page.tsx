@@ -3,7 +3,7 @@ import Question from "@/types/question";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import parse from "html-react-parser";
-import ProblemDescription from "@/components/collab/ProblemDescription";
+import ProblemDescription from "@/components/common/ProblemDescription";
 import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
 
 async function getQuestion(id: string) {

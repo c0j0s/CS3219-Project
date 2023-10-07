@@ -1,11 +1,12 @@
 import { Response, Request } from "express";
-import { Example, Question } from "@/models/question";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
-import { convertStringToComplexity } from "../../lib/enums/Complexity";
-import { CreateQuestionValidator } from "../../lib/validators/CreateQuestionValidator";
-import questionDb from "../../models/database/schema/question";
+import {
+  CreateQuestionRequestBody,
+  CreateQuestionValidator,
+} from "../../lib/validators/CreateQuestionValidator";
 import { formatErrorMessage } from "../../lib/utils/errorUtils";
 import { ZodError } from "zod";
+import db from "../../models/db";
 
 export const postQuestion = async (request: Request, response: Response) => {
   try {
@@ -17,54 +18,51 @@ export const postQuestion = async (request: Request, response: Response) => {
       return;
     }
 
-    const createQuestionBody = CreateQuestionValidator.parse(request.body);
+    const createQuestionBody: CreateQuestionRequestBody =
+      CreateQuestionValidator.parse(request.body);
 
     // Make sure no duplicate question exists by checking the question name in the database
-    const duplicateCheck = await questionDb.findOne({
-      title: createQuestionBody.title,
+    const existingQuestion = await db.question.findFirst({
+      where: {
+        title: createQuestionBody.title,
+      },
     });
 
-    if (duplicateCheck) {
+    if (existingQuestion) {
       response
         .status(HttpStatusCode.CONFLICT)
         .json({ error: "CONFLICT", message: "Question title already exists" });
       return;
     }
 
-    // TODO: make sure when we insert new data to the db, we also provide id, author and createdOn
-    const question: Question = {
-      // id: nanoid(),
-      title: createQuestionBody.title,
-      description: createQuestionBody.description,
-      topics: createQuestionBody.topics,
-      complexity: convertStringToComplexity(createQuestionBody.complexity),
-      url: createQuestionBody.url,
-      createdOn: Date.now(),
-      // author must be the current user, to be implemented
-      author: createQuestionBody.author || "LeetCode",
-    };
+    // insert new question to database
+    const newQuestion = await db.question.create({
+      data: {
+        title: createQuestionBody.title,
+        description: createQuestionBody.description,
+        topics: createQuestionBody.topics,
+        complexity: createQuestionBody.complexity,
+        url: createQuestionBody.url,
+        author: createQuestionBody.author,
+        constraints: createQuestionBody.constraints,
+      },
+    });
 
-    if (createQuestionBody.examples) {
-      const examples: Example[] = createQuestionBody.examples.map((example) => {
-        return {
+    // insert examples if any
+    if (createQuestionBody.examples && createQuestionBody.examples.length > 0) {
+      await db.example.createMany({
+        data: createQuestionBody.examples.map((example) => ({
+          questionId: newQuestion.id,
           input: example.input,
           output: example.output,
           explanation: example.explanation,
-        } as Example;
+        })),
       });
-      question.examples = examples;
     }
-
-    if (createQuestionBody.constraints) {
-      question.constraints = createQuestionBody.constraints;
-    }
-
-    // insert new question to database
-    await questionDb.create(question);
 
     response
       .status(HttpStatusCode.CREATED)
-      .json({ message: "Question created." });
+      .json({ id: newQuestion.id, message: "Question created." });
   } catch (error) {
     if (error instanceof ZodError) {
       response

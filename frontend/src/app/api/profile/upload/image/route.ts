@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
       file.type,
       fileBuffer
     );
-    console.log(imageUrl);
+
     return NextResponse.json({ imageUrl }, { status: HttpStatusCode.OK });
   } catch (error: any) {
     console.log(error);

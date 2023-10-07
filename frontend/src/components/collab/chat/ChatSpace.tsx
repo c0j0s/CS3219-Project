@@ -7,7 +7,6 @@ import { Button, Divider } from "@nextui-org/react";
 import ProfilePictureAvatar from "@/components/common/ProfilePictureAvatar";
 import { useCollabContext } from "@/contexts/collab";
 import ChatMessage from "@/types/chat_message";
-import { v4 as uuid } from "uuid";
 
 interface IChatSpaceProps {
   onClose: () => void;
@@ -23,7 +22,6 @@ const ChatSpace = ({ onClose }: IChatSpaceProps) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   const [newMessage, setNewMessages] = useState<ChatMessage>({
-    uuid: "",
     content: "",
     senderId: "",
   });
@@ -39,12 +37,9 @@ const ChatSpace = ({ onClose }: IChatSpaceProps) => {
   }, []);
 
   useEffect(() => {
-    if (
-      newMessage.content !== "" &&
-      newMessage.uuid != messages[messages.length - 1]?.uuid
-    ) {
+    if (newMessage.content !== "" && newMessage.senderId !== user.id) {
       setMessages([...messages, newMessage]);
-      setNewMessages({ uuid: "", content: "", senderId: "" });
+      setNewMessages({ content: "", senderId: "" });
       scrollToNewestMessage();
     }
   }, [newMessage]);
@@ -58,7 +53,6 @@ const ChatSpace = ({ onClose }: IChatSpaceProps) => {
     }
 
     const message = {
-      uuid: uuid(),
       content: messageContent,
       senderId: user.id!,
     };
@@ -92,7 +86,11 @@ const ChatSpace = ({ onClose }: IChatSpaceProps) => {
         {
           <ul className="space-y-3 px-4">
             {messages.map((item) => (
-              <ChatBubble message={item} isSelf={item.senderId === user.id!} />
+              <ChatBubble
+                key={crypto.randomUUID()}
+                message={item}
+                isSelf={item.senderId === user.id!}
+              />
             ))}
           </ul>
         }

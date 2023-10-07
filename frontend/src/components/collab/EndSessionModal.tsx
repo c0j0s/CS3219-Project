@@ -1,6 +1,7 @@
 "use client";
 
 import { CLIENT_ROUTES } from "@/common/constants";
+import { useCollabContext } from "@/contexts/collab";
 import {
   Button,
   Divider,
@@ -13,22 +14,25 @@ import {
 import { useRouter } from "next/navigation";
 
 interface EndSessionModalProps {
-  roomId: string;
   isOpen: boolean;
   onClose: () => void;
 }
 
 export default function EndSessionModal({
-  roomId,
   isOpen,
   onClose,
 }: EndSessionModalProps) {
   const router = useRouter();
 
+  const { handleDisconnectFromRoom } = useCollabContext();
+
   const handleTerminateSession = () => {
     // assume we can exit the room by calling an endpoint provided in either collab or matching
-    console.log(`Quit room ${roomId}`);
+    console.log("disconnecting from room");
+    handleDisconnectFromRoom();
+
     onClose();
+
     router.push(CLIENT_ROUTES.HOME);
   };
 

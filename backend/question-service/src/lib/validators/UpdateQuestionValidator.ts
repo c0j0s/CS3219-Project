@@ -20,22 +20,14 @@ export const UpdateQuestionValidator = z.object({
   examples: z
     .array(
       z.object({
-        input: z.string().min(1).max(1000),
+        input: z.string().min(1).max(10000),
         output: z.string().min(1).max(1000),
         explanation: z.string().min(3).max(10000).optional(),
       })
     )
-    .refine((arr) => arr === undefined || arr.length > 0, {
-      message: "At least one example is required.",
-    })
     .optional(),
   // constraints can be optional, but if it exists, it must have at least one constraint
-  constraints: z
-    .array(z.string())
-    .refine((arr) => arr === undefined || arr.length > 0, {
-      message: "At least one example is required.",
-    })
-    .optional(),
+  constraints: z.array(z.string()).optional(),
 });
 
 export type UpdateQuestionRequestBody = z.infer<typeof UpdateQuestionValidator>;

@@ -31,7 +31,7 @@ export default function QuestionTable({
 }) {
   const columns = [
     {
-      key: "_id",
+      key: "id",
       label: "NO.",
       class: "",
     },
@@ -64,12 +64,12 @@ export default function QuestionTable({
     const cellValue = item[columnKey as keyof Question];
 
     switch (columnKey) {
-      case "_id":
-        return questions.findIndex((x) => x._id == cellValue) + 1;
+      case "id":
+        return questions.findIndex((x) => x.id == cellValue) + 1;
       case "title":
         return (
           <>
-            <Link href={`${CLIENT_ROUTES.QUESTIONS}/${item._id}`}>
+            <Link href={`${CLIENT_ROUTES.QUESTIONS}/${item.id}`}>
               {cellValue as string}
             </Link>
           </>
@@ -105,7 +105,7 @@ export default function QuestionTable({
         }
         return (
           <div className="relative flex items-center gap-2">
-            <Tooltip content={<>{parse(item.description)}</>} delay={1000}>
+            <Tooltip content={<>{parse(item.title)}</>} delay={1000}>
               <span className="text-lg text-default-400 cursor-pointer active:opacity-50 w-8 h-8 p-1.5">
                 <Icons.FiEye />
               </span>
@@ -118,7 +118,7 @@ export default function QuestionTable({
                 <Icons.FiEdit />
               </span>
             </Tooltip>
-            <DeleteQuestion id={item["_id"]}></DeleteQuestion>
+            <DeleteQuestion id={item["id"]}></DeleteQuestion>
           </div>
         );
       default:
@@ -140,7 +140,7 @@ export default function QuestionTable({
       <ModifyQuestionModal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
-        question={toEditQuestion}
+        questionId={toEditQuestion?.id}
         closeCallback={onClose}
       ></ModifyQuestionModal>
       <Table
@@ -162,7 +162,7 @@ export default function QuestionTable({
         </TableHeader>
         <TableBody items={questions} emptyContent={"No rows to display."}>
           {(row) => (
-            <TableRow key={row._id}>
+            <TableRow key={row.id}>
               {(columnKey) => (
                 <TableCell>
                   {renderCell(row, columnKey as string, false)}

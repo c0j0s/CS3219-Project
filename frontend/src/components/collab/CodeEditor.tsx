@@ -1,6 +1,6 @@
 import { useCollabContext } from "@/contexts/collab";
 import { Editor } from "@monaco-editor/react";
-import { FC, RefObject, useEffect, useState } from "react";
+import { FC } from "react";
 
 interface CodeEditorProps {
   currentCode: string;

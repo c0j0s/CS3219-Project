@@ -28,6 +28,7 @@ export async function getQuestionList(): Promise<Question[]> {
     method: HTTP_METHODS.GET,
     service: service,
     tags: scope,
+    cache: "no-cache",
   });
 
   if (res.status === 200) {

@@ -1,11 +1,11 @@
 import supertest from "supertest";
 import createServer from "../utils/server";
-import questionDb from "../../models/database/schema/question";
 import * as TestPayload from "../utils/payloads";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
+import db from "../../models/db";
 
 const app = createServer();
-const dbMock = questionDb as jest.Mocked<typeof questionDb>;
+const dbMock = db as jest.Mocked<typeof db>;
 
 describe("PUT /api/questions/:questionId", () => {
   describe("Given a valid request body", () => {
@@ -14,11 +14,14 @@ describe("PUT /api/questions/:questionId", () => {
       const questionId = "existingquestionid123";
       const updateQuestionRequestBody =
         TestPayload.getCreateQuestionRequestBody();
-      dbMock.findById = jest
+      const question = TestPayload.getQuestionPayload(questionId);
+      dbMock.question.findFirst = jest
         .fn()
-        .mockResolvedValue(TestPayload.getQuestionPayload(questionId));
-      dbMock.findOne = jest.fn().mockResolvedValue(null);
-      dbMock.updateOne = jest.fn().mockResolvedValue(null);
+        .mockResolvedValueOnce(question)
+        .mockResolvedValue(null);
+      dbMock.question.update = jest.fn().mockResolvedValue(null);
+      dbMock.example.deleteMany = jest.fn().mockResolvedValue(null);
+      dbMock.example.createMany = jest.fn().mockResolvedValue(null);
 
       // Act
       const { statusCode } = await supertest(app)
@@ -36,7 +39,7 @@ describe("PUT /api/questions/:questionId", () => {
       const questionId = "nonexistingquestionid123";
       const updateQuestionRequestBody =
         TestPayload.getCreateQuestionRequestBody();
-      dbMock.findById = jest.fn().mockResolvedValue(null);
+      dbMock.question.findFirst = jest.fn().mockResolvedValue(null);
 
       // Act
       const { body, statusCode } = await supertest(app)
@@ -58,11 +61,9 @@ describe("PUT /api/questions/:questionId", () => {
       const questionId = "existingquestionid123";
       const updateQuestionRequestBody =
         TestPayload.getCreateQuestionRequestBody();
-      dbMock.findById = jest
+      dbMock.question.findFirst = jest
         .fn()
-        .mockResolvedValue(TestPayload.getQuestionPayload(questionId));
-      dbMock.findOne = jest
-        .fn()
+        .mockResolvedValueOnce(TestPayload.getQuestionPayload(questionId))
         .mockResolvedValue(TestPayload.getQuestionPayload());
 
       // Act
@@ -86,7 +87,7 @@ describe("PUT /api/questions/:questionId", () => {
       const updateQuestionRequestBody =
         TestPayload.getCreateQuestionRequestBody();
       updateQuestionRequestBody.description = "a";
-      dbMock.findById = jest
+      dbMock.question.findFirst = jest
         .fn()
         .mockResolvedValue(TestPayload.getQuestionPayload(questionId));
 

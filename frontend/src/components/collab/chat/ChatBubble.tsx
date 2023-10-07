@@ -8,11 +8,9 @@ interface ChatBubbleProps {
 const ChatBubble = ({ message, isSelf }: ChatBubbleProps) => {
   return (
     <li
-      key={message.uuid}
       className={`flex items-center ${isSelf ? "ml-10 justify-end" : "mr-10"}`}
     >
       <p
-        key={message.uuid}
         className={`${
           isSelf
             ? "bg-yellow text-black text-sm"
