@@ -4,6 +4,7 @@ import { Socket } from "socket.io";
 import cors, { corsOptions } from "./middleware/cors";
 import { SocketEvent } from "./lib/enums/SocketEvent";
 import { SocketHandler } from "./controllers";
+import { Redis } from 'ioredis';
 
 dotenv.config();
 

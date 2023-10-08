@@ -6,4 +6,6 @@ export enum SocketEvent {
   CODE_UPDATE = "code_update",
   SEND_CHAT_MESSAGE = "send_chat_message",
   UPDATE_CHAT_MESSAGE = "update_chat_message",
+  END_SESSION = "end_session",
+  SESSION_TIMER = "session_timer",
 }

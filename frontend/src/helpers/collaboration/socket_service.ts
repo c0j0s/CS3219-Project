@@ -6,9 +6,11 @@ import { Socket, io } from "socket.io-client";
 class SocketService {
   socket: Socket;
   roomId: string;
+  partnerId: string;
 
-  constructor(roomId: string, endpoint: string, path: string) {
+  constructor(roomId: string, endpoint: string, path: string, partnerId: string) {
     this.roomId = roomId;
+    this.partnerId = partnerId
     this.socket = this.createSocket(endpoint, path);
     this.connectToService();
     this.joinRoom();
@@ -33,7 +35,17 @@ class SocketService {
   }
 
   joinRoom = () => {
-    this.socket.emit(SocketEvent.JOIN_ROOM, this.roomId);
+
+    var sessionEnd = new Date();
+    sessionEnd.setHours(sessionEnd.getHours() + 1); // 1 hour from now
+
+    console.log(`Session end timer sent to backend: ${sessionEnd}`)
+
+    this.socket.emit(SocketEvent.JOIN_ROOM, { 
+      roomId: this.roomId,
+      endSession: sessionEnd,
+      partnerId: this.partnerId
+    });
   };
 
   leaveRoom = () => {
@@ -54,6 +66,14 @@ class SocketService {
       setCurrentCode(content);
     });
   };
+
+  receiveSessionTimer = (
+    setSessionTimer: React.Dispatch<React.SetStateAction<Date>>
+  ) => {
+    this.socket.on(SocketEvent.SESSION_TIMER, (endSession: string) => {
+      setSessionTimer(new Date(endSession));
+    });
+  }
 
   sendChatMessage = (message: ChatMessage) => {
     this.socket.emit(SocketEvent.SEND_CHAT_MESSAGE, {

@@ -17,7 +17,7 @@ interface ICollabContext {
     partnerId: string,
     matchedLanguage: string
   ) => Promise<void>;
-  initializeSocket: (roomId: string) => Promise<void>;
+  initializeSocket: (roomId: string, partnerId: string) => Promise<void>;
   handleDisconnectFromRoom: () => void;
   isLoading: boolean;
   socketService: SocketService | undefined;
@@ -63,11 +63,11 @@ const CollabProvider = ({ children }: ICollabProvider) => {
   const [matchedLanguage, setMatchedLanguage] = useState<string>("");
   const [isNotFoundError, setIsNotFoundError] = useState<boolean>(false);
 
-  const initializeSocket = async (roomId: string) => {
+  const initializeSocket = async (roomId: string, partnerId: string) => {
     setRoomId(roomId);
 
     const config = await getCollaborationSocketConfig();
-    const newSocket = new SocketService(roomId, config.endpoint, config.path);
+    const newSocket = new SocketService(roomId, config.endpoint, config.path, partnerId);
     setSocketService(newSocket);
 
     if (intervalRef.current) {
@@ -140,7 +140,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
         return;
       }
 
-      await initializeSocket(roomId);
+      await initializeSocket(roomId, partnerId);
     } catch (error) {
       console.log(error);
     } finally {
