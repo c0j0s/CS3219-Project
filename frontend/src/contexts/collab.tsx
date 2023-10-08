@@ -17,7 +17,7 @@ interface ICollabContext {
     partnerId: string,
     matchedLanguage: string
   ) => Promise<void>;
-  initializeSocket: (roomId: string, partnerId: string) => Promise<void>;
+  initializeSocket: (roomId: string, partnerId: string, questionId: string, language: string) => Promise<void>;
   handleDisconnectFromRoom: () => void;
   isLoading: boolean;
   socketService: SocketService | undefined;
@@ -36,7 +36,7 @@ interface ICollabProvider {
 
 const CollabContext = createContext<ICollabContext>({
   handleConnectToRoom: async (roomId: string) => {},
-  initializeSocket: async (roomId: string) => {},
+  initializeSocket: async (roomId: string, partnerId: string, questionId: string, language: string) => {},
   handleDisconnectFromRoom: () => {},
   isLoading: false,
   socketService: undefined,
@@ -62,12 +62,28 @@ const CollabProvider = ({ children }: ICollabProvider) => {
   const [question, setQuestion] = useState<Question>();
   const [matchedLanguage, setMatchedLanguage] = useState<string>("");
   const [isNotFoundError, setIsNotFoundError] = useState<boolean>(false);
+  const [endSessionState, setEndSessionState] = useState(
+    { 
+      partnerId: "", 
+      questionId: "", 
+      matchedLanguage: "", 
+      code: "",
+      date: new Date(),
+    }
+  );
 
-  const initializeSocket = async (roomId: string, partnerId: string) => {
+  const initializeSocket = async (roomId: string, partnerId: string, questionId: string, language: string) => {
     setRoomId(roomId);
 
     const config = await getCollaborationSocketConfig();
-    const newSocket = new SocketService(roomId, config.endpoint, config.path, partnerId);
+    const newSocket = new SocketService(
+      roomId, 
+      config.endpoint, 
+      config.path, 
+      partnerId,
+      questionId,
+      language,
+    );
     setSocketService(newSocket);
 
     if (intervalRef.current) {
@@ -140,7 +156,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
         return;
       }
 
-      await initializeSocket(roomId, partnerId);
+      await initializeSocket(roomId, partnerId, questionId, matchedLanguage);
     } catch (error) {
       console.log(error);
     } finally {

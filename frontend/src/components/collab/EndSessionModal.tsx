@@ -12,6 +12,7 @@ import {
   ModalHeader,
 } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface EndSessionModalProps {
   isOpen: boolean;
@@ -24,7 +25,29 @@ export default function EndSessionModal({
 }: EndSessionModalProps) {
   const router = useRouter();
 
-  const { handleDisconnectFromRoom } = useCollabContext();
+  const { handleDisconnectFromRoom, socketService } = useCollabContext();
+
+  const [endSessionState, setEndSessionState] = useState(
+    { 
+      partnerId: "", 
+      questionId: "", 
+      matchedLanguage: "", 
+      code: "",
+      date: new Date(),
+    }
+  );
+
+  useEffect(() => {
+    if (socketService) {
+      // Ping to get details to end session:
+      if (isOpen) {
+        socketService.endSession();
+      }
+      // Retrieve current state before ending session
+      socketService.receiveEndSession(setEndSessionState);
+    }
+  }, [])
+
 
   const handleTerminateSession = () => {
     // assume we can exit the room by calling an endpoint provided in either collab or matching

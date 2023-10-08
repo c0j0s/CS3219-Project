@@ -1,53 +1,51 @@
 import { Server, Socket } from "socket.io";
 import { SocketEvent } from "../../lib/enums/SocketEvent";
-import { Redis } from 'ioredis';
-
+import { RedisHandler } from "./redis-handler";
 import { redis } from '../../models/db';
 
 /** 
- <roomid>_details: {
-  end_session: Date()
-  partner: string,
-}
-
-<roomid>_content: string
-
+ * Redis Schema
+ * 
+ * Room details:
+ * <roomid>_details: {
+ *  end_session: Date()
+ *  partner: string,
+ * }
+ * 
+ * Room content:
+ * <roomid>_content: string
+ *
+ * Chat messages:
+ * <roomid>_messages: { TBD }
+ * 
 */
 
 export const SocketHandler = (socket: Socket) => {
+
   console.log("user connected", socket.id);
 
   socket.on(SocketEvent.JOIN_ROOM, async (
     joinDict: { 
       roomId: string, 
       endSession: Date, 
-      partnerId: string
+      partnerId: string,
+      questionId: string,
+      language: string,
     }
     ) => {
-
-      // Join the roomId
-      socket.join(joinDict.roomId);
-
-      // Check redis cache
-      await checkCachedContent(joinDict, socket);
-      await checkCachedRoomDetails(joinDict, socket);
+      await handleJoinRoom(socket, joinDict);
     }
   );
 
   socket.on(
     SocketEvent.CODE_CHANGE,
     (editorDict: { roomId: string; content: string }) => {
-
-      // Emit code changes to client
-      emitCodeChange(socket, editorDict.roomId, editorDict.content);
-
-      // Set new code change within cache
-      setCodeChange(editorDict.roomId, editorDict.content);
+      handleCodeChange(socket, editorDict);
     }
   );
 
   socket.on(SocketEvent.END_SESSION, (roomID) => {
-    // Handle leave room functionality
+    handleEndSession(socket, roomID);
   });
 
   socket.on(SocketEvent.DISCONNECT, () => {
@@ -60,43 +58,87 @@ export const SocketHandler = (socket: Socket) => {
       roomId: string;
       message: { uuid: string; content: string; senderId: string };
     }) => {
-      emitChatMessage(socket, messageDict.roomId, messageDict.message);
+      handleChatMessage(socket, messageDict);
     }
   );
 };
 
+/**
+ * Handles joining of room and emits session timer back to client (if applicable)
+ * @param socket 
+ * @param joinDict 
+ */
+async function handleJoinRoom(socket: Socket, joinDict: { roomId: string; endSession: Date; partnerId: string; }) {
+  socket.join(joinDict.roomId);
 
-function emitChatMessage(socket: Socket, roomId: string, message: { uuid: string; content: string; senderId: string; }) {
-  socket.to(roomId).emit(SocketEvent.UPDATE_CHAT_MESSAGE, {
-    uuid: message.uuid,
-    content: message.content,
-    senderId: message.senderId,
-  });
-}
-
-// Utility functions
-
-async function checkCachedRoomDetails(joinDict: { roomId: string; endSession: Date; partnerId: string; }, socket: Socket) {
-  let cachedRoomDetails = await getRoomDetails(joinDict.roomId);
-
-  if (cachedRoomDetails) {
-    let roomDetails = JSON.parse(cachedRoomDetails);
-    emitSessionTimer(socket, joinDict.roomId, roomDetails.endSession);
-  } else {
-    setRoomDetails(redis, joinDict.roomId, joinDict.endSession, joinDict.partnerId);
-    emitSessionTimer(socket, joinDict.roomId, joinDict.endSession);
-  }
-}
-
-async function checkCachedContent(joinDict: { roomId: string; endSession: Date; partnerId: string; }, socket : Socket) {
-  let cachedEditorContent = await getEditorContent(joinDict.roomId);
+  // Check redis cache for Editor content
+  let cachedEditorContent = await RedisHandler.getEditorContent(joinDict.roomId);
 
   if (cachedEditorContent) {
     emitCodeChange(socket, joinDict.roomId, cachedEditorContent);
   }
+
+  let cachedRoomDetails = await RedisHandler.getRoomDetails(joinDict.roomId);
+
+  // Check for room details from cache (namely end time)
+  if (cachedRoomDetails) {
+    let roomDetails = JSON.parse(cachedRoomDetails);
+    emitSessionTimer(socket, joinDict.roomId, roomDetails.endSession);
+  } else {
+    RedisHandler.setRoomDetails(joinDict.roomId, joinDict.endSession, joinDict.partnerId);
+    emitSessionTimer(socket, joinDict.roomId, joinDict.endSession);
+  }
 }
 
-// Socket handler functions
+/**
+ * Emits code change back to client and stores to cache
+ * @param socket 
+ * @param editorDict 
+ */
+function handleCodeChange(socket: Socket, editorDict: { roomId: string; content: string; }) {
+  emitCodeChange(socket, editorDict.roomId, editorDict.content);
+
+  // Set new code change within cache
+  RedisHandler.setCodeChange(editorDict.roomId, editorDict.content);
+}
+
+/**
+ * Emits chat messages back to client and stores to cache
+ * @param socket socket instance
+ * @param messageDict message dictionay
+ */
+
+function handleChatMessage(socket: Socket, messageDict: { roomId: string; message: { uuid: string; content: string; senderId: string; }; }) {
+  emitChatMessage(socket, messageDict.roomId, messageDict.message);
+  // TODO: Write to cache
+}
+
+async function handleEndSession(socket: Socket, roomId: string) {
+  let editorContent = await RedisHandler.getEditorContent(roomId);
+  let roomDetails = await RedisHandler.getRoomDetails(roomId);
+  emitEndSession(
+    socket, 
+    {
+      code: editorContent!,
+      endSession: JSON.parse(roomDetails!).endSession,
+    }
+  )
+}
+
+/**
+ *  Socket functions
+ */
+
+function emitEndSession(
+    socket: Socket, 
+    roomDetails: {
+      code: string,
+      endSession: Date,
+    }
+  ) {
+    // Return relevant room details to client
+    socket.emit(SocketEvent.END_SESSION, roomDetails);
+}
 
 function emitCodeChange(socket: Socket, roomId: string, content: string) {
   socket
@@ -108,23 +150,10 @@ function emitSessionTimer(socket: Socket, roomId: string, sessionTimer: Date) {
   socket.to(roomId).emit(SocketEvent.SESSION_TIMER, sessionTimer);
 }
 
-// Redis handler functions
-
-async function getEditorContent(roomId: string) {
-  return await redis.get(`${roomId}_content`);
-}
-
-async function getRoomDetails(roomId: string) {
-  return await redis.get(`${roomId}_roomDetails`);
-}
-
-function setRoomDetails(redis: Redis, roomId: string, endSession: Date, partnerId: string) {
-  redis.set(`${roomId}_roomDetails`, JSON.stringify({
-    endSession: endSession,
-    partnerId: partnerId
-  }));
-}
-
-function setCodeChange(roomId: string, content: string) {
-  redis.set(`${roomId}_content`, content);
+function emitChatMessage(socket: Socket, roomId: string, message: { uuid: string; content: string; senderId: string; }) {
+  socket.to(roomId).emit(SocketEvent.UPDATE_CHAT_MESSAGE, {
+    uuid: message.uuid,
+    content: message.content,
+    senderId: message.senderId,
+  });
 }

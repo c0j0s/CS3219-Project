@@ -1,16 +1,28 @@
 "use strict";
 import ChatMessage from "@/types/chat_message";
 import { SocketEvent } from "@/types/enums";
+import { SetStateAction } from "react";
 import { Socket, io } from "socket.io-client";
 
 class SocketService {
-  socket: Socket;
-  roomId: string;
-  partnerId: string;
+  private socket: Socket;
+  private roomId: string;
+  private partnerId: string;
+  private questionId: string;
+  private language: string;
 
-  constructor(roomId: string, endpoint: string, path: string, partnerId: string) {
+  constructor(
+      roomId: string, 
+      endpoint: string, 
+      path: string, 
+      partnerId: string,
+      questionId: string,
+      language: string,
+    ) {
     this.roomId = roomId;
-    this.partnerId = partnerId
+    this.partnerId = partnerId;
+    this.questionId = questionId;
+    this.language = language;
     this.socket = this.createSocket(endpoint, path);
     this.connectToService();
     this.joinRoom();
@@ -89,6 +101,32 @@ class SocketService {
       setNewMessages(message);
     });
   };
+
+  endSession = () => {
+    this.socket.emit(SocketEvent.END_SESSION, this.roomId);
+  };
+
+  receiveEndSession = (setEndSessionState: React.Dispatch<SetStateAction<{
+      partnerId: string;
+      questionId: string;
+      matchedLanguage: string;
+      code: string;
+      date: Date;
+    }>>) => {
+    this.socket.on(SocketEvent.END_SESSION, ( cachedDetails: {
+      code: string,
+      date: Date,
+    }) => {
+      console.log(`Session ended with code ${cachedDetails.code} at ${cachedDetails.date}`);
+      setEndSessionState({
+        partnerId: this.partnerId,
+        questionId: this.questionId,
+        matchedLanguage: this.language,
+        code: cachedDetails.code,
+        date: cachedDetails.date,
+      });
+    });
+  }
 }
 
 export default SocketService;
