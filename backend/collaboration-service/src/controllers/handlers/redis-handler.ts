@@ -18,10 +18,20 @@ function setRoomDetails(roomId: string, endSession: Date, partnerId: string) {
 function setCodeChange(roomId: string, content: string) {
     redis.set(`${roomId}_content`, content);
 }
-  
+
+function delCodeChange(roomId: string) {
+    redis.del(`${roomId}_content`);
+}
+
+function delRoomDetails(roomId: string) {
+    redis.del(`${roomId}_roomDetails`);
+}
+
 export const RedisHandler = {
     getEditorContent,
     getRoomDetails,
     setRoomDetails,
-    setCodeChange
+    setCodeChange,
+    delCodeChange,
+    delRoomDetails
 }

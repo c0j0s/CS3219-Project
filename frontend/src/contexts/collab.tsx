@@ -160,23 +160,31 @@ const CollabProvider = ({ children }: ICollabProvider) => {
         getQuestionById(questionId),
       ];
 
-      const responses = await Promise.all(promises);
+      Promise.all(promises)
+      .then((responses) => {
+        const partner = responses[0] as User;
+        const question = responses[1] as Question;
 
-      const partner = responses[0] as User;
-      const question = responses[1] as Question;
+        if (!partner || !question) {
+          setIsNotFoundError(true);
+          return;
+        }
 
-      if (!partner || !question) {
+        setPartner(partner);
+        setQuestion(question);
+      })
+      .catch((error) => {
         setIsNotFoundError(true);
+      });
+
+      if (isNotFoundError) {
         return;
       }
 
-      setPartner(partner);
-      setQuestion(question);
       await initializeSocket(roomId, partnerId, questionId, matchedLanguage);
 
     } catch (error) {
       console.log(error);
-      setIsNotFoundError(true);
     } finally {
       setIsLoading(false);
     }
@@ -192,6 +200,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
     }) => {
     // Leave room
     if (socketService) {
+      
       socketService.leaveRoom();
       setSocketService(undefined);
       // We are able to obtain the end session state from endSessionState with the use of context.

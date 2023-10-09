@@ -72,6 +72,7 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
   useEffect(() => {
     if (partner && receivedSessionTimer) {
       setIsReady(true);
+      console.log("setting isReady")
     }
   }, [partner]);
 

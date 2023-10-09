@@ -48,6 +48,10 @@ export const SocketHandler = (socket: Socket) => {
     handleEndSession(socket, roomID);
   });
 
+  socket.on((SocketEvent.CONFIRM_END_SESSION), (roomID) => {
+    clearSessionDetails(roomID);
+  })
+
   socket.on(
     SocketEvent.SEND_CHAT_MESSAGE,
     (messageDict: {
@@ -127,6 +131,11 @@ async function handleEndSession(socket: Socket, roomId: string) {
       endSession: JSON.parse(roomDetails!).endSession,
     }
   )
+}
+
+async function clearSessionDetails(roomId: string) {
+  RedisHandler.delCodeChange(roomId);
+  RedisHandler.delRoomDetails(roomId);
 }
 
 /**
