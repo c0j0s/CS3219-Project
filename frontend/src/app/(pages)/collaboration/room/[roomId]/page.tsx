@@ -34,8 +34,7 @@ const page: FC<pageProps> = ({ params: { roomId } }) => {
     }
 
     return () => {
-      console.log("disconnecting from room");
-      handleDisconnectFromRoom();
+      handleDisconnectFromRoom({ partnerId, questionId, matchedLanguage: language, code: "", date: new Date() });
     };
   }, []);
 

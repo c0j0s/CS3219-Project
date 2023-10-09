@@ -1,6 +1,7 @@
 import { BsFileEarmarkCode } from "react-icons/bs";
 import { RxReset } from "react-icons/rx";
 import { BiExitFullscreen, BiFullscreen } from "react-icons/bi";
+import { FaUserSlash } from "react-icons/fa";
 import {
   FiCodepen,
   FiEdit,
@@ -33,4 +34,5 @@ export const Icons = {
   FiEdit,
   MdSignalWifiConnectedNoInternet0,
   MdSignalWifiStatusbar4Bar,
+  FaUserSlash,
 };

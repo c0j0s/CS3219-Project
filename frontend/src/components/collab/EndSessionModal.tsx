@@ -17,11 +17,13 @@ import { useEffect, useState } from "react";
 interface EndSessionModalProps {
   isOpen: boolean;
   onClose: () => void;
+  hasSessionTimerEnded: boolean;
 }
 
 export default function EndSessionModal({
   isOpen,
   onClose,
+  hasSessionTimerEnded,
 }: EndSessionModalProps) {
   const router = useRouter();
 
@@ -46,16 +48,13 @@ export default function EndSessionModal({
       // Retrieve current state before ending session
       socketService.receiveEndSession(setEndSessionState);
     }
-  }, [])
+  }, [isOpen, socketService])
 
 
   const handleTerminateSession = () => {
     // assume we can exit the room by calling an endpoint provided in either collab or matching
-    console.log("disconnecting from room");
-    handleDisconnectFromRoom();
-
+    handleDisconnectFromRoom(endSessionState);
     onClose();
-
     router.push(CLIENT_ROUTES.HOME);
   };
 
@@ -65,22 +64,41 @@ export default function EndSessionModal({
         <ModalContent>
           {(onClose) => (
             <>
-              <ModalHeader>Terminate current session</ModalHeader>
-              <Divider className="mb-1" />
-              <ModalBody>
-                <p>
-                  Are you sure you want to exit the current sesion? THis action
-                  is irreversible.
-                </p>
-              </ModalBody>
-              <ModalFooter className="mt-2">
-                <Button color="primary" onClick={onClose}>
-                  Cancel
-                </Button>
-                <Button color="danger" onClick={handleTerminateSession}>
-                  Terminate
-                </Button>
-              </ModalFooter>
+              { hasSessionTimerEnded ? 
+              <>
+                <ModalHeader>Session has expired</ModalHeader>
+                <Divider className="mb-1" />
+                <ModalBody>
+                  <p>
+                    Your session has ended. Thank you for using PeerPrep!
+                  </p>
+                </ModalBody>
+                <ModalFooter className="mt-2">
+                  <Button color="danger" onClick={handleTerminateSession}>
+                    Back to dashboard
+                  </Button>
+                </ModalFooter>
+              </>
+              : 
+              <>
+                <ModalHeader>Terminate current session</ModalHeader>
+                <Divider className="mb-1" />
+                <ModalBody>
+                  <p>
+                    Are you sure you want to exit the current sesion? THis action
+                    is irreversible.
+                  </p>
+                </ModalBody>
+                <ModalFooter className="mt-2">
+                  <Button color="primary" onClick={onClose}>
+                    Cancel
+                  </Button>
+                  <Button color="danger" onClick={handleTerminateSession}>
+                    Terminate
+                  </Button>
+                </ModalFooter>
+              </>
+              }
             </>
           )}
         </ModalContent>

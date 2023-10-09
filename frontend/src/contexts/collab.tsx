@@ -18,7 +18,13 @@ interface ICollabContext {
     matchedLanguage: string
   ) => Promise<void>;
   initializeSocket: (roomId: string, partnerId: string, questionId: string, language: string) => Promise<void>;
-  handleDisconnectFromRoom: () => void;
+  handleDisconnectFromRoom: (endSessionState: {
+    partnerId: string, 
+    questionId: string, 
+    matchedLanguage: string, 
+    code: string,
+    date: Date,
+  }) => void;
   isLoading: boolean;
   socketService: SocketService | undefined;
   isSocketConnected: boolean;
@@ -28,6 +34,13 @@ interface ICollabContext {
   question: Question | undefined;
   matchedLanguage: string;
   isNotFoundError: boolean;
+  endSessionState: {
+    partnerId: string, 
+    questionId: string, 
+    matchedLanguage: string, 
+    code: string,
+    date: Date,
+  }
 }
 
 interface ICollabProvider {
@@ -37,7 +50,13 @@ interface ICollabProvider {
 const CollabContext = createContext<ICollabContext>({
   handleConnectToRoom: async (roomId: string) => {},
   initializeSocket: async (roomId: string, partnerId: string, questionId: string, language: string) => {},
-  handleDisconnectFromRoom: () => {},
+  handleDisconnectFromRoom: (endSessionState: {
+    partnerId: string, 
+    questionId: string, 
+    matchedLanguage: string, 
+    code: string,
+    date: Date,
+  }) => {},  
   isLoading: false,
   socketService: undefined,
   isSocketConnected: false,
@@ -47,6 +66,13 @@ const CollabContext = createContext<ICollabContext>({
   question: undefined,
   matchedLanguage: "",
   isNotFoundError: false,
+  endSessionState: {
+    partnerId: "", 
+    questionId: "", 
+    matchedLanguage: "", 
+    code: "",
+    date: new Date(),
+  }
 });
 
 const useCollabContext = () => useContext(CollabContext);
@@ -71,6 +97,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
       date: new Date(),
     }
   );
+  const [isPartnerConnected, setIsPartnerConnected] = useState<boolean>(false);
 
   const initializeSocket = async (roomId: string, partnerId: string, questionId: string, language: string) => {
     setRoomId(roomId);
@@ -107,7 +134,6 @@ const CollabProvider = ({ children }: ICollabProvider) => {
   ) => {
     setIsLoading(true);
     try {
-      console.log("Enter handleConnectToRoom");
       // check if we have an authenticated user, a not-null partnerId, questionId, matchedLanguage, and roomId
       if (!user || !partnerId || !questionId || !matchedLanguage || !roomId) {
         setIsNotFoundError(true);
@@ -164,11 +190,21 @@ const CollabProvider = ({ children }: ICollabProvider) => {
     }
   };
 
-  const handleDisconnectFromRoom = () => {
+  const handleDisconnectFromRoom = ( endSessionStateDict:
+    { 
+      partnerId: string, 
+      questionId: string, 
+      matchedLanguage: string, 
+      code: string, 
+      date: Date,
+    }) => {
     // Leave room
     if (socketService) {
       socketService.leaveRoom();
       setSocketService(undefined);
+      // We are able to obtain the end session state from endSessionState with the use of context.
+      setEndSessionState(endSessionStateDict); 
+      // Should push this to history service instead
     }
     // Clear interval
     if (intervalRef.current) {
@@ -189,6 +225,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
     question,
     matchedLanguage,
     isNotFoundError,
+    endSessionState,
   };
 
   return (

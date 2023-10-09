@@ -16,10 +16,14 @@ interface CodeEditorNavbarProps {
 const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
   handleResetToDefaultCode,
 }) => {
-  const { partner, matchedLanguage, isSocketConnected } = useCollabContext();
+  const { partner, matchedLanguage, isSocketConnected, socketService } = useCollabContext();
   const language = matchedLanguage || "";
   const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
   const [isReady, setIsReady] = useState<boolean>(false);
+  const [isPartnerConnected, setIsPartnerConnected] = useState<boolean>(false);
+  const [hasSessionTimerEnded, setHasSessionTimerEnded] = useState<boolean>(false);
+  const [sessionTimer, setSessionTimer] = useState<Date>(new Date());
+  const [receivedSessionTimer, setReceivedSessionTimer] = useState<boolean>(false);
 
   const handleFullScreen = () => {
     if (isFullScreen) {
@@ -29,6 +33,24 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
     }
     setIsFullScreen(!isFullScreen);
   };
+
+  const getTimer = () => {
+    const currentTime = new Date();
+    return Math.floor((sessionTimer.getTime() - currentTime.getTime())/1000);
+  }
+
+  useEffect(() => {
+    if (!socketService) return;
+    socketService.receiveSessionTimer(setSessionTimer);
+    localStorage.setItem("time", sessionTimer.getTime().toString());
+    setReceivedSessionTimer(true);
+  }, [socketService])
+
+  useEffect(() => {
+    if (socketService) {
+      socketService.receivePartnerConnection(setIsPartnerConnected);
+    }
+  }, [socketService, isPartnerConnected]);
 
   useEffect(() => {
     function exitHandler(e: any) {
@@ -48,12 +70,17 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
   }, [isFullScreen]);
 
   useEffect(() => {
-    if (partner) {
+    if (partner && receivedSessionTimer) {
       setIsReady(true);
     }
   }, [partner]);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const setSessionEnded = () => {
+    setHasSessionTimerEnded(true);
+    onOpen();
+  }
 
   return (
     <div className="flex items-center justify-between h-11 w-full">
@@ -87,9 +114,9 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
       <Spacer />
 
       {isReady ? (
-        <CodeEditorNavBarTooltip content="Timer">
+        <CodeEditorNavBarTooltip content="Click to toggle time">
           <div>
-            <Timer />
+            <Timer setSessionEnded={setSessionEnded} timeDifference={getTimer()}/>
           </div>
         </CodeEditorNavBarTooltip>
       ) : (
@@ -99,9 +126,9 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
       {/* Show partner avatar */}
       {partner?.name ? (
         <div className="flex items-center justify-end m-2">
-          <CodeEditorNavBarTooltip content={partner.name}>
+          <CodeEditorNavBarTooltip content={isPartnerConnected ? partner.name : "Partner Disconnected"}>
             <div>
-              <ProfilePictureAvatar profileUrl={partner.image!} size="8" />
+              {isPartnerConnected ? <ProfilePictureAvatar profileUrl={partner.image!} size="8" /> : <Icons.FaUserSlash />}
             </div>
           </CodeEditorNavBarTooltip>
         </div>
@@ -146,7 +173,7 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
               End Session
             </Button>
           </CodeEditorNavBarTooltip>
-          <EndSessionModal onClose={onClose} isOpen={isOpen} />
+          <EndSessionModal onClose={onClose} isOpen={isOpen} hasSessionTimerEnded={hasSessionTimerEnded}/>
         </div>
       </div>
     </div>

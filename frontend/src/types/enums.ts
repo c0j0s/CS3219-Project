@@ -97,6 +97,7 @@ export enum SocketEvent {
   MATCHING_REDIRECT_COLLABORATION = "redirect_collaboration",
   SESSION_TIMER = "session_timer",
   END_SESSION = "end_session",
+  PARTNER_CONNECTION = "partner_connection",
 }
 
 export enum MATCHING_STAGE {

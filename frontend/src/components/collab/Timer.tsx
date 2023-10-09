@@ -4,19 +4,26 @@ import React, { useEffect, useState } from "react";
 import { Image } from "@nextui-org/react";
 import { useCollabContext } from "@/contexts/collab";
 
-type TimerProps = {};
+interface TimerProps {
+  setSessionEnded: () => void;
+  timeDifference: number;
+};
 
-const Timer: React.FC<TimerProps> = () => {
+const Timer: React.FC<TimerProps> = ({ setSessionEnded, timeDifference }) => {
 
   const { socketService } = useCollabContext();
 
   if (!socketService) return null;
 
-  const [showTimer, setShowTimer] = useState<boolean>(false);
-  const [time, setTime] = useState<number>(0);
-  const [sessionTimer, setSessionTimer] = useState<Date>(new Date());
+  const [showTimer, setShowTimer] = useState<boolean>(true);
+  // For some reason the state cannot be set to timeDifference on render
+  const [time, setTime] = useState<number>(0); 
+  
+  const formatTime = (): string => {
+    if (time <= 0) {
+      return "00:00:00";
+    }
 
-  const formatTime = (time: number): string => {
     const hours = Math.floor(time / 3600);
     const minutes = Math.floor((time % 3600) / 60);
     const seconds = time % 60;
@@ -26,54 +33,45 @@ const Timer: React.FC<TimerProps> = () => {
     }:${seconds < 10 ? "0" + seconds : seconds}`;
   };
 
-  // retrieve time from local storage
+  // This will set time to timeDifference after render
   useEffect(() => {
-    const time = localStorage.getItem("time");
-    socketService.receiveSessionTimer(setSessionTimer);
-    if (time) {
-      console.log("time", time);
-    } else {
-      localStorage.setItem("time", sessionTimer.getTime().toString());
+    setTime(timeDifference)
+  }, [timeDifference])
+
+  useEffect(() => {
+    // Timer will go to -1 before it initializes after render
+    // If time can be set to timeDifference on render, this can be changed to <= 0
+    if (time < -1) { 
+      setSessionEnded();
     }
-  }, []);
+  }, [time])
 
   // create timer logic
   useEffect(() => {
     const timer = setInterval(() => {
-      // temporary solution, will create API endpoint for keeping track of time state
       setTime((prevTime) => {
-        localStorage.setItem("time", (prevTime - 1).toString());
-        return prevTime - 1;
+
+        const newTime = prevTime - 1
+        localStorage.setItem("time", newTime.toString());
+
+        return newTime;
       });
     }, 1000);
-
     return () => clearInterval(timer);
   }, []);
-
-  useEffect(() => {
-    socketService.receiveSessionTimer(setSessionTimer);
-  }, [])
-
-  const handleSetSessionTimer = () => {
-    const currentTime = new Date();
-    const timeDifference = Math.floor((sessionTimer.getTime() - currentTime.getTime())/1000);
-    setTime(timeDifference);
-    console.log("Handling setSessionTime: ", timeDifference);
-  }
 
   return (
     <div>
       {showTimer ? (
         <div className="flex items-center space-x-2 p-1.5 cursor-pointer rounded">
-          <div onClick={() => {
-            handleSetSessionTimer()
-            setShowTimer(false)
-          }}>{formatTime(time)}</div>
+          <div onClick={() => setShowTimer(false)}>{formatTime()}</div>
         </div>
       ) : (
         <div
           className="flex items-center text-white cursor-pointer rounded"
-          onClick={() => setShowTimer(true)}
+          onClick={() => {
+            setShowTimer(true)
+          }}
         >
           <Image src="/timer.svg" className="" />
         </div>

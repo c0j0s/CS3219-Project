@@ -4,11 +4,11 @@ import { RedisHandler } from "./redis-handler";
 import { redis } from '../../models/db';
 
 /** 
- * Redis Schema
+ * Redis key-value pairs
  * 
  * Room details:
  * <roomid>_details: {
- *  end_session: Date()
+ *  endSession: Date()
  *  partner: string,
  * }
  * 
@@ -48,10 +48,6 @@ export const SocketHandler = (socket: Socket) => {
     handleEndSession(socket, roomID);
   });
 
-  socket.on(SocketEvent.DISCONNECT, () => {
-    console.log("user disconnected", socket.id);
-  });
-
   socket.on(
     SocketEvent.SEND_CHAT_MESSAGE,
     (messageDict: {
@@ -69,7 +65,10 @@ export const SocketHandler = (socket: Socket) => {
  * @param joinDict 
  */
 async function handleJoinRoom(socket: Socket, joinDict: { roomId: string; endSession: Date; partnerId: string; }) {
+
   socket.join(joinDict.roomId);
+
+  emitPartnerConnection(socket, joinDict.roomId, true);
 
   // Check redis cache for Editor content
   let cachedEditorContent = await RedisHandler.getEditorContent(joinDict.roomId);
@@ -88,6 +87,11 @@ async function handleJoinRoom(socket: Socket, joinDict: { roomId: string; endSes
     RedisHandler.setRoomDetails(joinDict.roomId, joinDict.endSession, joinDict.partnerId);
     emitSessionTimer(socket, joinDict.roomId, joinDict.endSession);
   }
+
+  // Local (room) notification
+  socket.on(SocketEvent.DISCONNECT, () => {
+    emitPartnerConnection(socket, joinDict.roomId, false);
+  })
 }
 
 /**
@@ -133,7 +137,7 @@ function emitEndSession(
     socket: Socket, 
     roomDetails: {
       code: string,
-      endSession: Date,
+      endSession: string,
     }
   ) {
     // Return relevant room details to client
@@ -156,4 +160,8 @@ function emitChatMessage(socket: Socket, roomId: string, message: { uuid: string
     content: message.content,
     senderId: message.senderId,
   });
+}
+
+function emitPartnerConnection(socket: Socket, roomId: string, status: boolean) {
+  socket.to(roomId).emit(SocketEvent.PARTNER_CONNECTION, status);
 }

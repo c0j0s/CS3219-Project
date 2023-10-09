@@ -8,4 +8,5 @@ export enum SocketEvent {
   UPDATE_CHAT_MESSAGE = "update_chat_message",
   END_SESSION = "end_session",
   SESSION_TIMER = "session_timer",
+  PARTNER_CONNECTION = "partner_connection",
 }

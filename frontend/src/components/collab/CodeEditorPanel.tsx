@@ -12,7 +12,7 @@ const CodeEditorPanel: FC = ({}) => {
 
   const questionTitle = question?.title || "";
   const editorRef = useRef(null);
-  const [sessionTimer, setSessionTimer] = useState<Date>(new Date());
+  const [hasSessionTimerEnded, setHasSessionTimerEnded] = useState<boolean>(false);
 
   const [currentCode, setCurrentCode] = useState<string>(
     getCodeTemplate(matchedLanguage, questionTitle)

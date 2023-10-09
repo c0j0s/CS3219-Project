@@ -24,18 +24,11 @@ class SocketService {
     this.questionId = questionId;
     this.language = language;
     this.socket = this.createSocket(endpoint, path);
-    this.connectToService();
     this.joinRoom();
   }
 
   createSocket = (endpoint: string, path: string) => {
     return io(endpoint, { path: path });
-  };
-
-  connectToService = () => {
-    this.socket.on(SocketEvent.CONNECT, () => {
-      console.log("Socket connected to collaboration service");
-    });
   };
 
   getSocket() {
@@ -50,8 +43,6 @@ class SocketService {
 
     var sessionEnd = new Date();
     sessionEnd.setHours(sessionEnd.getHours() + 1); // 1 hour from now
-
-    console.log(`Session end timer sent to backend: ${sessionEnd}`)
 
     this.socket.emit(SocketEvent.JOIN_ROOM, { 
       roomId: this.roomId,
@@ -102,6 +93,12 @@ class SocketService {
     });
   };
 
+  receivePartnerConnection = (setPartnerConnection: React.Dispatch<React.SetStateAction<boolean>>) => {
+    this.socket.on(SocketEvent.PARTNER_CONNECTION, (status: boolean) => {
+      setPartnerConnection(status);
+    });
+  }
+
   endSession = () => {
     this.socket.emit(SocketEvent.END_SESSION, this.roomId);
   };
@@ -115,15 +112,15 @@ class SocketService {
     }>>) => {
     this.socket.on(SocketEvent.END_SESSION, ( cachedDetails: {
       code: string,
-      date: Date,
+      endSession: string, // Date of session end
     }) => {
-      console.log(`Session ended with code ${cachedDetails.code} at ${cachedDetails.date}`);
+      console.log(`Session ended with code ${cachedDetails.code} at ${cachedDetails.endSession}`);
       setEndSessionState({
         partnerId: this.partnerId,
         questionId: this.questionId,
         matchedLanguage: this.language,
         code: cachedDetails.code,
-        date: cachedDetails.date,
+        date: new Date(cachedDetails.endSession),
       });
     });
   }
