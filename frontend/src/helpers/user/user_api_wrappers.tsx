@@ -4,7 +4,7 @@ import { HTTP_METHODS, SERVICE } from "@/types/enums";
 import User from "../../types/user";
 import HttpStatusCode from "@/types/HttpStatusCode";
 import { PeerPrepErrors } from "@/types/PeerPrepErrors";
-import { throwAndLogError } from "@/utils/errorUtils";
+import { getError, throwAndLogError } from "@/utils/errorUtils";
 import Preference from "@/types/preference";
 
 const logger = getLogger("user_api_wrappers");
@@ -78,7 +78,7 @@ const createUser = async (user: User, cache: RequestCache = "no-cache") => {
   // successful response should return 201 and userid
   if (response.status === HttpStatusCode.CREATED) {
     // res contains { id: string, message: "User created"}
-    const res = response.data as { id: string, message: string};
+    const res = response.data as { id: string; message: string };
     logger.info(`[createUser] ${res}`);
     return res;
   }
@@ -182,19 +182,6 @@ const updateUserPreference = async (
     getError(response.status)
   );
 };
-
-function getError(status: HttpStatusCode) {
-  switch (status) {
-    case HttpStatusCode.BAD_REQUEST:
-      return PeerPrepErrors.BadRequestError;
-    case HttpStatusCode.NOT_FOUND:
-      return PeerPrepErrors.NotFoundError;
-    case HttpStatusCode.CONFLICT:
-      return PeerPrepErrors.ConflictError;
-    default:
-      return PeerPrepErrors.InternalServerError;
-  }
-}
 
 export const UserService = {
   //async endpoint functions

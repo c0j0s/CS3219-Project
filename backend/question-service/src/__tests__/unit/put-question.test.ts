@@ -104,6 +104,30 @@ describe("PUT /api/questions/:questionId", () => {
     });
   });
 
+  describe("Given the description contains all HTML new line tags", () => {
+    it("should return 400 with a zod error message indicating that the description is too short", async () => {
+      // Arrange
+      const questionId = "existingquestionid123";
+      const updateQuestionRequestBody =
+        TestPayload.getCreateQuestionRequestBody();
+      updateQuestionRequestBody.description = "<br /><br /><br />";
+      dbMock.question.findFirst = jest
+        .fn()
+        .mockResolvedValue(TestPayload.getQuestionPayload(questionId));
+
+      // Act
+      const { body, statusCode } = await supertest(app)
+        .put(`/api/questions/${questionId}`)
+        .send(updateQuestionRequestBody);
+
+      // Assert
+      expect(statusCode).toEqual(HttpStatusCode.BAD_REQUEST);
+      expect(body.message).toEqual(
+        "Invalid description. String must contain at least 3 character(s)"
+      );
+    });
+  });
+
   describe("Given an empty request body", () => {
     it("should return 400 with an empty request body alert message", async () => {
       // Arrange

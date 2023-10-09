@@ -4,11 +4,9 @@ import { getQuestionById } from "@/helpers/question/question_api_wrappers";
 import { UserService } from "@/helpers/user/user_api_wrappers";
 import Question from "@/types/question";
 import User from "@/types/user";
-import { notFound } from "next/navigation";
 import { createContext, useContext, useRef, useState } from "react";
 import { useAuthContext } from "./auth";
 import { verifyRoomParamsIntegrity } from "@/utils/hashUtils";
-import { PeerPrepErrors } from "@/types/PeerPrepErrors";
 
 interface ICollabContext {
   handleConnectToRoom: (
@@ -111,6 +109,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
       questionId,
       language,
     );
+
     setSocketService(newSocket);
 
     if (intervalRef.current) {
@@ -161,30 +160,23 @@ const CollabProvider = ({ children }: ICollabProvider) => {
         getQuestionById(questionId),
       ];
 
-      Promise.all(promises)
-        .then((responses) => {
-          const partner = responses[0] as User;
-          const question = responses[1] as Question;
+      const responses = await Promise.all(promises);
 
-          if (!partner || !question) {
-            setIsNotFoundError(true);
-            return;
-          }
+      const partner = responses[0] as User;
+      const question = responses[1] as Question;
 
-          setPartner(partner);
-          setQuestion(question);
-        })
-        .catch((error) => {
-          setIsNotFoundError(true);
-        });
-
-      if (isNotFoundError) {
+      if (!partner || !question) {
+        setIsNotFoundError(true);
         return;
       }
 
+      setPartner(partner);
+      setQuestion(question);
       await initializeSocket(roomId, partnerId, questionId, matchedLanguage);
+
     } catch (error) {
       console.log(error);
+      setIsNotFoundError(true);
     } finally {
       setIsLoading(false);
     }

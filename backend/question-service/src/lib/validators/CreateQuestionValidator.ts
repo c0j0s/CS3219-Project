@@ -4,7 +4,12 @@ import { convertStringToComplexity } from "../enums/Complexity";
 
 export const CreateQuestionValidator = z.object({
   title: z.string().min(3).max(100),
-  description: z.string().min(3),
+  description: z.string().refine((value) => {
+    // Remove HTML tags using a regular expression
+    const plainText = value.replace(/<[^>]*>/g, "");
+
+    return plainText.length >= 3;
+  }, "Invalid description. String must contain at least 3 character(s)"),
   topics: z
     .array(z.string().transform(convertStringToTopic))
     .refine((topics) => topics.length > 0, "At least one topic is required.")
