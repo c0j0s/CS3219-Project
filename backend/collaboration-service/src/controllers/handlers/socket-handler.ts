@@ -52,6 +52,10 @@ export const SocketHandler = (socket: Socket) => {
     clearSessionDetails(roomID);
   })
 
+  socket.on((SocketEvent.GET_SESSION_TIMER), (roomID) => {
+    handleGetSessionTimer(socket, roomID);
+  })
+
   socket.on(
     SocketEvent.SEND_CHAT_MESSAGE,
     (messageDict: {
@@ -133,6 +137,12 @@ async function handleEndSession(socket: Socket, roomId: string) {
   )
 }
 
+async function handleGetSessionTimer(socket:Socket, roomId: string) {
+  console.log("Handling get session timer");
+  let roomDetails = await RedisHandler.getRoomDetails(roomId);
+  emitSessionTimer(socket, roomId, JSON.parse(roomDetails!).endSession);
+}
+
 async function clearSessionDetails(roomId: string) {
   RedisHandler.delCodeChange(roomId);
   RedisHandler.delRoomDetails(roomId);
@@ -160,6 +170,7 @@ function emitCodeChange(socket: Socket, roomId: string, content: string) {
 }
 
 function emitSessionTimer(socket: Socket, roomId: string, sessionTimer: Date) {
+  console.log("Emitting session timer")
   socket.to(roomId).emit(SocketEvent.SESSION_TIMER, sessionTimer);
 }
 

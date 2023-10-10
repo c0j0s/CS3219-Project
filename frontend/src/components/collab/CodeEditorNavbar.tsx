@@ -16,14 +16,18 @@ interface CodeEditorNavbarProps {
 const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
   handleResetToDefaultCode,
 }) => {
+
+  const defaultDate = new Date(2023, 9, 8, 14, 30, 0, 0);
+
   const { partner, matchedLanguage, isSocketConnected, socketService } = useCollabContext();
   const language = matchedLanguage || "";
   const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
   const [isReady, setIsReady] = useState<boolean>(false);
   const [isPartnerConnected, setIsPartnerConnected] = useState<boolean>(false);
   const [hasSessionTimerEnded, setHasSessionTimerEnded] = useState<boolean>(false);
-  const [sessionTimer, setSessionTimer] = useState<Date>(new Date());
-  const [receivedSessionTimer, setReceivedSessionTimer] = useState<boolean>(false);
+  const [sessionEndTime, setSessionEndTime] = useState<Date>(defaultDate);
+  const [receivedSessionEndTime, setReceivedSessionEndTime] = useState<boolean>(false);
+
 
   const handleFullScreen = () => {
     if (isFullScreen) {
@@ -36,21 +40,28 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
 
   const getTimer = () => {
     const currentTime = new Date();
-    return Math.floor((sessionTimer.getTime() - currentTime.getTime())/1000);
+    return Math.floor((sessionEndTime.getTime() - currentTime.getTime())/1000);
   }
 
+  // Check for session timer
   useEffect(() => {
     if (!socketService) return;
-    socketService.receiveSessionTimer(setSessionTimer);
-    localStorage.setItem("time", sessionTimer.getTime().toString());
-    setReceivedSessionTimer(true);
-  }, [socketService])
+
+    if (getTimer() < 0) { 
+      // If timer is in the past
+      socketService.sendGetSessionTimer();
+    } else { 
+      // Else, the timer is set and ready to render
+      setReceivedSessionEndTime(true);
+    }
+    socketService.receiveSessionTimer(setSessionEndTime);
+  }, [socketService, sessionEndTime])
 
   useEffect(() => {
     if (socketService) {
       socketService.receivePartnerConnection(setIsPartnerConnected);
     }
-  }, [socketService, isPartnerConnected]);
+  }, [socketService]);
 
   useEffect(() => {
     function exitHandler(e: any) {
@@ -70,11 +81,10 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
   }, [isFullScreen]);
 
   useEffect(() => {
-    if (partner && receivedSessionTimer) {
+    if (partner && receivedSessionEndTime) {
       setIsReady(true);
-      console.log("setting isReady")
     }
-  }, [partner]);
+  }, [partner, receivedSessionEndTime]);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 

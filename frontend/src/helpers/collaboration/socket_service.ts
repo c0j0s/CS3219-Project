@@ -72,6 +72,10 @@ class SocketService {
     });
   };
 
+  sendGetSessionTimer = () => {
+    this.socket.emit(SocketEvent.GET_SESSION_TIMER, this.roomId);
+  } 
+
   receiveSessionTimer = (
     setSessionTimer: React.Dispatch<React.SetStateAction<Date>>
   ) => {

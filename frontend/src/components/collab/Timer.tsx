@@ -16,8 +16,7 @@ const Timer: React.FC<TimerProps> = ({ setSessionEnded, timeDifference }) => {
   if (!socketService) return null;
 
   const [showTimer, setShowTimer] = useState<boolean>(true);
-  // For some reason the state cannot be set to timeDifference on render
-  const [time, setTime] = useState<number>(0); 
+  const [time, setTime] = useState<number>(timeDifference); 
   
   const formatTime = (): string => {
     if (time <= 0) {
@@ -33,15 +32,8 @@ const Timer: React.FC<TimerProps> = ({ setSessionEnded, timeDifference }) => {
     }:${seconds < 10 ? "0" + seconds : seconds}`;
   };
 
-  // This will set time to timeDifference after render
   useEffect(() => {
-    setTime(timeDifference)
-  }, [timeDifference])
-
-  useEffect(() => {
-    // Timer will go to -1 before it initializes after render
-    // If time can be set to timeDifference on render, this can be changed to <= 0
-    if (time < -1) { 
+    if (time < 0) { 
       setSessionEnded();
     }
   }, [time])

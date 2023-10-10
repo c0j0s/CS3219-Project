@@ -98,7 +98,8 @@ export enum SocketEvent {
   SESSION_TIMER = "session_timer",
   END_SESSION = "end_session",
   PARTNER_CONNECTION = "partner_connection",
-  CONFIRM_END_SESSION = "confirm_end_session"
+  CONFIRM_END_SESSION = "confirm_end_session",
+  GET_SESSION_TIMER = "get_session_timer",
 }
 
 export enum MATCHING_STAGE {

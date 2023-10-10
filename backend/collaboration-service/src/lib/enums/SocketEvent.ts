@@ -9,5 +9,6 @@ export enum SocketEvent {
   END_SESSION = "end_session",
   CONFIRM_END_SESSION = "confirm_end_session",
   SESSION_TIMER = "session_timer",
+  GET_SESSION_TIMER = "get_session_timer",
   PARTNER_CONNECTION = "partner_connection",
 }
