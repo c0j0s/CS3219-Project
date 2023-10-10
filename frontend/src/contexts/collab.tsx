@@ -15,7 +15,7 @@ interface ICollabContext {
     partnerId: string,
     matchedLanguage: string
   ) => Promise<void>;
-  initializeSocket: (roomId: string, partnerId: string, questionId: string, language: string) => Promise<void>;
+  initializeSocket: (userId:string, roomId: string, partnerId: string, questionId: string, language: string) => Promise<void>;
   handleDisconnectFromRoom: (endSessionState: {
     partnerId: string, 
     questionId: string, 
@@ -47,7 +47,7 @@ interface ICollabProvider {
 
 const CollabContext = createContext<ICollabContext>({
   handleConnectToRoom: async (roomId: string) => {},
-  initializeSocket: async (roomId: string, partnerId: string, questionId: string, language: string) => {},
+  initializeSocket: async (userId: string, roomId: string, partnerId: string, questionId: string, language: string) => {},
   handleDisconnectFromRoom: (endSessionState: {
     partnerId: string, 
     questionId: string, 
@@ -96,11 +96,12 @@ const CollabProvider = ({ children }: ICollabProvider) => {
     }
   );
 
-  const initializeSocket = async (roomId: string, partnerId: string, questionId: string, language: string) => {
+  const initializeSocket = async (userId: string, roomId: string, partnerId: string, questionId: string, language: string) => {
     setRoomId(roomId);
 
     const config = await getCollaborationSocketConfig();
     const newSocket = new SocketService(
+      userId,
       roomId, 
       config.endpoint,
       config.path,
@@ -180,7 +181,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
         return;
       }
 
-      await initializeSocket(roomId, partnerId, questionId, matchedLanguage);
+      await initializeSocket(user.id!, roomId, partnerId, questionId, matchedLanguage);
 
     } catch (error) {
       console.log(error);

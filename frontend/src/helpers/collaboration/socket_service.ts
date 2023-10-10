@@ -7,14 +7,15 @@ import { Socket, io } from "socket.io-client";
 import { getCollaborationSocketConfig } from "./collaboration_api_wrappers";
 
 class SocketService {
-  private static socketServiceInstance: SocketService | null = null;
   private socket: Socket;
+  private userId: string;
   private roomId: string;
   private partnerId: string;
   private questionId: string;
   private language: string;
 
   constructor(
+      userId: string,
       roomId: string, 
       endpoint: string, 
       path: string, 
@@ -22,6 +23,7 @@ class SocketService {
       questionId: string,
       language: string,
     ) {
+    this.userId = userId;
     this.roomId = roomId;
     this.partnerId = partnerId;
     this.questionId = questionId;
@@ -29,19 +31,6 @@ class SocketService {
     this.socket = io(endpoint, { path: path });
     this.socket.connect();
     this.joinRoom();
-  }
-
-  public static async getInstance(
-      roomId: string, 
-      partnerId: string,
-      questionId: string,
-      language: string,
-  ): Promise<SocketService> {
-    if (!SocketService.socketServiceInstance) {
-      const config = await getCollaborationSocketConfig();
-      SocketService.socketServiceInstance = new SocketService(roomId, config.endpoint, config.path, partnerId, questionId, language);
-    }
-    return SocketService.socketServiceInstance;
   }
 
   createSocket = (endpoint: string, path: string) => {
@@ -62,6 +51,7 @@ class SocketService {
     sessionEnd.setHours(sessionEnd.getHours() + 1); // 1 hour from now
 
     this.socket.emit(SocketEvent.JOIN_ROOM, { 
+      userId: this.userId,
       roomId: this.roomId,
       sessionEndTime: sessionEnd,
     });
@@ -116,8 +106,10 @@ class SocketService {
   };
 
   receivePartnerConnection = (setPartnerConnection: React.Dispatch<React.SetStateAction<boolean>>) => {
-    this.socket.on(SocketEvent.PARTNER_CONNECTION, (status: boolean) => {
-      setPartnerConnection(status);
+    this.socket.on(SocketEvent.PARTNER_CONNECTION, ( partnerDict : { userId: string, status: boolean}) => {
+      console.log(`My userId: ${this.userId}`)
+      console.log(`Partner ${partnerDict.userId} is ${partnerDict.status}`);
+      setPartnerConnection(partnerDict.status);
     });
   }
 
