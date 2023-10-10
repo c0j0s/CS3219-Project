@@ -3,16 +3,13 @@ import { redis } from '../../models/db';
 async function getEditorContent(roomId: string) {
     return await redis.get(`${roomId}_content`);
 }
-  
-async function getRoomDetails(roomId: string) {
-    return await redis.get(`${roomId}_roomDetails`);
+
+async function getSessionEndTime(roomId: string) {
+    return await redis.get(`${roomId}_sessionEnd`);
 }
-  
-function setRoomDetails(roomId: string, endSession: Date, partnerId: string) {
-    redis.set(`${roomId}_roomDetails`, JSON.stringify({
-        endSession: endSession,
-        partnerId: partnerId
-    }));
+
+function setSessionEndTime(roomId: string, sessionEndTime: string) {
+    redis.set(`${roomId}_sessionEnd`, sessionEndTime);
 }
   
 function setCodeChange(roomId: string, content: string) {
@@ -23,15 +20,15 @@ function delCodeChange(roomId: string) {
     redis.del(`${roomId}_content`);
 }
 
-function delRoomDetails(roomId: string) {
-    redis.del(`${roomId}_roomDetails`);
+function delSessionEndTime(roomId: string) {
+    redis.del(`${roomId}_sessionEnd`);
 }
 
 export const RedisHandler = {
+    getSessionEndTime,
     getEditorContent,
-    getRoomDetails,
-    setRoomDetails,
+    setSessionEndTime,
     setCodeChange,
     delCodeChange,
-    delRoomDetails
+    delSessionEndTime,
 }

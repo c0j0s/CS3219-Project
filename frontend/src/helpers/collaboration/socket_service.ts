@@ -1,10 +1,13 @@
 "use strict";
 import ChatMessage from "@/types/chat_message";
 import { SocketEvent } from "@/types/enums";
+import { get } from "http";
 import { SetStateAction } from "react";
 import { Socket, io } from "socket.io-client";
+import { getCollaborationSocketConfig } from "./collaboration_api_wrappers";
 
 class SocketService {
+  private static socketServiceInstance: SocketService | null = null;
   private socket: Socket;
   private roomId: string;
   private partnerId: string;
@@ -23,8 +26,22 @@ class SocketService {
     this.partnerId = partnerId;
     this.questionId = questionId;
     this.language = language;
-    this.socket = this.createSocket(endpoint, path);
+    this.socket = io(endpoint, { path: path });
+    this.socket.connect();
     this.joinRoom();
+  }
+
+  public static async getInstance(
+      roomId: string, 
+      partnerId: string,
+      questionId: string,
+      language: string,
+  ): Promise<SocketService> {
+    if (!SocketService.socketServiceInstance) {
+      const config = await getCollaborationSocketConfig();
+      SocketService.socketServiceInstance = new SocketService(roomId, config.endpoint, config.path, partnerId, questionId, language);
+    }
+    return SocketService.socketServiceInstance;
   }
 
   createSocket = (endpoint: string, path: string) => {
@@ -46,8 +63,7 @@ class SocketService {
 
     this.socket.emit(SocketEvent.JOIN_ROOM, { 
       roomId: this.roomId,
-      endSession: sessionEnd,
-      partnerId: this.partnerId
+      sessionEndTime: sessionEnd,
     });
   };
 
@@ -116,17 +132,14 @@ class SocketService {
       code: string;
       date: Date;
     }>>) => {
-    this.socket.on(SocketEvent.END_SESSION, ( cachedDetails: {
-      code: string,
-      endSession: string, // Date of session end
-    }) => {
-      console.log(`Session ended with code ${cachedDetails.code} at ${cachedDetails.endSession}`);
+    this.socket.on(SocketEvent.END_SESSION, (code: string) => {
+      console.log(`Session ended with code ${code}`);
       setEndSessionState({
         partnerId: this.partnerId,
         questionId: this.questionId,
         matchedLanguage: this.language,
-        code: cachedDetails.code,
-        date: new Date(cachedDetails.endSession),
+        code: code,
+        date: new Date(),
       });
     });
   }

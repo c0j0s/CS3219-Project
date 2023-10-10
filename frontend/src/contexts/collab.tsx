@@ -95,7 +95,6 @@ const CollabProvider = ({ children }: ICollabProvider) => {
       date: new Date(),
     }
   );
-  const [isPartnerConnected, setIsPartnerConnected] = useState<boolean>(false);
 
   const initializeSocket = async (roomId: string, partnerId: string, questionId: string, language: string) => {
     setRoomId(roomId);
@@ -103,8 +102,8 @@ const CollabProvider = ({ children }: ICollabProvider) => {
     const config = await getCollaborationSocketConfig();
     const newSocket = new SocketService(
       roomId, 
-      config.endpoint, 
-      config.path, 
+      config.endpoint,
+      config.path,
       partnerId,
       questionId,
       language,

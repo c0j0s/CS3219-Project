@@ -1,16 +1,12 @@
-import { Server, Socket } from "socket.io";
+import { Socket } from "socket.io";
 import { SocketEvent } from "../../lib/enums/SocketEvent";
 import { RedisHandler } from "./redis-handler";
-import { redis } from '../../models/db';
 
 /** 
  * Redis key-value pairs
  * 
- * Room details:
- * <roomid>_details: {
- *  endSession: Date()
- *  partner: string,
- * }
+ * Room endSessionTime:
+ * <roomid>_sessionEnd: endSession: string
  * 
  * Room content:
  * <roomid>_content: string
@@ -27,10 +23,7 @@ export const SocketHandler = (socket: Socket) => {
   socket.on(SocketEvent.JOIN_ROOM, async (
     joinDict: { 
       roomId: string, 
-      endSession: Date, 
-      partnerId: string,
-      questionId: string,
-      language: string,
+      sessionEndTime: string, 
     }
     ) => {
       await handleJoinRoom(socket, joinDict);
@@ -48,8 +41,8 @@ export const SocketHandler = (socket: Socket) => {
     handleEndSession(socket, roomID);
   });
 
-  socket.on((SocketEvent.CONFIRM_END_SESSION), (roomID) => {
-    clearSessionDetails(roomID);
+  socket.on((SocketEvent.CONFIRM_END_SESSION), async (roomID) => {
+    if (await checkLastUser(socket, roomID)) clearSessionDetails(roomID);
   })
 
   socket.on((SocketEvent.GET_SESSION_TIMER), (roomID) => {
@@ -68,13 +61,16 @@ export const SocketHandler = (socket: Socket) => {
 };
 
 /**
- * Handles joining of room and emits session timer back to client (if applicable)
+ * Handles joining of room and emits session timer back to client (if exists)
  * @param socket 
  * @param joinDict 
  */
-async function handleJoinRoom(socket: Socket, joinDict: { roomId: string; endSession: Date; partnerId: string; }) {
+async function handleJoinRoom(socket: Socket, joinDict: { roomId: string; sessionEndTime: string}) {
 
   socket.join(joinDict.roomId);
+
+  const sockets = (await socket.in(joinDict.roomId).fetchSockets()).length;
+  console.log("Joined room successfully. Current connections in room:", sockets);
 
   emitPartnerConnection(socket, joinDict.roomId, true);
 
@@ -85,19 +81,19 @@ async function handleJoinRoom(socket: Socket, joinDict: { roomId: string; endSes
     emitCodeChange(socket, joinDict.roomId, cachedEditorContent);
   }
 
-  let cachedRoomDetails = await RedisHandler.getRoomDetails(joinDict.roomId);
+  let cachedSessionEndTime = await RedisHandler.getSessionEndTime(joinDict.roomId);
 
-  // Check for room details from cache (namely end time)
-  if (cachedRoomDetails) {
-    let roomDetails = JSON.parse(cachedRoomDetails);
-    emitSessionTimer(socket, joinDict.roomId, roomDetails.endSession);
+  if (cachedSessionEndTime) {
+    emitSessionTimer(socket, joinDict.roomId, cachedSessionEndTime);
   } else {
-    RedisHandler.setRoomDetails(joinDict.roomId, joinDict.endSession, joinDict.partnerId);
-    emitSessionTimer(socket, joinDict.roomId, joinDict.endSession);
+    RedisHandler.setSessionEndTime(joinDict.roomId, joinDict.sessionEndTime);
+    emitSessionTimer(socket, joinDict.roomId, joinDict.sessionEndTime)
   }
 
   // Local (room) notification
-  socket.on(SocketEvent.DISCONNECT, () => {
+  socket.on(SocketEvent.DISCONNECT, async () => {
+    const sockets = (await socket.in(joinDict.roomId).fetchSockets()).length;
+    console.log(`Leaving room. We are now left with ${sockets-1} connections`);
     emitPartnerConnection(socket, joinDict.roomId, false);
   })
 }
@@ -127,25 +123,19 @@ function handleChatMessage(socket: Socket, messageDict: { roomId: string; messag
 
 async function handleEndSession(socket: Socket, roomId: string) {
   let editorContent = await RedisHandler.getEditorContent(roomId);
-  let roomDetails = await RedisHandler.getRoomDetails(roomId);
   emitEndSession(
-    socket, 
-    {
-      code: editorContent!,
-      endSession: JSON.parse(roomDetails!).endSession,
-    }
+    socket, editorContent!,
   )
 }
 
 async function handleGetSessionTimer(socket:Socket, roomId: string) {
-  console.log("Handling get session timer");
-  let roomDetails = await RedisHandler.getRoomDetails(roomId);
-  emitSessionTimer(socket, roomId, JSON.parse(roomDetails!).endSession);
+  let endSessionTime = await RedisHandler.getSessionEndTime(roomId);
+  emitSessionTimer(socket, roomId, endSessionTime!);
 }
 
 async function clearSessionDetails(roomId: string) {
   RedisHandler.delCodeChange(roomId);
-  RedisHandler.delRoomDetails(roomId);
+  RedisHandler.delSessionEndTime(roomId);
 }
 
 /**
@@ -154,13 +144,10 @@ async function clearSessionDetails(roomId: string) {
 
 function emitEndSession(
     socket: Socket, 
-    roomDetails: {
-      code: string,
-      endSession: string,
-    }
+    code: string,
   ) {
     // Return relevant room details to client
-    socket.emit(SocketEvent.END_SESSION, roomDetails);
+    socket.emit(SocketEvent.END_SESSION, code);
 }
 
 function emitCodeChange(socket: Socket, roomId: string, content: string) {
@@ -169,9 +156,8 @@ function emitCodeChange(socket: Socket, roomId: string, content: string) {
     .emit(SocketEvent.CODE_UPDATE, content);
 }
 
-function emitSessionTimer(socket: Socket, roomId: string, sessionTimer: Date) {
-  console.log("Emitting session timer")
-  socket.to(roomId).emit(SocketEvent.SESSION_TIMER, sessionTimer);
+function emitSessionTimer(socket: Socket, roomId: string, sessionEndTime: string) {
+  socket.to(roomId).emit(SocketEvent.SESSION_TIMER, sessionEndTime);
 }
 
 function emitChatMessage(socket: Socket, roomId: string, message: { uuid: string; content: string; senderId: string; }) {
@@ -184,4 +170,13 @@ function emitChatMessage(socket: Socket, roomId: string, message: { uuid: string
 
 function emitPartnerConnection(socket: Socket, roomId: string, status: boolean) {
   socket.to(roomId).emit(SocketEvent.PARTNER_CONNECTION, status);
+}
+
+async function checkLastUser(socket: Socket, roomId: string) {
+  const sockets = (await socket.in(roomId).fetchSockets()).length;
+  if (sockets == 1) {
+    return true;
+  } else {
+    return false;
+  }
 }
