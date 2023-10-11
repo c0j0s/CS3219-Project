@@ -20,6 +20,7 @@ const CodeEditorPanel: FC = ({}) => {
 
   useEffect(() => {
     socketService.receiveCodeUpdate(setCurrentCode);
+    console.log("Here")
   }, [socketService]);
 
   const handleEditorChange = (currentContent: string | undefined) => {

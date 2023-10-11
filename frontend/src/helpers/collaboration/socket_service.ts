@@ -74,6 +74,7 @@ class SocketService {
     setCurrentCode: React.Dispatch<React.SetStateAction<string>>
   ) => {
     this.socket.on(SocketEvent.CODE_UPDATE, (content: string) => {
+      console.log("Receiving code update ", content)
       setCurrentCode(content);
     });
   };

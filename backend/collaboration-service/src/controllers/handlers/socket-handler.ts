@@ -1,6 +1,7 @@
 import { Socket } from "socket.io";
 import { SocketEvent } from "../../lib/enums/SocketEvent";
 import { RedisHandler } from "./redis-handler";
+import { io } from "../../app";
 
 /** 
  * Redis key-value pairs
@@ -73,6 +74,8 @@ async function handleJoinRoom(socket: Socket, joinDict: { userId: string, roomId
 
   socket.join(joinDict.roomId);
 
+  console.log("Socket ID: ", socket.id)
+
   if (activeSessions.get(joinDict.roomId)?.indexOf(joinDict.userId)! >= 0) {
     // Should emit that user is already inside.
   } else {
@@ -84,25 +87,29 @@ async function handleJoinRoom(socket: Socket, joinDict: { userId: string, roomId
     }
   }
 
+  const sockets = (await io.in(joinDict.roomId).fetchSockets()).length;
+  console.log("Number of unique sockets: ", sockets)
+
   console.log("Length of this session:" , activeSessions.get(joinDict.roomId)?.length);
 
   // Broadcast to room that partner's connection is active
-  emitPartnerConnection(socket, joinDict.roomId, joinDict.userId, true);
+  io.in(joinDict.roomId).emit(SocketEvent.PARTNER_CONNECTION, {userId: joinDict.userId, status: true });
 
   // Check redis cache for Editor content
   let cachedEditorContent = await RedisHandler.getEditorContent(joinDict.roomId);
 
   if (cachedEditorContent) {
-    emitCodeChange(socket, joinDict.roomId, cachedEditorContent);
+    // Unable to emit to oneself in dev environment, otherwise can use io.to(socket.id).emit()
+    io.in(joinDict.roomId).emit(SocketEvent.CODE_UPDATE, cachedEditorContent);
   }
 
   let cachedSessionEndTime = await RedisHandler.getSessionEndTime(joinDict.roomId);
 
   if (cachedSessionEndTime) {
-    emitSessionTimer(socket, joinDict.roomId, cachedSessionEndTime);
+    io.in(joinDict.roomId).emit(SocketEvent.SESSION_TIMER, cachedSessionEndTime);
   } else {
     RedisHandler.setSessionEndTime(joinDict.roomId, joinDict.sessionEndTime);
-    emitSessionTimer(socket, joinDict.roomId, joinDict.sessionEndTime)
+    io.in(joinDict.roomId).emit(SocketEvent.SESSION_TIMER, cachedSessionEndTime);
   }
 
   // Local (room) notification
@@ -110,7 +117,9 @@ async function handleJoinRoom(socket: Socket, joinDict: { userId: string, roomId
     activeSessions.get(joinDict.roomId)?.splice(
       activeSessions.get(joinDict.roomId)?.indexOf(joinDict.userId)!, 1
     );
-    emitPartnerConnection(socket, joinDict.roomId, joinDict.userId, false);
+    io.in(joinDict.roomId).emit(SocketEvent.PARTNER_CONNECTION, {userId: joinDict.userId, status: false });
+    let editorContent = await RedisHandler.getEditorContent(joinDict.roomId);
+    socket.emit(SocketEvent.END_SESSION, editorContent);
   })
 }
 
@@ -120,8 +129,7 @@ async function handleJoinRoom(socket: Socket, joinDict: { userId: string, roomId
  * @param editorDict 
  */
 function handleCodeChange(socket: Socket, editorDict: { roomId: string; content: string; }) {
-  emitCodeChange(socket, editorDict.roomId, editorDict.content);
-
+  socket.to(editorDict.roomId).emit(SocketEvent.CODE_UPDATE, editorDict.content);
   // Set new code change within cache
   RedisHandler.setCodeChange(editorDict.roomId, editorDict.content);
 }
@@ -139,41 +147,17 @@ function handleChatMessage(socket: Socket, messageDict: { roomId: string; messag
 
 async function handleEndSession(socket: Socket, roomId: string) {
   let editorContent = await RedisHandler.getEditorContent(roomId);
-  emitEndSession(
-    socket, editorContent!,
-  )
+  socket.emit(SocketEvent.END_SESSION, editorContent);
 }
 
 async function handleGetSessionTimer(socket:Socket, roomId: string) {
   let endSessionTime = await RedisHandler.getSessionEndTime(roomId);
-  emitSessionTimer(socket, roomId, endSessionTime!);
+  io.in(roomId).emit(SocketEvent.SESSION_TIMER, endSessionTime);
 }
 
 async function clearSessionDetails(roomId: string) {
   RedisHandler.delCodeChange(roomId);
   RedisHandler.delSessionEndTime(roomId);
-}
-
-/**
- *  Socket functions
- */
-
-function emitEndSession(
-    socket: Socket, 
-    code: string,
-  ) {
-    // Return relevant room details to client
-    socket.emit(SocketEvent.END_SESSION, code);
-}
-
-function emitCodeChange(socket: Socket, roomId: string, content: string) {
-  socket
-    .to(roomId)
-    .emit(SocketEvent.CODE_UPDATE, content);
-}
-
-function emitSessionTimer(socket: Socket, roomId: string, sessionEndTime: string) {
-  socket.to(roomId).emit(SocketEvent.SESSION_TIMER, sessionEndTime);
 }
 
 function emitChatMessage(socket: Socket, roomId: string, message: { uuid: string; content: string; senderId: string; }) {
@@ -182,18 +166,4 @@ function emitChatMessage(socket: Socket, roomId: string, message: { uuid: string
     content: message.content,
     senderId: message.senderId,
   });
-}
-
-function emitPartnerConnection(socket: Socket, roomId: string, userId: string, status: boolean) {
-  console.log(`Emitting partner connection status: ${status} for user ${userId} in room ${roomId}`)
-  socket.to(roomId).emit(SocketEvent.PARTNER_CONNECTION, {userId: userId, status: status });
-}
-
-async function checkLastUser(socket: Socket, roomId: string) {
-  const sockets = (await socket.in(roomId).fetchSockets()).length;
-  if (sockets == 1) {
-    return true;
-  } else {
-    return false;
-  }
 }
