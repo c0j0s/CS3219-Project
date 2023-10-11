@@ -5,6 +5,7 @@ import pino, { Logger } from "pino";
  */
 const logLevelConfig = {
   "*": "info",
+  exception: "debug",
   wrapper: "info",
   endpoint: "info",
 };

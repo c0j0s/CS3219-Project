@@ -51,10 +51,10 @@ function renderChip(complexity: string, size: "sm" | "md" | "lg") {
 
 export default function ComplexityChip({
   complexity,
-  size,
+  size = "sm",
 }: {
   complexity: string;
-  size: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg";
 }) {
   return renderChip(complexity, size);
 }

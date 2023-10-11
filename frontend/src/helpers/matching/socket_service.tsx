@@ -1,4 +1,3 @@
-"use strict"
 import { SocketEvent } from "@/types/enums";
 import { Socket, io } from "socket.io-client";
 import { getMatchingSocketConfig } from "./matching_api_wrappers";
@@ -26,15 +25,15 @@ class SocketService {
 
 
     onConnect(listener: (...args: any[]) => void) {
-        this.socket.on(SocketEvent.CONNECT, listener);
+        this.socket.once(SocketEvent.CONNECT, listener);
     }
 
     onDisconnect(listener: (...args: any[]) => void) {
-        this.socket.on(SocketEvent.DISCONNECT, listener);
+        this.socket.once(SocketEvent.DISCONNECT, listener);
     }
 
     onConnectError(listener: (...args: any[]) => void) {
-        this.socket.on(SocketEvent.CONNECT_ERROR, listener);
+        this.socket.once(SocketEvent.CONNECT_ERROR, listener);
     }
 
     onMatched(listener: (...args: any[]) => void) {
@@ -60,6 +59,10 @@ class SocketService {
 
     onRedirectCollaboration(listener: (...args: any[]) => void) {
         this.socket.on(SocketEvent.MATCHING_REDIRECT_COLLABORATION, listener);
+    }
+
+    off(event: string) {
+        this.socket.removeAllListeners(event);
     }
 
     requestMatching(request: any) {

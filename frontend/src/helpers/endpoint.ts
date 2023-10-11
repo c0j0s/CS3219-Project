@@ -127,6 +127,7 @@ function getServicePorts(service: SERVICE) {
     let servicePort = ":";
     switch (service) {
       case SERVICE.QUESTION:
+      case SERVICE.TOPICS:
         servicePort += process.env.ENDPOINT_QUESTION_PORT || "";
         break;
       case SERVICE.USER:

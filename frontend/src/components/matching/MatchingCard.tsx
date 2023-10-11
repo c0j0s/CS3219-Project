@@ -1,38 +1,40 @@
 "use client";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import {
   Button,
-  ButtonGroup,
   Card,
   CardBody,
   CardHeader,
   Select,
   SelectItem,
+  Tooltip,
   useDisclosure,
 } from "@nextui-org/react";
-import { UserService } from "@/helpers/user/user_api_wrappers";
 import { COMPLEXITY, LANGUAGE, TOPIC, ToastType } from "@/types/enums";
 import { StringUtils } from "@/utils/stringUtils";
 import MatchingLobby from "./MatchingLobby";
 import { useAuthContext } from "@/contexts/auth";
 import Preference from "@/types/preference";
 import displayToast from "../common/Toast";
+import { Icons } from "../common/Icons";
+import { getTopics } from "@/helpers/question/question_api_wrappers";
 
 const MatchingCard = () => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   const {
     user: { preferences: currentPreferences },
   } = useAuthContext();
 
-  const optionsLanguages = StringUtils.convertEnumsToCamelCase(LANGUAGE);
-  const optionsDifficulties = StringUtils.convertEnumsToCamelCase(COMPLEXITY);
-  const optionsTopics = StringUtils.convertEnumsToCamelCase(TOPIC);
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const optionsLanguages = Object.values(LANGUAGE);
+  const optionsDifficulties = Object.values(COMPLEXITY);
+  const [optionsTopics, setOptionsTopics] = useState<string[]>([]);
 
-  const [preferences, setPreferences] = useState<Preference>(
-    currentPreferences || { languages: [], difficulties: [], topics: [] }
-  );
+  const [preferences, setPreferences] = useState<Preference>({ languages: [], difficulties: [], topics: [] });
 
-  const handleOnSelectionChange = (event: ChangeEvent<HTMLSelectElement>) => {
+  const handleOnSelectionChange = (
+    event: ChangeEvent<HTMLSelectElement>
+  ) => {
     if (event.target.value === "") {
       displayToast(`${event.target.name} is required`);
       return;
@@ -43,7 +45,6 @@ const MatchingCard = () => {
     });
   };
 
-  //for now, get matched button will print to console keys selected
   const handleGetMatched = () => {
     if (Object.values(preferences).some((x) => x.length == 0)) {
       displayToast(`Invalid matching options.`, ToastType.ERROR);
@@ -52,16 +53,39 @@ const MatchingCard = () => {
     onOpen();
   };
 
-  const handleQuickMatch = () => {
-    setPreferences(preferences);
-    handleGetMatched();
+  const handleReset = () => {
+    if (currentPreferences) {
+      setPreferences(currentPreferences);
+    }
   };
+
+  useEffect(() => {
+    async function setUpTopics() {
+      await getTopics().then(topics => {
+        if (currentPreferences) {
+          setPreferences(currentPreferences);
+        }
+
+        setOptionsTopics(topics)
+      })
+    }
+    setUpTopics();
+  }, [])
 
   return (
     <>
       {preferences && (
         <Card className="flex flex-col h-full bg-black rounded-lg text-sm overflow-hidden p-2">
-          <CardHeader className="p-2">Find a pair programmer</CardHeader>
+          <CardHeader className="p-2">
+            <div className="flex items-center justify-between w-full">
+              <span>Find a pair programmer</span>
+              <span>
+                <Tooltip content="Reset preferences">
+                  <Button isIconOnly size="sm" variant="light" onPress={handleReset}><Icons.RxReset /></Button>
+                </Tooltip>
+              </span>
+            </div>
+          </CardHeader>
           <CardBody className="flex flex-col  gap-4 p-2">
             <Select
               isRequired
@@ -70,17 +94,18 @@ const MatchingCard = () => {
               label="Programming languages"
               selectionMode="multiple"
               placeholder="Select a language"
+              classNames={{
+                value: "capitalize"
+              }}
               selectedKeys={preferences.languages}
               onChange={handleOnSelectionChange}
               errorMessage={
-                preferences.languages.length == 0 && (
-                  <span>Language is required</span>
-                )
+                preferences.languages.length == 0 && <span>Language is required</span>
               }
             >
               {optionsLanguages.map((value) => (
-                <SelectItem key={value} value={value}>
-                  {value}
+                <SelectItem className="capitalize" key={value} value={value}>
+                  {value.toLowerCase()}
                 </SelectItem>
               ))}
             </Select>
@@ -92,17 +117,18 @@ const MatchingCard = () => {
               label="Complexity"
               selectionMode="multiple"
               placeholder="Select a complexity level"
+              classNames={{
+                value: "capitalize"
+              }}
               selectedKeys={preferences.difficulties}
               onChange={handleOnSelectionChange}
               errorMessage={
-                preferences.difficulties.length == 0 && (
-                  <span>Difficulty is required</span>
-                )
+                preferences.difficulties.length == 0 && <span>Difficulty is required</span>
               }
             >
               {optionsDifficulties.map((value) => (
-                <SelectItem key={value} value={value}>
-                  {value}
+                <SelectItem className="capitalize" key={value} value={value}>
+                  {value.toLowerCase()}
                 </SelectItem>
               ))}
             </Select>
@@ -114,36 +140,28 @@ const MatchingCard = () => {
               label="Topics"
               selectionMode="multiple"
               placeholder="Select a topic"
+              classNames={{
+                value: "capitalize"
+              }}
               selectedKeys={preferences.topics}
               onChange={handleOnSelectionChange}
               errorMessage={
-                preferences.topics.length == 0 && (
-                  <span>Topics is required</span>
-                )
+                preferences.topics.length == 0 && <span>Topics is required</span>
               }
             >
               {optionsTopics.map((value) => (
-                <SelectItem key={value} value={value}>
-                  {value}
+                <SelectItem className="capitalize" key={value} value={value}>
+                  {value.toLowerCase()}
                 </SelectItem>
               ))}
             </Select>
 
-            <ButtonGroup>
-              <Button
-                color="success"
-                className="text-black"
-                onPress={handleQuickMatch}
-              >
-                Quick Match
-              </Button>
-              <Button
-                className="bg-yellow text-black"
-                onPress={handleGetMatched}
-              >
-                Get Matched
-              </Button>
-            </ButtonGroup>
+            <Button
+              className="bg-yellow text-black"
+              onPress={handleGetMatched}
+            >
+              Get Matched
+            </Button>
             <MatchingLobby
               isOpen={isOpen}
               onClose={onClose}

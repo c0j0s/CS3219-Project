@@ -9,6 +9,7 @@ import { Server } from "socket.io";
 import {SocketHandler} from "./controllers";
 import expressPino from 'express-pino-logger';
 import logger from './lib/utils/logger'; 
+import SocketEvent from "./lib/enums/SocketEvent";
 
 
 dotenv.config();
@@ -42,13 +43,13 @@ const io = new Server(httpServer, {
 });
 
 // Socket handlers
-io.on("connection", SocketHandler);
-io.on("connection_error", (error) => {
+io.on(SocketEvent.CONNECTED, SocketHandler);
+io.on(SocketEvent.CONNECTION_ERROR, (error) => {
   logger.error(error, 'Connection error..');
 });
 
 httpServer.listen(process.env.SERVICE_PORT, () => {
-  logger.info(`Server running on port ${process.env.SERVICE_PORT}`);
+  logger.info(`Matching server running on port ${process.env.SERVICE_PORT}`);
 });
 
 export { io };

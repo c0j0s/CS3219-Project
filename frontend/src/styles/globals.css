@@ -44,3 +44,21 @@
 ::-webkit-scrollbar-track:hover {
   background-color: rgb(80, 80, 80);
 }
+
+/* React Quill Rich Text Editor */
+.quill > .ql-toolbar {
+  border-top-left-radius: 0.75em;
+  border-top-right-radius: 0.75em;
+  border: 1px solid #0000;
+  background-color: #27272a !important;
+}
+
+.quill > .ql-container {
+  border-bottom-left-radius: 0.75em;
+  border-bottom-right-radius: 0.75em;
+  border-color: 1px solid #27272a;
+}
+
+.quill > .ql-container > .ql-editor.ql-blank::before{
+  color: rgba(255, 255, 255, 0.315);
+}

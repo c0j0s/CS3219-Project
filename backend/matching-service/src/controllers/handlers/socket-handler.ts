@@ -1,23 +1,22 @@
-import { Socket } from "socket.io";
-import { io } from "../../app";
-import RoomManager from "../../lib/utils/roomManager";
-import Preferences from "../../models/types/preferences";
-import Partner from "../../models/types/partner";
-import Room from "../../models/types/room";
-import Logger from "../../lib/utils/logger";
-import { generateRoomId } from "../../lib/utils/encoder";
+import { Socket } from 'socket.io';
+import { io } from '../../app';
+import RoomManager from '../../lib/utils/roomManager';
+import Preference from '../../models/types/preference';
+import Partner from '../../models/types/partner';
+import Room from '../../models/types/room';
+import Logger from '../../lib/utils/logger'
+import { generateRoomId } from '../../lib/utils/encoder';
+import SocketEvent from '../../lib/enums/SocketEvent';
+import logger from '../../lib/utils/logger';
 
 const timeout = Number(process.env.MATCHING_TIMEOUT) || 60000;
 const rm: RoomManager = RoomManager.getInstance();
 const activeSockets = new Set();
 
-const handleMatching = (
-  socket: Socket,
-  request: {
-    user: Partner;
-    preferences: Preferences;
-  }
-) => {
+const handleMatching = (socket: Socket, request: {
+  user: Partner,
+  preferences: Preference,
+}) => {
   try {
     if (!activeSockets.has(socket.id)) {
       Logger.debug(`[${socket.id}][handleMatching] Matching request received.`);
@@ -26,11 +25,13 @@ const handleMatching = (
         rm.findMatchElseCreateRoom(
           request.user,
           request.preferences,
-          (room) => handleMatched(socket, room, request.user),
-          (room) => handleCreateRoom(socket, room)
-        );
+          room => handleMatched(socket, room, request.user),
+          room => handleCreateRoom(socket, room),
+        )
       }, 2000);
       activeSockets.add(socket.id);
+    } else {
+      Logger.debug(`[${socket.id}][handleMatching] Socket is active, discard duplicate request.`);
     }
   } catch (error) {
     notifyError(socket, error);
@@ -43,43 +44,40 @@ const handleMatched = (socket: Socket, room: Room, requester: Partner) => {
     return;
   }
 
-  Logger.debug(
-    `[${socket.id}][handleMatched] Matched with room_${room.id}, ${socket.id} to join`
-  );
-  socket.join(room.id);
+  Logger.debug(`[${socket.id}][handleMatched] Matched room(${room.id}), socket(${socket.id}) joined`);
+  socket.join(room.id)
 
-  // inform owner
+  // inform owner 
   socket.to(room.id).emit("matched", {
     room: room.id,
     partner: requester,
     owner: room.owner.id,
-    preferences: room.preference,
-  });
+    preferences: room.preferences
+  })
 
   // inform self
   socket.emit("matched", {
     room: room.id,
     partner: room.owner,
     owner: room.owner.id,
-  });
-};
+    preferences: room.preferences
+  })
+}
 
 const handleCreateRoom = (socket: Socket, room: Room) => {
-  Logger.debug(
-    `[${socket.id}][handleCreateRoom] Created room_${room.id}, ${socket.id} to join`
-  );
+  Logger.debug(`[${socket.id}][handleCreateRoom] Created Room(${room.id}), socket(${socket.id}) joined`);
   socket.join(room.id);
 
   // Register timeout handler
   setTimeout(() => {
     if (!room.matched) {
-      Logger.debug(`[${socket.id}][handleCreateRoom.callback] Timeout`);
-
+      Logger.debug(`[${socket.id}][handleCreateRoom.callback] Timeout, no match found, close Room(${room.id})`);
+      activeSockets.delete(socket.id);
       socket.emit("no_match");
       rm.closeRoom(room.id);
     }
-  }, timeout);
-};
+  }, timeout)
+}
 
 const handleReady = (socket: Socket, ready: boolean) => {
   Logger.debug(`[${socket.id}][handleReady]: notify ready state change`);
@@ -100,16 +98,16 @@ const handleStart = (socket: Socket, problemId: string) => {
     `[${socket.id}][notifyStart]: Generating room id for collab session`
   );
 
-  socket.rooms.forEach((r) => {
+  socket.rooms.forEach(r => {
     if (r !== socket.id) {
       const room = rm.getRoomById(r);
       if (room) {
-        const lang = rm.chooseRandomItem(room.preference.languages) as string;
+        const lang = rm.chooseRandomItem(room.preferences.languages) as string;
         const roomId = generateRoomId(
           room.owner.id,
           room.partner.id,
           problemId,
-          lang
+          lang.toLowerCase()
         );
 
         const roomConfig = {
@@ -128,7 +126,6 @@ const handleStart = (socket: Socket, problemId: string) => {
 
 const handleCancel = (socket: Socket) => {
   Logger.debug(`[${socket.id}][handleCancel]: Close room and inform partner`);
-  console.log(socket.rooms);
 
   socket.rooms.forEach((r) => {
     if (r !== socket.id) {
@@ -148,7 +145,7 @@ const handleCancel = (socket: Socket) => {
       rm.closeRoom(r);
     }
   });
-};
+}
 
 const notifyError = (socket: Socket, error: any) => {
   Logger.debug(`[${socket.id}][notifyError]: `, error);
@@ -159,20 +156,17 @@ export const SocketHandler = (socket: Socket) => {
   Logger.debug("Socket connected: " + socket.id);
 
   // Handles matching request, tries to find a room first before creating one
-  socket.on("request_match", (request: any) => handleMatching(socket, request));
+  socket.on(SocketEvent.REQUEST_MATCH, (request: any) => handleMatching(socket, request));
 
   // Notifies partner of users ready status
-  socket.on("user_update_ready", (ready: boolean) =>
-    handleReady(socket, ready)
-  );
+  socket.on(SocketEvent.USER_UPDATE_READY, (ready: boolean) => handleReady(socket, ready));
 
   // Notify matching server that clients should already start collab
-  socket.on("start_collaboration", (problemId: string) =>
-    handleStart(socket, problemId)
-  );
+  socket.on(SocketEvent.START_COLLABORATION, (problemId: string) => handleStart(socket, problemId));
 
-  socket.on("disconnecting", (data: any) => handleCancel(socket));
-  socket.on("disconnect", () => {
+  socket.on(SocketEvent.DISCONNECTING, (data: any) => handleCancel(socket));
+  socket.on(SocketEvent.DISCONNECT, () => {
+    logger.debug(`[${socket.id}][Disconnect]`)
     activeSockets.delete(socket.id);
   });
-};
+}

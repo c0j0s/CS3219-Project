@@ -11,67 +11,61 @@ import { useEffect, useState } from "react";
 
 export default function QuestionConstrainsTable({
   value,
-  edit = true,
   onValueChange,
-  disabled = false,
 }: {
   value: string[];
-  edit?: boolean;
   onValueChange?: (value: string[]) => void;
   disabled?: boolean;
 }) {
-  const emptyConstrain = { id: value.length, value: "" };
-  const [constrains, setConstrains] = useState([emptyConstrain]);
+  const [constraints, setConstraints] = useState<string[]>([]);
 
   // Apply changes and pass back to parent
   const handleValue = (id: number, value: string) => {
-    constrains[constrains.findIndex((x) => x.id === id)].value = value;
-    onValueChange!(constrains.map((x) => x.value));
+    constraints[id] = value;
+    onValueChange!(constraints.filter(x => x !== ""));
   };
 
   // Handle changes from parent
   useEffect(() => {
-    if (value[value.length - 1] !== "") {
-      setConstrains([
-        ...value.map((v, idx) => ({ id: idx, value: v })),
-        emptyConstrain,
-      ]);
-    } else if (value[value.length - 2] === "") {
-      setConstrains(
-        value.slice(0, -1).map((v, idx) => ({ id: idx, value: v }))
-      );
-    }
-  }, [value, disabled]);
+    setConstraints([...value, ""])
+  }, [value])
 
   return (
-    <Table
-      aria-label="table of constrains"
-      removeWrapper
-      topContent={<p className="text-small">Constrains</p>}
-      topContentPlacement="outside"
-      classNames={{
-        td: "p-1",
-      }}
-    >
-      <TableHeader>
-        <TableColumn>{}</TableColumn>
-        <TableColumn>Values</TableColumn>
-      </TableHeader>
-      <TableBody items={constrains}>
-        {(row) => (
-          <TableRow key={row.id}>
-            <TableCell>{row.id + 1}.</TableCell>
-            <TableCell>
-              <Input
-                size="sm"
-                defaultValue={row.value}
-                onValueChange={(e) => handleValue(row.id, e)}
-                disabled={disabled}
-              ></Input>
-            </TableCell>
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
+    <div onKeyDownCapture={e => {
+      if (e.key === ' ') {
+        e.key = '\u00a0';
+      }
+    }}>
+      <Table
+        aria-label="table of constraints"
+        removeWrapper
+        topContent={<p className="text-small">Constraints</p>}
+        topContentPlacement="outside"
+        classNames={{
+          base: "gap-1",
+          td: "p-1",
+        }}
+      >
+        <TableHeader>
+          <TableColumn>{ }</TableColumn>
+          <TableColumn>Values</TableColumn>
+        </TableHeader>
+        <TableBody>
+          {constraints.map((row, idx) => (
+            <TableRow key={idx}>
+              <TableCell>{idx + 1}.</TableCell>
+              <TableCell>
+                <Input
+                  type="text"
+                  size="sm"
+                  value={row}
+                  onValueChange={v => handleValue(idx, v)}
+                ></Input>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 }

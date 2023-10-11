@@ -1,7 +1,7 @@
 export type Example = {
   input: string;
   output: string;
-  explanation: string;
+  explanation?: string;
 };
 
 type Question = {

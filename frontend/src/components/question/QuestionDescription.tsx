@@ -58,10 +58,10 @@ export default function QuestionDescription({
 
   return (
     <>
-      <div className="w-full">
+      <div className="flex flex-col w-full h-fit">
         <p className="text-small">Descriptions<span className="text-danger">*</span></p>
         <ReactQuill
-          className="py-2 my-2 rounded-lg"
+          className="py-1 rounded-lg"
           value={value}
           onChange={onValueChange}
           placeholder="Enter question description, sample and constrains etc"
@@ -69,6 +69,7 @@ export default function QuestionDescription({
           formats={formats}
           readOnly={disabled}
           theme="snow" />
+          <span className="text-tiny text-foreground-400">Require 3 or more characters</span>
       </div>
     </>
   );

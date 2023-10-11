@@ -4,9 +4,8 @@ import { getLogger } from "@/helpers/logger";
 import { HTTP_METHODS, SERVICE } from "@/types/enums";
 import Question from "@/types/question";
 import { revalidateTag } from "next/cache";
-import { ServiceError, ServiceResponse, formatFieldError } from "../service";
 import Preference from "@/types/preference";
-import { getError, throwAndLogError } from "@/utils/errorUtils";
+import HttpStatusCode from "@/types/HttpStatusCode";
 
 const logger = getLogger("wrapper");
 const service = SERVICE.QUESTION;
@@ -25,22 +24,20 @@ type MongoQuestionList = {
 export async function getQuestionList(): Promise<Question[]> {
   let questions: Question[] = [];
 
-  const res = await api({
+  const response = await api({
     method: HTTP_METHODS.GET,
     service: service,
-    tags: scope,
-    cache: "no-cache",
+    tags: scope
   });
 
-  if (res.status === 200) {
-    let mongoRes = res.data as MongoQuestionList;
+  if (response.status === HttpStatusCode.OK) {
+    let mongoRes = response.data as MongoQuestionList;
     questions = mongoRes.data;
-    logger.info(`[getQuestionList] Got ${mongoRes.count} items.`);
-  } else {
-    logger.error(res, `[getQuestionList] Error:`);
+    logger.info(`[getQuestionList] Got question: ${mongoRes.count}`);
+    return questions;
   }
 
-  return questions;
+  return [];
 }
 
 /**
@@ -52,7 +49,7 @@ export async function getQuestionList(): Promise<Question[]> {
 export async function getQuestionById(
   id: string,
   cache: RequestCache = "no-cache"
-): Promise<Question | ServiceResponse> {
+) {
   const response = await api({
     method: HTTP_METHODS.GET,
     service: service,
@@ -61,14 +58,13 @@ export async function getQuestionById(
     cache: cache,
   });
 
-  if (response.status === 200) {
-    return response.data as Question;
+  if (response.status === HttpStatusCode.OK) {
+    let question = response.data as Question;
+    logger.info(`[getQuestionById(${id})] Got question: ${question.title}`);
+    return question;
   }
-  return throwAndLogError(
-    "getQuestionById",
-    response.message,
-    getError(response.status)
-  );
+
+  return response;
 }
 
 /**
@@ -76,45 +72,76 @@ export async function getQuestionById(
  * @param preference given preference | surprise me
  */
 export async function getQuestionByPreference(
-  preference: Preference | undefined
-): Promise<string> {
-  logger.error(preference, `[getQuestionByPreference]:`);
+  preference: Preference | undefined,
+  cache: RequestCache = "no-cache"
+) {
+  let questions = [];
 
   // TODO: Implement in question branch instead
   return new Promise(resolve => {
     resolve("clnbazbu400037kzkh3ghgxi3");
   })
+
+  // TODO Remove above return and get it to work with new implementation 
+  const complexityFilter = preference?.difficulties.map(d => `complexity=${d}`).join(`&`);
+  const topicFilter = preference?.topics.map(d => `topic=${d}`).join(`&`);
+  const queryPath = `?${topicFilter}&${complexityFilter}`
+
+  const response = await api({
+    method: HTTP_METHODS.GET,
+    service: service,
+    path: queryPath,
+    tags: scope,
+    cache: cache,
+  });
+
+  if (response.status === HttpStatusCode.OK) {
+    const mongoRes = response.data as MongoQuestionList;
+    questions = mongoRes.data;
+    logger.info(`[getQuestionByPreference] Got ${mongoRes.count} items.`);
+    return questions;
+  }
+
+  return [];
+}
+
+export async function getTopics() {
+  const response = await api({
+    method: HTTP_METHODS.GET,
+    service: SERVICE.TOPICS,
+    tags: [SERVICE.TOPICS],
+  });
+
+  if (response.status === HttpStatusCode.OK) {
+    const topics = response.data['topics'] as string[]
+    logger.info(`[getTopics] Got ${topics.length} items.`);
+    return topics;
+  }
+
+  return [];
 }
 
 /**
  * post: /api/questions
  * Posts a new question to the API.
  * @param {Question} question - The question object to post.
- * @returns {Promise<{ ok: boolean, message: string }>} - A success indicator and a message.
  */
 export async function postQuestion(
   question: Question
-): Promise<ServiceResponse> {
-  const res = await api({
+) {
+  const response = await api({
     method: HTTP_METHODS.POST,
     service: service,
     body: question,
     tags: scope,
   });
 
-  if (res.status == 201) {
+  logger.debug(response, `[postQuestion]`);
+  if (response.status === HttpStatusCode.CREATED) {
     revalidateTag(SERVICE.QUESTION);
-    return {
-      ok: true,
-      message: res.data,
-    };
-  } else {
-    logger.error(res, `[postQuestion] Error:`);
-    return {
-      ok: false,
-      message: res.data ? (res.data as ServiceError).message : res.message,
-    };
   }
+
+  return response;
 }
 
 /**
@@ -122,13 +149,12 @@ export async function postQuestion(
  * Updates an existing question on the API.
  * @param {string} id - The ID of the question to update.
  * @param {Question} question - The updated question object.
- * @returns {Promise<ServiceResponse>} - A success indicator and a message.
  */
 export async function updateQuestion(
   id: string,
   question: Question
-): Promise<ServiceResponse> {
-  const res = await api({
+) {
+  const response = await api({
     method: HTTP_METHODS.PUT,
     service: service,
     path: id,
@@ -136,48 +162,31 @@ export async function updateQuestion(
     tags: scope,
   });
 
-  if (res.status == 204) {
+  logger.debug(response, `[updateQuestion]`);
+  if (response.status === HttpStatusCode.NO_CONTENT) {
     revalidateTag(SERVICE.QUESTION);
-    return {
-      ok: true,
-      message: res.data,
-    };
-  } else {
-    logger.error(res, `[updateQuestion] Error:`);
-    return {
-      ok: false,
-      message: res.data
-        ? formatFieldError(JSON.parse((res.data as ServiceError).message))
-        : res.message,
-    };
   }
+
+  return response;
 }
 
 /**
  * delete: /api/questions/[id]
  * Deletes a question from the API by its ID.
  * @param {string} id - The ID of the question to delete.
- * @returns {Promise<ServiceResponse>} - A success indicator and a message.
  */
-export async function deleteQuestion(id: string): Promise<ServiceResponse> {
-  const res = await api({
+export async function deleteQuestion(id: string) {
+  const response = await api({
     method: HTTP_METHODS.DELETE,
     service: service,
     path: id,
     tags: scope,
   });
 
-  if (res.status == 204) {
+  logger.debug(response, `[deleteQuestion]`);
+  if (response.status === HttpStatusCode.NO_CONTENT) {
     revalidateTag(SERVICE.QUESTION);
-    return {
-      ok: true,
-      message: res.data,
-    };
-  } else {
-    logger.error(res, `[deleteQuestion] Error:`);
-    return {
-      ok: false,
-      message: res.message,
-    };
   }
+
+  return response;
 }

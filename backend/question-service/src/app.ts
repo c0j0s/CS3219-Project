@@ -26,5 +26,5 @@ app.all("*", (req: Request, res: Response) => {
 });
 
 app.listen(process.env.SERVICE_PORT, () => {
-  console.log(`Server running on port ${process.env.SERVICE_PORT}`);
+  console.log(`Question service running on port ${process.env.SERVICE_PORT}`);
 });

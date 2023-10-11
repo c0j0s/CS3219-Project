@@ -2,7 +2,7 @@ import { getLogger } from "@/helpers/logger";
 import HttpStatusCode from "@/types/HttpStatusCode";
 import { PeerPrepErrors } from "@/types/PeerPrepErrors";
 
-const logger = getLogger("wrapper");
+const logger = getLogger("exception");
 
 export function throwAndLogError<T extends Error>(
   endpoint: string,

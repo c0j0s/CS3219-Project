@@ -1,4 +1,4 @@
-"use client";
+"use client"
 import { getLogger } from "@/helpers/logger";
 import { Modal, ModalContent } from "@nextui-org/react";
 import { useEffect, useState } from "react";
@@ -30,55 +30,56 @@ export default function MatchingLobby({
   };
 }) {
   const router = useRouter();
-  const logger = getLogger("matching");
-  const [stage, setStage] = useState(MATCHING_STAGE.INITIAL);
-  const [socketService, setSocketService] = useState<SocketService | null>(
-    null
-  );
-  const [isRoomOwner, setIsRoomOwner] = useState(false);
+  const logger = getLogger('matching');
+  const [ stage, setStage ] = useState(MATCHING_STAGE.INITIAL);
+  const [ socketService, setSocketService ] = useState<SocketService | null>(null);
+  const [ isRoomOwner, setIsRoomOwner ] = useState(false);
 
   /////////////////////////////////////////////
   // Stage fired events
   /////////////////////////////////////////////
   const initializeSocket = async () => {
     try {
-      await SocketService.getInstance().then((socket) => {
+      await SocketService.getInstance().then(socket => {
         setSocketService(socket);
         socket.onConnect(() => setStage(MATCHING_STAGE.MATCHING));
         socket.onDisconnect(() => setStage(MATCHING_STAGE.ERROR));
         socket.onConnectError(() => setStage(MATCHING_STAGE.ERROR));
         // Handles redirect command from the server
-        socket.onRedirectCollaboration((room) => handleRedirect(socket, room));
-      });
+        socket.onRedirectCollaboration(room => handleRedirect(socket, room));
+      })
     } catch (error) {
       logger.error(error);
-      setStage(MATCHING_STAGE.ERROR);
+      setStage(MATCHING_STAGE.ERROR)
     }
-  };
+  }
 
   /////////////////////////////////////////////
   // Server fired events
   /////////////////////////////////////////////
-  const handleMatched = (isOwner: boolean) => {
+  const handleMatched = (
+    isOwner: boolean
+  ) => {
     setIsRoomOwner(isOwner);
     setStage(MATCHING_STAGE.SUCCESS);
-  };
+  }
 
   const handleRedirect = (socket: SocketService, room: any) => {
     const partnerId = socket.getRoomPartner()!.id;
-
     const path = `${CLIENT_ROUTES.COLLABORATION}/${room.id}?partnerId=${partnerId}&questionId=${room.questionId}&language=${room.language}`;
+    onClose();
+    socket.disconnect();
     router.push(path);
-  };
+}
 
   /////////////////////////////////////////////
   // User fired events
   /////////////////////////////////////////////
   const handleClose = () => {
-    logger.info("Cancel matching");
+    logger.info("Cancel matching")
     socketService?.disconnect();
     onClose();
-  };
+  }
 
   /////////////////////////////////////////////
   // Modal views
@@ -87,39 +88,30 @@ export default function MatchingLobby({
   const renderView = (stage: MATCHING_STAGE) => {
     switch (stage) {
       case MATCHING_STAGE.INITIAL:
-        return <></>;
+        return <></>
       case MATCHING_STAGE.MATCHING:
-        return (
-          <MatchingLobbyMatchingView
-            onMatched={handleMatched}
-            onNoMatch={() => setStage(MATCHING_STAGE.FAIL)}
-            onClose={handleClose}
-            onError={() => setStage(MATCHING_STAGE.ERROR)}
-            preference={options}
-          />
-        );
+        return <MatchingLobbyMatchingView
+          onMatched={handleMatched}
+          onNoMatch={() => setStage(MATCHING_STAGE.FAIL)}
+          onClose={handleClose}
+          onError={() => setStage(MATCHING_STAGE.ERROR)}
+          preference={options} />;
       case MATCHING_STAGE.SUCCESS:
-        return (
-          <MatchingLobbySuccessView
-            isOwner={isRoomOwner}
-            onStart={() => setStage(MATCHING_STAGE.START)}
-            onCancel={handleClose}
-            onRematch={() => setStage(MATCHING_STAGE.MATCHING)}
-          />
-        );
+        return <MatchingLobbySuccessView
+          isOwner={isRoomOwner}
+          onStart={() => setStage(MATCHING_STAGE.START)}
+          onCancel={handleClose}
+          onRematch={() => setStage(MATCHING_STAGE.MATCHING)} />;
       case MATCHING_STAGE.START:
-        return <MatchingLobbyPrepCollabView />;
+        return <MatchingLobbyPrepCollabView
+          onClose={handleClose}
+          onError={() => setStage(MATCHING_STAGE.ERROR)}/>
       case MATCHING_STAGE.FAIL:
-        return (
-          <MatchingLobbyNoMatchView
-            onClose={handleClose}
-            onRetry={() => setStage(MATCHING_STAGE.MATCHING)}
-          />
-        );
+        return <MatchingLobbyNoMatchView onClose={handleClose} onRetry={() => setStage(MATCHING_STAGE.MATCHING)} />;
       default:
         return <MatchingLobbyErrorView onClose={handleClose} />;
     }
-  };
+  }
 
   /////////////////////////////////////////////
   // React hooks
@@ -127,13 +119,12 @@ export default function MatchingLobby({
   useEffect(() => {
     if (isOpen) {
       if (stage === MATCHING_STAGE.INITIAL) {
-        console.log("start init");
         initializeSocket();
       }
     } else {
       setStage(MATCHING_STAGE.INITIAL);
     }
-  }, [isOpen, stage]);
+  }, [isOpen, stage])
 
   return (
     <>
@@ -148,7 +139,13 @@ export default function MatchingLobby({
           footer: "p-4",
         }}
       >
-        <ModalContent>{() => <>{renderView(stage)}</>}</ModalContent>
+        <ModalContent>
+          {() => (
+            <>
+              {renderView(stage)}
+            </>
+          )}
+        </ModalContent>
       </Modal>
     </>
   );
