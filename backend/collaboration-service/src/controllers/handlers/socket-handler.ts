@@ -63,6 +63,14 @@ export const SocketHandler = (socket: Socket) => {
       handleChatMessage(socket, messageDict);
     }
   );
+
+  socket.on(SocketEvent.SEND_CHAT_LIST, ( chatListDict: {
+    roomId: string,
+    messages: string, // String of list of messages
+  }) => {
+    console.log(`Storing chatlist: ${chatListDict.messages}`)
+    handleStoreChatList(socket, chatListDict);
+  })
 };
 
 /**
@@ -100,6 +108,8 @@ async function handleJoinRoom(socket: Socket, joinDict: { userId: string, roomId
 
   if (cachedEditorContent) {
     // Unable to emit to oneself in dev environment, otherwise can use io.to(socket.id).emit()
+    // Will have to broadcast the change here such that it works in both dev and prod
+    // Same idea for subsequent cached logics
     io.in(joinDict.roomId).emit(SocketEvent.CODE_UPDATE, cachedEditorContent);
   }
 
@@ -110,6 +120,12 @@ async function handleJoinRoom(socket: Socket, joinDict: { userId: string, roomId
   } else {
     RedisHandler.setSessionEndTime(joinDict.roomId, joinDict.sessionEndTime);
     io.in(joinDict.roomId).emit(SocketEvent.SESSION_TIMER, cachedSessionEndTime);
+  }
+
+  let cachedChatList = await RedisHandler.getChatList(joinDict.roomId);
+
+  if (cachedChatList) {
+    io.in(joinDict.roomId).emit(SocketEvent.UPDATE_CHAT_LIST, cachedChatList)
   }
 
   // Local (room) notification
@@ -158,6 +174,10 @@ async function handleGetSessionTimer(socket:Socket, roomId: string) {
 async function clearSessionDetails(roomId: string) {
   RedisHandler.delCodeChange(roomId);
   RedisHandler.delSessionEndTime(roomId);
+}
+
+function handleStoreChatList(socket: Socket, chatListDict: { roomId: string, messages: string}) {
+  RedisHandler.setChatList(chatListDict.roomId, chatListDict.messages);
 }
 
 function emitChatMessage(socket: Socket, roomId: string, message: { uuid: string; content: string; senderId: string; }) {

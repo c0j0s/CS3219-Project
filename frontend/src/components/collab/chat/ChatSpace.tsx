@@ -34,6 +34,16 @@ const ChatSpace = ({ onClose }: IChatSpaceProps) => {
 
   useEffect(() => {
     socketService.updateChatMessages(setNewMessages);
+    socketService.receiveChatList(setMessages);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (messages.length > 0) {
+        console.log("woof")
+        socketService.sendChatList(messages)
+      }
+    };
   }, []);
 
   useEffect(() => {

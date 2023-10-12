@@ -104,6 +104,8 @@ export enum SocketEvent {
   PARTNER_CONNECTION = "partner_connection",
   CONFIRM_END_SESSION = "confirm_end_session",
   GET_SESSION_TIMER = "get_session_timer",
+  SEND_CHAT_LIST = "send_chat_list",
+  UPDATE_CHAT_LIST = "update_chat_list"
 }
 
 export enum MATCHING_STAGE {

@@ -118,6 +118,18 @@ class SocketService {
     this.socket.emit(SocketEvent.END_SESSION, this.roomId);
   };
 
+  sendChatList = (messages: ChatMessage[]) => {
+    console.log(`Sending chatList: ${JSON.stringify(messages)}`)
+    this.socket.emit(SocketEvent.SEND_CHAT_LIST, { roomId: this.roomId, messages: JSON.stringify(messages) });
+  }
+
+  receiveChatList = (setMessages: React.Dispatch<SetStateAction<ChatMessage[]>>) => {
+    this.socket.on(SocketEvent.UPDATE_CHAT_LIST, (chatList: string) => {
+      console.log(`"Chat list received: ${chatList}`)
+      setMessages(JSON.parse(chatList))
+    })
+  }
+
   receiveEndSession = (setEndSessionState: React.Dispatch<SetStateAction<{
       partnerId: string;
       questionId: string;

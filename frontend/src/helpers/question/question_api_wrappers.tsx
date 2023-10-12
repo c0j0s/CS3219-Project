@@ -77,12 +77,6 @@ export async function getQuestionByPreference(
 ) {
   let questions = [];
 
-  // TODO: Implement in question branch instead
-  return new Promise(resolve => {
-    resolve("clnbazbu400037kzkh3ghgxi3");
-  })
-
-  // TODO Remove above return and get it to work with new implementation 
   const complexityFilter = preference?.difficulties.map(d => `complexity=${d}`).join(`&`);
   const topicFilter = preference?.topics.map(d => `topic=${d}`).join(`&`);
   const queryPath = `?${topicFilter}&${complexityFilter}`
