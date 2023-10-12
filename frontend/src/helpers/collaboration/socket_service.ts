@@ -7,6 +7,7 @@ import { Socket, io } from "socket.io-client";
 import { getCollaborationSocketConfig } from "./collaboration_api_wrappers";
 
 class SocketService {
+  static instance: SocketService;
   private socket: Socket;
   private userId: string;
   private roomId: string;
@@ -31,6 +32,28 @@ class SocketService {
     this.socket = io(endpoint, { path: path });
     this.socket.connect();
     this.joinRoom();
+  }
+
+  public async getInstance(
+    userId: string,
+    roomId: string,
+    partnerId: string,
+    questionId: string,
+    language: string,
+  ): Promise<SocketService>{
+    if (!SocketService.instance) {
+      let config = await getCollaborationSocketConfig();
+      SocketService.instance = new SocketService(
+        userId,
+        roomId,
+        config.endpoint,
+        config.path,
+        partnerId,
+        questionId,
+        language
+      );
+    }
+    return SocketService.instance;
   }
 
   createSocket = (endpoint: string, path: string) => {
@@ -117,11 +140,6 @@ class SocketService {
   endSession = () => {
     this.socket.emit(SocketEvent.END_SESSION, this.roomId);
   };
-
-  sendChatList = (messages: ChatMessage[]) => {
-    console.log(`Sending chatList: ${JSON.stringify(messages)}`)
-    this.socket.emit(SocketEvent.SEND_CHAT_LIST, { roomId: this.roomId, messages: JSON.stringify(messages) });
-  }
 
   receiveChatList = (setMessages: React.Dispatch<SetStateAction<ChatMessage[]>>) => {
     this.socket.on(SocketEvent.UPDATE_CHAT_LIST, (messages: string) => {

@@ -29,6 +29,7 @@ export default function EndSessionModal({
 
   const { handleDisconnectFromRoom, socketService } = useCollabContext();
 
+  const [isSaving, setIsSaving] = useState(false);
   const [endSessionState, setEndSessionState] = useState(
     { 
       partnerId: "", 
@@ -50,12 +51,22 @@ export default function EndSessionModal({
     }
   }, [isOpen, socketService])
 
+  const postToHistoryService = async () => {
+    console.log("Posting endSessionState to history service: ", endSessionState);
+  };
 
-  const handleTerminateSession = () => {
-    // assume we can exit the room by calling an endpoint provided in either collab or matching
-    handleDisconnectFromRoom(endSessionState);
-    onClose();
-    router.push(CLIENT_ROUTES.HOME);
+  const handleTerminateSession = async () => {
+    setIsSaving(true);
+    try {
+      await postToHistoryService();
+      // handleDisconnectFromRoom();
+      onClose();
+      router.push(CLIENT_ROUTES.HOME);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -93,8 +104,8 @@ export default function EndSessionModal({
                   <Button color="primary" onClick={onClose}>
                     Cancel
                   </Button>
-                  <Button color="danger" onClick={handleTerminateSession}>
-                    Terminate
+                  <Button isLoading={isSaving} color="danger" onClick={handleTerminateSession}>
+                    { isSaving ? <>Saving</> : <>Terminate</>}
                   </Button>
                 </ModalFooter>
               </>

@@ -44,22 +44,13 @@ export const SocketHandler = (socket: Socket) => {
     }
   );
 
-  socket.on(SocketEvent.END_SESSION, async (roomID, callback) => {
+  socket.on(SocketEvent.END_SESSION, (roomID) => {
     handleEndSession(socket, roomID);
-    console.log("woof")
     logger.debug(`[SocketHandler]: ${socket.id} ended session`)
-    if (typeof callback === 'function') {
-      const response = await RedisHandler.getEditorContent(roomID);
-      callback(response);
-    } else {
-      // Handle the case where callback is not a function
-      // You may log an error or take other appropriate actions
-      logger.debug('Callback is not a function');
-    }
     // if (activeSessions.get(roomID)?.length == 1) clearSessionDetails(roomID);
   });
 
-  socket.on((SocketEvent.CONFIRM_END_SESSION), async (roomID) => {
+  socket.on((SocketEvent.CONFIRM_END_SESSION), (roomID) => {
     if (activeSessions.get(roomID)?.length == 1) clearSessionDetails(roomID);
   })
 
@@ -76,14 +67,6 @@ export const SocketHandler = (socket: Socket) => {
       handleChatMessage(socket, messageDict);
     }
   );
-
-  socket.on(SocketEvent.SEND_CHAT_LIST, ( chatListDict: {
-    roomId: string,
-    messages: string, // String of list of messages
-  }) => {
-    // console.log(`Storing chatlist: ${chatListDict.messages}`)
-    // handleStoreChatList(socket, chatListDict);
-  })
 
 };
 
@@ -112,7 +95,7 @@ async function handleJoinRoom(socket: Socket, joinDict: { userId: string, roomId
   const sockets = (await io.in(joinDict.roomId).fetchSockets()).length;
 
   logger.debug(`[handleJoinRoom]: Number of unique sockets: ${sockets}`)
-  logger.debug(`[handleJoinRoom]: Number of active sessions: ${activeSessions.get(joinDict.roomId)?.length}`)
+  logger.debug(`[handleJoinRoom]: Number of users in active sessions: ${activeSessions.get(joinDict.roomId)?.length}`)
 
   // Broadcast to room that partner's connection is active
   io.in(joinDict.roomId).emit(SocketEvent.PARTNER_CONNECTION, {userId: joinDict.userId, status: true });
@@ -148,6 +131,8 @@ async function handleJoinRoom(socket: Socket, joinDict: { userId: string, roomId
     activeSessions.get(joinDict.roomId)?.splice(
       activeSessions.get(joinDict.roomId)?.indexOf(joinDict.userId)!, 1
     );
+    const sockets = (await io.in(joinDict.roomId).fetchSockets()).length;
+    logger.debug(`[handleJoinRoom]: Number of unique sockets: ${sockets}`)
     io.in(joinDict.roomId).emit(SocketEvent.PARTNER_CONNECTION, {userId: joinDict.userId, status: false });
   })
 }
@@ -185,7 +170,7 @@ async function handleGetSessionTimer(socket:Socket, roomId: string) {
   io.in(roomId).emit(SocketEvent.SESSION_TIMER, endSessionTime);
 }
 
-async function clearSessionDetails(roomId: string) {
+function clearSessionDetails(roomId: string) {
   RedisHandler.delCodeChange(roomId);
   RedisHandler.delSessionEndTime(roomId);
   RedisHandler.delMessages(roomId);

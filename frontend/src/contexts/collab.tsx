@@ -16,13 +16,7 @@ interface ICollabContext {
     matchedLanguage: string
   ) => Promise<void>;
   initializeSocket: (userId:string, roomId: string, partnerId: string, questionId: string, language: string) => Promise<void>;
-  handleDisconnectFromRoom: (endSessionState: {
-    partnerId: string, 
-    questionId: string, 
-    matchedLanguage: string, 
-    code: string,
-    date: Date,
-  }) => void;
+  handleDisconnectFromRoom: () => void;
   isLoading: boolean;
   socketService: SocketService | undefined;
   isSocketConnected: boolean;
@@ -32,13 +26,6 @@ interface ICollabContext {
   question: Question | undefined;
   matchedLanguage: string;
   isNotFoundError: boolean;
-  endSessionState: {
-    partnerId: string, 
-    questionId: string, 
-    matchedLanguage: string, 
-    code: string,
-    date: Date,
-  }
 }
 
 interface ICollabProvider {
@@ -48,13 +35,7 @@ interface ICollabProvider {
 const CollabContext = createContext<ICollabContext>({
   handleConnectToRoom: async (roomId: string) => {},
   initializeSocket: async (userId: string, roomId: string, partnerId: string, questionId: string, language: string) => {},
-  handleDisconnectFromRoom: (endSessionState: {
-    partnerId: string, 
-    questionId: string, 
-    matchedLanguage: string, 
-    code: string,
-    date: Date,
-  }) => {},  
+  handleDisconnectFromRoom: () => {},  
   isLoading: false,
   socketService: undefined,
   isSocketConnected: false,
@@ -63,21 +44,14 @@ const CollabContext = createContext<ICollabContext>({
   user: undefined,
   question: undefined,
   matchedLanguage: "",
-  isNotFoundError: false,
-  endSessionState: {
-    partnerId: "", 
-    questionId: "", 
-    matchedLanguage: "", 
-    code: "",
-    date: new Date(),
-  }
+  isNotFoundError: false
 });
 
 const useCollabContext = () => useContext(CollabContext);
 
 const CollabProvider = ({ children }: ICollabProvider) => {
   const { user } = useAuthContext();
-  const [socketService, setSocketService] = useState<SocketService>();
+  const [socketService, setSocketService] = useState<SocketService | undefined>(undefined);
   const [isSocketConnected, setIsSocketConnected] = useState<boolean>(false);
   const [roomId, setRoomId] = useState<string>("");
   const intervalRef = useRef<NodeJS.Timeout>();
@@ -86,29 +60,11 @@ const CollabProvider = ({ children }: ICollabProvider) => {
   const [question, setQuestion] = useState<Question>();
   const [matchedLanguage, setMatchedLanguage] = useState<string>("");
   const [isNotFoundError, setIsNotFoundError] = useState<boolean>(false);
-  const [endSessionState, setEndSessionState] = useState(
-    { 
-      partnerId: "", 
-      questionId: "", 
-      matchedLanguage: "", 
-      code: "",
-      date: new Date(),
-    }
-  );
 
   const initializeSocket = async (userId: string, roomId: string, partnerId: string, questionId: string, language: string) => {
     setRoomId(roomId);
-
     const config = await getCollaborationSocketConfig();
-    const newSocket = new SocketService(
-      userId,
-      roomId, 
-      config.endpoint,
-      config.path,
-      partnerId,
-      questionId,
-      language,
-    );
+    const newSocket = new SocketService(userId, roomId, config.endpoint, config.path, partnerId, questionId, language);
 
     setSocketService(newSocket);
 
@@ -133,12 +89,14 @@ const CollabProvider = ({ children }: ICollabProvider) => {
     partnerId: string,
     matchedLanguage: string
   ) => {
+    console.log("Running handleConnectToRoom")
     setIsLoading(true);
     
     try {
       // check if we have an authenticated user, a not-null partnerId, questionId, matchedLanguage, and roomId
       if (!user || !partnerId || !questionId || !matchedLanguage || !roomId) {
         setIsNotFoundError(true);
+        console.log("we do not have an authenticated user, a not-null partnerId, questionId, matchedLanguage, and roomId")
         return;
       }
 
@@ -153,6 +111,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
 
       if (!isValidParams) {
         setIsNotFoundError(true);
+        console.log("we do not have valid params")
         return;
       }
 
@@ -170,6 +129,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
 
         if (!partner || !question) {
           setIsNotFoundError(true);
+          console.log("we do not have a partner or a question")
           return;
         }
 
@@ -181,8 +141,11 @@ const CollabProvider = ({ children }: ICollabProvider) => {
       });
 
       if (isNotFoundError) {
+        console.log("error!!!!!")
         return;
       }
+
+      console.log("1");
 
       await initializeSocket(user.id!, roomId, partnerId, questionId, matchedLanguage);
 
@@ -194,30 +157,18 @@ const CollabProvider = ({ children }: ICollabProvider) => {
   };
 
 
-  const handleDisconnectFromRoom = ( endSessionStateDict:
-    { 
-      partnerId: string, 
-      questionId: string, 
-      matchedLanguage: string, 
-      code: string, 
-      date: Date,
-    }) => {
+  const handleDisconnectFromRoom = () => {
     // Leave room
     console.log("handleDisconnectFromRoom called");
     console.log(socketService);
     if (socketService) {
 
-      console.log("handleDisconnectFromRoom executed")
-
-      // socketService.leaveSession();
+      console.log("handleDisconnectFromRoom executed") 
 
       // Delay 500
       
       socketService.leaveRoom();
       setSocketService(undefined);
-      // We are able to obtain the end session state from endSessionState with the use of context.
-      setEndSessionState(endSessionStateDict); 
-      // Should push this to history service instead
     }
     // Clear interval
     if (intervalRef.current) {
@@ -238,7 +189,6 @@ const CollabProvider = ({ children }: ICollabProvider) => {
     question,
     matchedLanguage,
     isNotFoundError,
-    endSessionState,
   };
 
   return (
