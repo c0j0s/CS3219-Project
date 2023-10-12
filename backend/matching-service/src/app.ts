@@ -7,15 +7,14 @@ import cors, {corsOptions} from "./middleware/cors";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import {SocketHandler} from "./controllers";
-import expressPino from 'express-pino-logger';
 import logger from './lib/utils/logger'; 
 import SocketEvent from "./lib/enums/SocketEvent";
-
+import PinoHttp from "pino-http";
 
 dotenv.config();
 
 const app = express();
-const expressLogger = expressPino({ logger });
+const expressLogger = PinoHttp({ logger });
 
 // Use the logger middleware
 app.use(expressLogger);
