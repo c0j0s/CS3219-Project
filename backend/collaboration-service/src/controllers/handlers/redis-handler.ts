@@ -12,6 +12,11 @@ async function getChatList(roomId: string) {
     return await redis.get(`${roomId}_chatList`);
 }
 
+async function getMessages(roomId: string) {    
+    // Retrieve the whole list
+    return await redis.lrange(`${roomId}_messages`, 0, -1);
+}
+
 function setSessionEndTime(roomId: string, sessionEndTime: string) {
     redis.set(`${roomId}_sessionEnd`, sessionEndTime);
 }
@@ -22,6 +27,10 @@ function setCodeChange(roomId: string, content: string) {
 
 function setChatList(roomId: string, messages: string)  {
     redis.set(`${roomId}_chatList`, messages);
+}
+
+function appendMessage(roomId: string, message: string) {
+    redis.lpush(`${roomId}_messages`, message);
 }
 
 function delCodeChange(roomId: string) {
@@ -36,16 +45,21 @@ function delChatList(roomId: string) {
     redis.del(`${roomId}_chatList`)
 }
 
-
+function delMessages(roomId: string) {
+    redis.del(`${roomId}_messages`)
+}
 
 export const RedisHandler = {
     getSessionEndTime,
     getEditorContent,
     getChatList,
+    getMessages,
     setSessionEndTime,
     setCodeChange,
     setChatList,
+    appendMessage,
     delCodeChange,
     delSessionEndTime,
     delChatList,
+    delMessages
 }

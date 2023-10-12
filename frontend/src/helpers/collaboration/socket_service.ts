@@ -124,9 +124,9 @@ class SocketService {
   }
 
   receiveChatList = (setMessages: React.Dispatch<SetStateAction<ChatMessage[]>>) => {
-    this.socket.on(SocketEvent.UPDATE_CHAT_LIST, (chatList: string) => {
-      console.log(`"Chat list received: ${chatList}`)
-      setMessages(JSON.parse(chatList))
+    this.socket.on(SocketEvent.UPDATE_CHAT_LIST, (messages: string) => {
+      console.log(`"Chat list received: ${messages}`)      
+      setMessages(JSON.parse(`[${messages}]`).reverse())
     })
   }
 
@@ -137,6 +137,8 @@ class SocketService {
       code: string;
       date: Date;
     }>>) => {
+
+      
     this.socket.on(SocketEvent.END_SESSION, (code: string) => {
       console.log(`Session ended with code ${code}`);
       setEndSessionState({
@@ -151,6 +153,13 @@ class SocketService {
 
   sendConfirmEndSession = () => {
     this.socket.emit(SocketEvent.CONFIRM_END_SESSION, this.roomId);
+  }
+
+  leaveSession = () => {
+    console.log("Trying to end session")
+    this.socket.emitWithAck(SocketEvent.END_SESSION, this.roomId, async (response: string) => {
+      console.log(`Session ended with code ${response}`);
+    });
   }
 
 }

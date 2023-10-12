@@ -112,6 +112,8 @@ const CollabProvider = ({ children }: ICollabProvider) => {
 
     setSocketService(newSocket);
 
+    console.log("initializeSocket called: ", newSocket)
+
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
@@ -132,6 +134,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
     matchedLanguage: string
   ) => {
     setIsLoading(true);
+    
     try {
       // check if we have an authenticated user, a not-null partnerId, questionId, matchedLanguage, and roomId
       if (!user || !partnerId || !questionId || !matchedLanguage || !roomId) {
@@ -190,6 +193,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
     }
   };
 
+
   const handleDisconnectFromRoom = ( endSessionStateDict:
     { 
       partnerId: string, 
@@ -199,7 +203,15 @@ const CollabProvider = ({ children }: ICollabProvider) => {
       date: Date,
     }) => {
     // Leave room
+    console.log("handleDisconnectFromRoom called");
+    console.log(socketService);
     if (socketService) {
+
+      console.log("handleDisconnectFromRoom executed")
+
+      // socketService.leaveSession();
+
+      // Delay 500
       
       socketService.leaveRoom();
       setSocketService(undefined);

@@ -6,6 +6,7 @@ import { useCollabContext } from "@/contexts/collab";
 import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
 import ChatSpaceToggle from "@/components/collab/chat/ChatSpaceToggle";
 import { notFound, useSearchParams } from "next/navigation";
+import { getLogger } from "@/helpers/logger";
 
 interface pageProps {
   params: {
@@ -20,6 +21,7 @@ const page: FC<pageProps> = ({ params: { roomId } }) => {
   const language = searchParams.get("language")!;
 
   const {
+    socketService,
     handleConnectToRoom,
     handleDisconnectFromRoom,
     isLoading,
