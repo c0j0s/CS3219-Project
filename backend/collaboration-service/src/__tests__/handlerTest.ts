@@ -1,15 +1,22 @@
 import http from "http";
 import { AddressInfo } from "net";
+import dotenv from "dotenv";
 import { type Socket as ClientSocket, io as io_client } from "socket.io-client";
 import { type Socket as ServerSocket, Server } from "socket.io";
 import { SocketEvent } from "../lib/enums/SocketEvent";
 import { clearSessionDetails, handleChatMessage, handleCodeChange, handleEndSession, handleGetSessionTimer, handleJoinRoom } from "../controllers";
+
+dotenv.config();
 
 let userId1: string = "SAMPLE_USER_ID_1";
 let userId2: string = "SAMPLE_USER_ID_2";
 let roomId: string = "SAMPLE_ROOM_ID";
 let content: string = "SAMPLE_ROOM_CONTENT";
 let sessionEndTime: string = "SAMPLE_SESSION_END_TIME";
+
+let prevEnv = process.env.NODE_ENV;
+
+
 
 describe("Handlers Test", () => {
 
@@ -20,6 +27,7 @@ describe("Handlers Test", () => {
     let clientSocketUser2: ClientSocket;
 
     beforeAll((done) => {
+        process.env.NODE_ENV = 'test';
         const httpServer = http.createServer();
         ioServer = new Server(httpServer);
         httpServer.listen(() => {
@@ -67,6 +75,7 @@ describe("Handlers Test", () => {
         clearSessionDetails(roomId);
         ioServer.close();
         clientSocketUser1.disconnect();
+        process.env.NODE_ENV = prevEnv;
     });
 
     test("Handle chat message test", async () => {
