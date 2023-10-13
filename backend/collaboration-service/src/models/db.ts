@@ -11,12 +11,12 @@ function getRedisUrl() {
     throw new Error("REDIS_URL not found");
 }
 
-let redis: ioRedis;
+// let redis: ioRedis;
 
-if (process.env.NODE_ENV === 'test') {
-  redis = new createMockClient();
-} else {
-  redis = new Redis(getRedisUrl());
-}
+// if (process.env.NODE_ENV === 'test') {
+//   redis = new createMockClient();
+// } else {
+//   redis = new Redis(getRedisUrl());
+// }
 
-export default redis;
+export default new Redis(getRedisUrl());
