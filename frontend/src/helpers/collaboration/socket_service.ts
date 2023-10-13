@@ -125,6 +125,7 @@ class SocketService {
     setNewMessages: React.Dispatch<React.SetStateAction<ChatMessage>>
   ) => {
     this.socket.on(SocketEvent.UPDATE_CHAT_MESSAGE, (message: ChatMessage) => {
+      console.log("here :", message)
       setNewMessages(message);
     });
   };

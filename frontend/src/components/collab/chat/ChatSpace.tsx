@@ -9,10 +9,13 @@ import { useCollabContext } from "@/contexts/collab";
 import ChatMessage from "@/types/chat_message";
 
 interface IChatSpaceProps {
+  unreadMessages: number;
+  setUnreadMessages: React.Dispatch<React.SetStateAction<number>>;
+  isOpen: boolean;
   onClose: () => void;
 }
 
-const ChatSpace = ({ onClose }: IChatSpaceProps) => {
+const ChatSpace = ({ unreadMessages, onClose, setUnreadMessages, isOpen }: IChatSpaceProps) => {
   const { partner, user, socketService } = useCollabContext();
 
   if (!socketService || !partner || !user) return null;
@@ -20,7 +23,7 @@ const ChatSpace = ({ onClose }: IChatSpaceProps) => {
   const scrollTargetRef = useRef<HTMLDivElement>(null);
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-
+  const [justMounted, setJustMounted] = useState(true); 
   const [newMessage, setNewMessages] = useState<ChatMessage>({
     content: "",
     senderId: "",
@@ -33,6 +36,18 @@ const ChatSpace = ({ onClose }: IChatSpaceProps) => {
   };
 
   useEffect(() => {
+    if (!isOpen) {
+      setUnreadMessages(unreadMessages+1);
+    }
+  }, [newMessage])
+
+  useEffect(() => {
+    if (isOpen) {
+      setUnreadMessages(0);
+    }
+  }, [isOpen])
+
+  useEffect(() => {
     socketService.updateChatMessages(setNewMessages);
     socketService.receiveChatList(setMessages);
   }, []);
@@ -40,7 +55,6 @@ const ChatSpace = ({ onClose }: IChatSpaceProps) => {
   useEffect(() => {
     if (newMessage.content !== "" && newMessage.senderId !== user.id) {
       setMessages([...messages, newMessage]);
-      setNewMessages({ content: "", senderId: "" });
       scrollToNewestMessage();
     }
   }, [newMessage]);
