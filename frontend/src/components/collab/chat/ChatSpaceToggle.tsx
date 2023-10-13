@@ -6,7 +6,7 @@ import { Badge } from "@nextui-org/react";
 
 const ChatSpaceToggle = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [unreadMessages, setUnreadMessages] = useState(0);
+  const [unreadMessages, setUnreadMessages] = useState(-1);
 
   const onToggle = () => setIsOpen(!isOpen);
 
@@ -18,7 +18,7 @@ const ChatSpaceToggle = () => {
         <ChatSpace unreadMessages={unreadMessages} setUnreadMessages={setUnreadMessages} isOpen={isOpen} onClose={onClose} />
       </div>
       <div className="flex w-full justify-end mt-3">
-        <Badge content={unreadMessages ? unreadMessages : null} shape="circle" color="danger">
+        <Badge content={unreadMessages > 0 ? unreadMessages : null} shape="circle" color="danger">
           <Button
             isIconOnly
             className="rounded-full bg-yellow hover:bg-amber-200 active:bg-white"

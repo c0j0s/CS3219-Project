@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useLayoutEffect } from "react";
 import ChatBubble from "./ChatBubble";
 import { BsSendFill } from "react-icons/bs";
 import { RxCross2 } from "react-icons/rx";
@@ -35,7 +35,7 @@ const ChatSpace = ({ unreadMessages, onClose, setUnreadMessages, isOpen }: IChat
     }, 100);
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!isOpen) {
       setUnreadMessages(unreadMessages+1);
     }

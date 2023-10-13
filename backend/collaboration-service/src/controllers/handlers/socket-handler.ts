@@ -75,11 +75,13 @@ export const SocketHandler = (socket: Socket) => {
  * @param socket 
  * @param joinDict 
  */
-async function handleJoinRoom(socket: Socket, joinDict: { userId: string, roomId: string; sessionEndTime: string}) {
+export async function handleJoinRoom(socket: Socket, joinDict: { userId: string, roomId: string; sessionEndTime: string}) {
 
   socket.join(joinDict.roomId);
 
   logger.debug(`[handleJoinroom]: SocketId: ${socket.id} joined room ${joinDict.roomId}`)
+
+  console.log(`[handleJoinroom]: SocketId: ${socket.id} joined room ${joinDict.roomId}`)
 
   if (activeSessions.get(joinDict.roomId)?.indexOf(joinDict.userId)! >= 0) {
     // Should emit that user is already inside.
@@ -95,7 +97,9 @@ async function handleJoinRoom(socket: Socket, joinDict: { userId: string, roomId
   const sockets = (await io.in(joinDict.roomId).fetchSockets()).length;
 
   logger.debug(`[handleJoinRoom]: Number of unique sockets: ${sockets}`)
+  console.log(`[handleJoinRoom]: Number of unique sockets: ${sockets}`)
   logger.debug(`[handleJoinRoom]: Number of users in active sessions: ${activeSessions.get(joinDict.roomId)?.length}`)
+  console.log(`[handleJoinRoom]: Number of users in active sessions: ${activeSessions.get(joinDict.roomId)?.length}`)
 
   // Broadcast to room that partner's connection is active
   io.in(joinDict.roomId).emit(SocketEvent.PARTNER_CONNECTION, {userId: joinDict.userId, status: true });
@@ -142,7 +146,7 @@ async function handleJoinRoom(socket: Socket, joinDict: { userId: string, roomId
  * @param socket 
  * @param editorDict 
  */
-function handleCodeChange(socket: Socket, editorDict: { roomId: string; content: string; }) {
+export function handleCodeChange(socket: Socket, editorDict: { roomId: string; content: string; }) {
   socket.to(editorDict.roomId).emit(SocketEvent.CODE_UPDATE, editorDict.content);
   // Set new code change within cache
   RedisHandler.setCodeChange(editorDict.roomId, editorDict.content);
@@ -154,32 +158,30 @@ function handleCodeChange(socket: Socket, editorDict: { roomId: string; content:
  * @param messageDict message dictionay
  */
 
-function handleChatMessage(socket: Socket, messageDict: { roomId: string; message: { uuid: string; content: string; senderId: string; }; }) {
+export function handleChatMessage(socket: Socket, messageDict: { roomId: string; message: { uuid: string; content: string; senderId: string; }; }) {
   RedisHandler.appendMessage(messageDict.roomId, JSON.stringify(messageDict.message));
-  emitChatMessage(socket, messageDict.roomId, messageDict.message);
+  socket.to(messageDict.roomId).emit(SocketEvent.UPDATE_CHAT_MESSAGE, {
+    uuid: messageDict.message.uuid,
+    content: messageDict.message.content,
+    senderId: messageDict.message.senderId,
+  });
   logger.debug(`[handleCodeChange]: Setting message change for room ${messageDict.roomId}]`)
 }
 
-async function handleEndSession(socket: Socket, roomId: string) {
+export async function handleEndSession(socket: Socket, roomId: string) {
   let editorContent = await RedisHandler.getEditorContent(roomId);
   socket.emit(SocketEvent.END_SESSION, editorContent);
 }
 
-async function handleGetSessionTimer(socket:Socket, roomId: string) {
+export async function handleGetSessionTimer(socket: Socket, roomId: string) {
   let endSessionTime = await RedisHandler.getSessionEndTime(roomId);
-  io.in(roomId).emit(SocketEvent.SESSION_TIMER, endSessionTime);
+  socket.emit(SocketEvent.SESSION_TIMER, endSessionTime);
 }
 
-function clearSessionDetails(roomId: string) {
+export function clearSessionDetails(roomId: string) {
   RedisHandler.delCodeChange(roomId);
   RedisHandler.delSessionEndTime(roomId);
   RedisHandler.delMessages(roomId);
 }
 
-function emitChatMessage(socket: Socket, roomId: string, message: { uuid: string; content: string; senderId: string; }) {
-  socket.to(roomId).emit(SocketEvent.UPDATE_CHAT_MESSAGE, {
-    uuid: message.uuid,
-    content: message.content,
-    senderId: message.senderId,
-  });
-}
+export { activeSessions };
