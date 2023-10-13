@@ -15,7 +15,13 @@ interface ICollabContext {
     partnerId: string,
     matchedLanguage: string
   ) => Promise<void>;
-  initializeSocket: (userId:string, roomId: string, partnerId: string, questionId: string, language: string) => Promise<void>;
+  initializeSocket: (
+    userId: string,
+    roomId: string,
+    partnerId: string,
+    questionId: string,
+    language: string
+  ) => Promise<void>;
   handleDisconnectFromRoom: () => void;
   isLoading: boolean;
   socketService: SocketService | undefined;
@@ -34,8 +40,14 @@ interface ICollabProvider {
 
 const CollabContext = createContext<ICollabContext>({
   handleConnectToRoom: async (roomId: string) => {},
-  initializeSocket: async (userId: string, roomId: string, partnerId: string, questionId: string, language: string) => {},
-  handleDisconnectFromRoom: () => {},  
+  initializeSocket: async (
+    userId: string,
+    roomId: string,
+    partnerId: string,
+    questionId: string,
+    language: string
+  ) => {},
+  handleDisconnectFromRoom: () => {},
   isLoading: false,
   socketService: undefined,
   isSocketConnected: false,
@@ -44,14 +56,16 @@ const CollabContext = createContext<ICollabContext>({
   user: undefined,
   question: undefined,
   matchedLanguage: "",
-  isNotFoundError: false
+  isNotFoundError: false,
 });
 
 const useCollabContext = () => useContext(CollabContext);
 
 const CollabProvider = ({ children }: ICollabProvider) => {
   const { user } = useAuthContext();
-  const [socketService, setSocketService] = useState<SocketService | undefined>(undefined);
+  const [socketService, setSocketService] = useState<SocketService | undefined>(
+    undefined
+  );
   const [isSocketConnected, setIsSocketConnected] = useState<boolean>(false);
   const [roomId, setRoomId] = useState<string>("");
   const intervalRef = useRef<NodeJS.Timeout>();
@@ -61,14 +75,28 @@ const CollabProvider = ({ children }: ICollabProvider) => {
   const [matchedLanguage, setMatchedLanguage] = useState<string>("");
   const [isNotFoundError, setIsNotFoundError] = useState<boolean>(false);
 
-  const initializeSocket = async (userId: string, roomId: string, partnerId: string, questionId: string, language: string) => {
+  const initializeSocket = async (
+    userId: string,
+    roomId: string,
+    partnerId: string,
+    questionId: string,
+    language: string
+  ) => {
     setRoomId(roomId);
     const config = await getCollaborationSocketConfig();
-    const newSocket = new SocketService(userId, roomId, config.endpoint, config.path, partnerId, questionId, language);
+    const newSocket = new SocketService(
+      userId,
+      roomId,
+      config.endpoint,
+      config.path,
+      partnerId,
+      questionId,
+      language
+    );
 
     setSocketService(newSocket);
 
-    console.log("initializeSocket called: ", newSocket)
+    console.log("initializeSocket called: ", newSocket);
 
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -89,14 +117,16 @@ const CollabProvider = ({ children }: ICollabProvider) => {
     partnerId: string,
     matchedLanguage: string
   ) => {
-    console.log("Running handleConnectToRoom")
+    console.log("Running handleConnectToRoom");
     setIsLoading(true);
-    
+
     try {
       // check if we have an authenticated user, a not-null partnerId, questionId, matchedLanguage, and roomId
       if (!user || !partnerId || !questionId || !matchedLanguage || !roomId) {
         setIsNotFoundError(true);
-        console.log("we do not have an authenticated user, a not-null partnerId, questionId, matchedLanguage, and roomId")
+        console.log(
+          "we do not have an authenticated user, a not-null partnerId, questionId, matchedLanguage, and roomId"
+        );
         return;
       }
 
@@ -111,7 +141,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
 
       if (!isValidParams) {
         setIsNotFoundError(true);
-        console.log("we do not have valid params")
+        console.log("we do not have valid params");
         return;
       }
 
@@ -122,33 +152,26 @@ const CollabProvider = ({ children }: ICollabProvider) => {
         getQuestionById(questionId),
       ];
 
-      Promise.all(promises)
-      .then((responses) => {
-        const partner = responses[0] as User;
-        const question = responses[1] as Question;
+      const responses = await Promise.all(promises);
 
-        if (!partner || !question) {
-          setIsNotFoundError(true);
-          console.log("we do not have a partner or a question")
-          return;
-        }
+      const partner = responses[0] as User;
+      const question = responses[1] as Question;
 
-        setPartner(partner);
-        setQuestion(question);
-      })
-      .catch((error) => {
+      if (!partner || !question) {
         setIsNotFoundError(true);
-      });
-
-      if (isNotFoundError) {
-        console.log("error!!!!!")
         return;
       }
 
-      console.log("1");
+      setPartner(partner);
+      setQuestion(question);
 
-      await initializeSocket(user.id!, roomId, partnerId, questionId, matchedLanguage);
-
+      await initializeSocket(
+        user.id!,
+        roomId,
+        partnerId,
+        questionId,
+        matchedLanguage
+      );
     } catch (error) {
       console.log(error);
     } finally {
@@ -156,17 +179,15 @@ const CollabProvider = ({ children }: ICollabProvider) => {
     }
   };
 
-
   const handleDisconnectFromRoom = () => {
     // Leave room
     console.log("handleDisconnectFromRoom called");
     console.log(socketService);
     if (socketService) {
-
-      console.log("handleDisconnectFromRoom executed") 
+      console.log("handleDisconnectFromRoom executed");
 
       // Delay 500
-      
+
       socketService.leaveRoom();
       setSocketService(undefined);
     }
