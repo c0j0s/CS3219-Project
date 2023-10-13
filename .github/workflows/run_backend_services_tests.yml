@@ -47,4 +47,4 @@ jobs:
           REDIS_URL: redis://localhost:6379
         run: |
           cd backend/${{matrix.service}}
-          npx jest --coverage
+          npx jest --coverage --detectOpenHandles --forceExit

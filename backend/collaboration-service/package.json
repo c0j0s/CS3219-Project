@@ -7,7 +7,7 @@
     "dev": "nodemon src/app.ts | pino-pretty",
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/src/app.ts",
-    "test": "jest"
+    "test": "jest --runInBand --detectOpenHandles --forceExit"
   },
   "author": "",
   "license": "ISC",
