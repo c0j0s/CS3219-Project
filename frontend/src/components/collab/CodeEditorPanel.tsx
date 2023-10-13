@@ -8,11 +8,14 @@ import { useCollabContext } from "@/contexts/collab";
 
 const CodeEditorPanel: FC = ({}) => {
   const { matchedLanguage, question, socketService } = useCollabContext();
-  if (!socketService) return null;
+  if (!socketService) {
+    return null;
+  }
 
   const questionTitle = question?.title || "";
   const editorRef = useRef(null);
-  const [hasSessionTimerEnded, setHasSessionTimerEnded] = useState<boolean>(false);
+  const [hasSessionTimerEnded, setHasSessionTimerEnded] =
+    useState<boolean>(false);
 
   const [currentCode, setCurrentCode] = useState<string>(
     getCodeTemplate(matchedLanguage, questionTitle)

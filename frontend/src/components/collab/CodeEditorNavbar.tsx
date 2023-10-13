@@ -13,21 +13,22 @@ interface CodeEditorNavbarProps {
   handleResetToDefaultCode: () => void;
 }
 
-const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
+const CodeEditorNavbar = ({
   handleResetToDefaultCode,
-}) => {
-
+}: CodeEditorNavbarProps) => {
   const defaultDate = new Date(2023, 9, 8, 14, 30, 0, 0);
 
-  const { partner, matchedLanguage, isSocketConnected, socketService } = useCollabContext();
+  const { partner, matchedLanguage, isSocketConnected, socketService } =
+    useCollabContext();
   const language = matchedLanguage || "";
   const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
   const [isReady, setIsReady] = useState<boolean>(false);
   const [isPartnerConnected, setIsPartnerConnected] = useState<boolean>(false);
-  const [hasSessionTimerEnded, setHasSessionTimerEnded] = useState<boolean>(false);
+  const [hasSessionTimerEnded, setHasSessionTimerEnded] =
+    useState<boolean>(false);
   const [sessionEndTime, setSessionEndTime] = useState<Date>(defaultDate);
-  const [receivedSessionEndTime, setReceivedSessionEndTime] = useState<boolean>(false);
-
+  const [receivedSessionEndTime, setReceivedSessionEndTime] =
+    useState<boolean>(false);
 
   const handleFullScreen = () => {
     if (isFullScreen) {
@@ -40,22 +41,24 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
 
   const getTimer = () => {
     const currentTime = new Date();
-    return Math.floor((sessionEndTime.getTime() - currentTime.getTime())/1000);
-  }
+    return Math.floor(
+      (sessionEndTime.getTime() - currentTime.getTime()) / 1000
+    );
+  };
 
   // Check for session timer
   useEffect(() => {
     if (!socketService) return;
 
-    if (getTimer() < 0) { 
+    if (getTimer() < 0) {
       // If timer is in the past
       socketService.sendGetSessionTimer();
-    } else { 
+    } else {
       // Else, the timer is set and ready to render
       setReceivedSessionEndTime(true);
     }
     socketService.receiveSessionTimer(setSessionEndTime);
-  }, [socketService, sessionEndTime])
+  }, [socketService, sessionEndTime]);
 
   useEffect(() => {
     if (socketService) {
@@ -91,7 +94,7 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
   const setSessionEnded = () => {
     setHasSessionTimerEnded(true);
     onOpen();
-  }
+  };
 
   return (
     <div className="flex items-center justify-between h-11 w-full">
@@ -127,7 +130,10 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
       {isReady ? (
         <CodeEditorNavBarTooltip content="Click to toggle time">
           <div>
-            <Timer setSessionEnded={setSessionEnded} timeDifference={getTimer()}/>
+            <Timer
+              setSessionEnded={setSessionEnded}
+              timeDifference={getTimer()}
+            />
           </div>
         </CodeEditorNavBarTooltip>
       ) : (
@@ -137,9 +143,15 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
       {/* Show partner avatar */}
       {partner?.name ? (
         <div className="flex items-center justify-end m-2">
-          <CodeEditorNavBarTooltip content={isPartnerConnected ? partner.name : "Partner Disconnected"}>
+          <CodeEditorNavBarTooltip
+            content={isPartnerConnected ? partner.name : "Partner Disconnected"}
+          >
             <div>
-              {isPartnerConnected ? <ProfilePictureAvatar profileUrl={partner.image!} size="8" /> : <Icons.FaUserSlash />}
+              {isPartnerConnected ? (
+                <ProfilePictureAvatar profileUrl={partner.image!} size="8" />
+              ) : (
+                <Icons.FaUserSlash />
+              )}
             </div>
           </CodeEditorNavBarTooltip>
         </div>
@@ -184,7 +196,11 @@ const CodeEditorNavbar: FC<CodeEditorNavbarProps> = ({
               End Session
             </Button>
           </CodeEditorNavBarTooltip>
-          <EndSessionModal onClose={onClose} isOpen={isOpen} hasSessionTimerEnded={hasSessionTimerEnded}/>
+          <EndSessionModal
+            onClose={onClose}
+            isOpen={isOpen}
+            hasSessionTimerEnded={hasSessionTimerEnded}
+          />
         </div>
       </div>
     </div>
