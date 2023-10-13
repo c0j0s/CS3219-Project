@@ -35,5 +35,35 @@ server.listen(process.env.SERVICE_PORT, () => {
 
 export { io };
 
+async function closeServer() {
+  try {
+    // Add any cleanup or closing logic here if needed
+
+    // Close the Socket.IO server
+    io.close();
+    logger.info('Socket.IO server closed.');
+
+    // Close the HTTP server
+    await new Promise<void>((resolve) => {
+      server.close(() => {
+        logger.info('HTTP server closed.');
+        resolve();
+      });
+    });
+  } catch (error) {
+    logger.error('Error while closing the server:', error);
+  }
+}
+
+// Handle SIGINT (Ctrl+C) and SIGTERM (termination signal) to gracefully close the server
+process.on('SIGINT', async () => {
+  await closeServer();
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  await closeServer();
+  process.exit(0);
+});
 
 

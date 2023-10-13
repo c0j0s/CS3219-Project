@@ -5,6 +5,7 @@ import { type Socket as ClientSocket, io as io_client } from "socket.io-client";
 import { type Socket as ServerSocket, Server } from "socket.io";
 import { SocketEvent } from "../lib/enums/SocketEvent";
 import { clearSessionDetails, handleChatMessage, handleCodeChange, handleEndSession, handleGetSessionTimer, handleJoinRoom } from "../controllers";
+import { redis } from "../models/db";
 
 dotenv.config();
 
@@ -20,6 +21,7 @@ let prevEnv = process.env.NODE_ENV;
 
 describe("Handlers Test", () => {
 
+    let httpServer: http.Server;
     let ioServer: Server;
     let serverSocket1: ServerSocket;
     let serverSocket2: ServerSocket;
@@ -28,7 +30,7 @@ describe("Handlers Test", () => {
 
     beforeAll((done) => {
         process.env.NODE_ENV = 'test';
-        const httpServer = http.createServer();
+        httpServer = http.createServer();
         ioServer = new Server(httpServer);
         httpServer.listen(() => {
             const address = (httpServer.address() as AddressInfo).address;
@@ -74,6 +76,9 @@ describe("Handlers Test", () => {
     afterAll(() => {
         clearSessionDetails(roomId);
         ioServer.close();
+        httpServer.close();
+        redis.quit();
+        clientSocketUser2.disconnect();
         clientSocketUser1.disconnect();
         process.env.NODE_ENV = prevEnv;
     });

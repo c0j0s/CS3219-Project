@@ -81,7 +81,6 @@ export async function handleJoinRoom(socket: Socket, joinDict: { userId: string,
 
   logger.debug(`[handleJoinroom]: SocketId: ${socket.id} joined room ${joinDict.roomId}`)
 
-  console.log(`[handleJoinroom]: SocketId: ${socket.id} joined room ${joinDict.roomId}`)
 
   if (activeSessions.get(joinDict.roomId)?.indexOf(joinDict.userId)! >= 0) {
     // Should emit that user is already inside.
@@ -97,9 +96,7 @@ export async function handleJoinRoom(socket: Socket, joinDict: { userId: string,
   const sockets = (await io.in(joinDict.roomId).fetchSockets()).length;
 
   logger.debug(`[handleJoinRoom]: Number of unique sockets: ${sockets}`)
-  console.log(`[handleJoinRoom]: Number of unique sockets: ${sockets}`)
   logger.debug(`[handleJoinRoom]: Number of users in active sessions: ${activeSessions.get(joinDict.roomId)?.length}`)
-  console.log(`[handleJoinRoom]: Number of users in active sessions: ${activeSessions.get(joinDict.roomId)?.length}`)
 
   // Broadcast to room that partner's connection is active
   io.in(joinDict.roomId).emit(SocketEvent.PARTNER_CONNECTION, {userId: joinDict.userId, status: true });
@@ -138,6 +135,7 @@ export async function handleJoinRoom(socket: Socket, joinDict: { userId: string,
     const sockets = (await io.in(joinDict.roomId).fetchSockets()).length;
     logger.debug(`[handleJoinRoom]: Number of unique sockets: ${sockets}`)
     io.in(joinDict.roomId).emit(SocketEvent.PARTNER_CONNECTION, {userId: joinDict.userId, status: false });
+    socket.removeAllListeners();
   })
 }
 

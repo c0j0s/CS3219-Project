@@ -11,38 +11,40 @@ describe("Basic Test", () => {
     let serverSocket: ServerSocket;
     let clientSocketUser1: ClientSocket;
     let clientSocketUser2: ClientSocket;
+    let httpServer: http.Server;
 
     beforeAll((done) => {
-        const httpServer = http.createServer();
+        httpServer = http.createServer();
         ioServer = new Server(httpServer);
         httpServer.listen(() => {
         const port = (httpServer.address() as AddressInfo).port;
-        clientSocketUser1 = io_client(`http://localhost:${port}`);
-        clientSocketUser2 = io_client(`http://localhost:${port}`);
+            clientSocketUser1 = io_client(`http://localhost:${port}`);
+            clientSocketUser2 = io_client(`http://localhost:${port}`);
 
-        ioServer.on("connection", async (socket) => {
-            serverSocket = socket;
-            serverSocket.join(roomId)
-        });
+            ioServer.on("connection", async (socket) => {
+                serverSocket = socket;
+                serverSocket.join(roomId)
+            });
 
 
-        clientSocketUser1.connect();
-        clientSocketUser2.on("connect", () => {
-            done();
-        });
+            clientSocketUser1.connect();
+            clientSocketUser2.on("connect", () => {
+                done();
+            });
 
         });
     });
 
     afterAll(() => {
-        ioServer.close();
         clientSocketUser1.disconnect();
+        clientSocketUser2.disconnect();
+        httpServer.close();
+        ioServer.close();
     });
 
     test("Server to Clients", (done) => {
         clientSocketUser1.on("hello", (arg) => {
             expect(arg).toBe("world");
-            console.log("Server to clients: 1")
             done();
         });
 
