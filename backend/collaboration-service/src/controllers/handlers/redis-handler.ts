@@ -1,4 +1,4 @@
-import { redis } from '../../models/db';
+import redis from '../../models/db';
 
 async function getEditorContent(roomId: string) {
     return await redis.get(`${roomId}_content`);

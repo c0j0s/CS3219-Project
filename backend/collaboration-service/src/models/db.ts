@@ -1,4 +1,5 @@
-import { Redis } from 'ioredis';
+import Redis, { Redis as ioRedis } from 'ioredis';
+import createMockClient from 'ioredis-mock';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -10,4 +11,12 @@ function getRedisUrl() {
     throw new Error("REDIS_URL not found");
 }
 
-export const redis = new Redis(getRedisUrl());
+let redis: ioRedis;
+
+if (process.env.NODE_ENV === 'test') {
+  redis = new createMockClient();
+} else {
+  redis = new Redis(getRedisUrl());
+}
+
+export default redis;
