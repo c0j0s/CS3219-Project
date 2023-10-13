@@ -35,6 +35,8 @@ jobs:
           npm ci
 
       - name: Run Tests and Collect Coverage Reports
+        env: 
+          NODE_ENV: test
         run: |
           cd backend/${{matrix.service}}
           npx jest --coverage
