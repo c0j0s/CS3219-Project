@@ -18,6 +18,27 @@ app.use(expressLogger)
 app.use(cors);
 app.use(expressLogger);
 
+/**
+ * To close the HTTP and Socket.IO server
+ * Helps reduce active listeners in running in processes.
+ */
+async function closeServer() {
+  try {
+
+    io.close();
+    logger.info('Socket.IO server closed.');
+
+    await new Promise<void>((resolve) => {
+      server.close(() => {
+        logger.info('HTTP server closed.');
+        resolve();
+      });
+    });
+  } catch (error) {
+    logger.error('Error while closing the server:', error);
+  }
+}
+
 const server = createServer(app);
 
 const io = new Server(server, {
@@ -33,29 +54,6 @@ server.listen(process.env.SERVICE_PORT, () => {
   logger.info(`Server running on port ${process.env.SERVICE_PORT}`);
 });
 
-export { io };
-
-async function closeServer() {
-  try {
-    // Add any cleanup or closing logic here if needed
-
-    // Close the Socket.IO server
-    io.close();
-    logger.info('Socket.IO server closed.');
-
-    // Close the HTTP server
-    await new Promise<void>((resolve) => {
-      server.close(() => {
-        logger.info('HTTP server closed.');
-        resolve();
-      });
-    });
-  } catch (error) {
-    logger.error('Error while closing the server:', error);
-  }
-}
-
-// Handle SIGINT (Ctrl+C) and SIGTERM (termination signal) to gracefully close the server
 process.on('SIGINT', async () => {
   await closeServer();
   process.exit(0);
@@ -65,5 +63,7 @@ process.on('SIGTERM', async () => {
   await closeServer();
   process.exit(0);
 });
+
+export { io };
 
 
