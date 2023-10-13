@@ -44,6 +44,7 @@ jobs:
       - name: Run Tests and Collect Coverage Reports
         env: 
           NODE_ENV: test
+          REDIS_URL: redis://localhost:6379
         run: |
           cd backend/${{matrix.service}}
           npx jest --coverage
