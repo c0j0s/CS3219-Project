@@ -47,8 +47,12 @@ io.on(SocketEvent.CONNECTION_ERROR, (error) => {
   logger.error(error, 'Connection error..');
 });
 
-httpServer.listen(process.env.SERVICE_PORT, () => {
-  logger.info(`Matching server running on port ${process.env.SERVICE_PORT}`);
+const SERVICE_PORT = process.env.SERVICE_PORT || 5200;
+const LOG_LEVEL = process.env.LOG_LEVEL || 'debug';
+const MATCHING_TIMEOUT = process.env.MATCHING_TIMEOUT || 60000;
+
+httpServer.listen(SERVICE_PORT, () => {
+  logger.info(`Matching server running on port ${SERVICE_PORT} with room_timeout:${MATCHING_TIMEOUT}, log_level:${LOG_LEVEL}.`);
 });
 
 export { io };
