@@ -7,6 +7,7 @@ import {
 import { ZodError } from "zod";
 import { formatErrorMessage } from "../../lib/utils/errorUtils";
 import db from "../../models/db";
+import logger from "../../lib/utils/logger";
 
 export const updateQuestion = async (request: Request, response: Response) => {
   try {
@@ -98,7 +99,7 @@ export const updateQuestion = async (request: Request, response: Response) => {
     response.status(HttpStatusCode.NO_CONTENT).send();
   } catch (error) {
     if (error instanceof ZodError) {
-      console.log(error.message);
+      logger.error(error.message);
       response
         .status(HttpStatusCode.BAD_REQUEST)
         .json({ error: "BAD REQUEST", message: formatErrorMessage(error) });
@@ -106,7 +107,7 @@ export const updateQuestion = async (request: Request, response: Response) => {
     }
 
     // log the error
-    console.log(error);
+    logger.error(error);
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
       error: "INTERNAL SERVER ERROR",
       message: "An unexpected error has occurred.",

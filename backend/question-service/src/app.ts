@@ -4,10 +4,15 @@ import bodyParser from "body-parser";
 import cors from "./middleware/cors";
 import HttpStatusCode from "./lib/enums/HttpStatusCode";
 import dotenv from "dotenv";
+import PinoHttp from "pino-http";
+import logger from "./lib/utils/logger";
 
 dotenv.config();
 
-const app: Express = express();
+const app = express();
+const expressLogger = PinoHttp({ logger });
+
+app.use(expressLogger);
 
 // implement cors for CORS protection
 app.use(cors);
@@ -25,6 +30,10 @@ app.all("*", (req: Request, res: Response) => {
   });
 });
 
-app.listen(process.env.SERVICE_PORT, () => {
-  console.log(`Question service running on port ${process.env.SERVICE_PORT}`);
+
+const PORT = process.env.SERVICE_PORT || 5100;
+const LOG_LEVEL = process.env.LOG_LEVEL || 'debug';
+
+app.listen(PORT, () => {
+  logger.info(`Question service running on port ${PORT} with log_level:${LOG_LEVEL}.`);
 });

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import db from "../../models/db";
+import logger from "../../lib/utils/logger";
 
 // Deletes a question from database based on questionId
 export const deleteQuestion = async (request: Request, response: Response) => {
@@ -32,7 +33,7 @@ export const deleteQuestion = async (request: Request, response: Response) => {
     response.status(HttpStatusCode.NO_CONTENT).send();
   } catch (error) {
     // log the error
-    console.log(error);
+    logger.error(error);
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
       error: "INTERNAL SERVER ERROR",
       message: "An unexpected error has occurred.",
