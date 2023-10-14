@@ -38,8 +38,8 @@ describe("Basic Test", () => {
     afterAll(() => {
         clientSocketUser1.disconnect();
         clientSocketUser2.disconnect();
-        httpServer.close();
         ioServer.close();
+        httpServer.close();
     });
 
     test("Server to Clients", (done) => {

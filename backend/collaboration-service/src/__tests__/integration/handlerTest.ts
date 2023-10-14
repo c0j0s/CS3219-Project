@@ -3,9 +3,9 @@ import { AddressInfo } from "net";
 import dotenv from "dotenv";
 import { type Socket as ClientSocket, io as io_client } from "socket.io-client";
 import { type Socket as ServerSocket, Server } from "socket.io";
-import { SocketEvent } from "../lib/enums/SocketEvent";
-import { clearSessionDetails, handleChatMessage, handleCodeChange, handleEndSession, handleGetSessionTimer, handleJoinRoom } from "../controllers";
-import { redis } from "../models/db";
+import { SocketEvent } from "../../lib/enums/SocketEvent";
+import { clearSessionDetails, handleChatMessage, handleCodeChange, handleEndSession, handleGetSessionTimer, handleJoinRoom } from "../../controllers";
+import { redis } from "../../models/db";
 
 dotenv.config();
 
