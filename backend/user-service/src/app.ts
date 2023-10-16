@@ -1,4 +1,4 @@
-import express, { Express, NextFunction, Request, Response } from "express";
+import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
 import router from "./routes";
 import bodyParser from "body-parser";
@@ -19,7 +19,8 @@ app.use(bodyParser.json());
 app.use(express.json());
 
 // implement routes for API endpoints
-app.use("/api", authMiddleware, router);
+const NODE_ENV = process.env.NODE_ENV || 'development';
+app.use(`/${NODE_ENV}/user`, authMiddleware, router);
 
 app.all("*", (req: Request, res: Response) => {
   res.status(HttpStatusCode.NOT_FOUND).json({

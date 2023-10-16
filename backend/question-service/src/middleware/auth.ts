@@ -31,13 +31,13 @@ export const authMiddleware = async (
     return;
   }
   
-  // Only allow GET requests to /api/questions to pass through with just user rights
+  // Only allow GET requests to /development/user/questions to pass through with just user rights
   const NODE_ENV = process.env.NODE_ENV || 'development';
   const authEndpoint =
     req.method === "GET"
-      ? process.env.AUTH_ENDPOINT || `http://localhost:5050/${NODE_ENV}/auth/auth/validate`
+      ? process.env.AUTH_ENDPOINT || `http://localhost:5050/${NODE_ENV}/auth/validate`
       : process.env.AUTH_ADMIN_ENDPOINT ||
-      `http://localhost:5050/${NODE_ENV}/auth/auth/validateAdmin`;
+      `http://localhost:5050/${NODE_ENV}/auth/validateAdmin`;
 
   const authRes = await fetch(authEndpoint, {
     method: "POST",

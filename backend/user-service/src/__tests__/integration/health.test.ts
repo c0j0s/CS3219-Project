@@ -10,7 +10,7 @@ describe("GET /health", () => {
     const expectedMessage = "Healthy";
 
     // Act
-    const { body, statusCode } = await supertest(app).get("/api/health");
+    const { body, statusCode } = await supertest(app).get("/development/user/health");
 
     // Assert
     expect(statusCode).toBe(HttpStatusCode.OK);

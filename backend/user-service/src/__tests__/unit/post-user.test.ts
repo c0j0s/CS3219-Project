@@ -7,7 +7,7 @@ import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 const app = createServer();
 const dbMock = db;
 
-describe("POST /api/users", () => {
+describe("POST /development/user/users", () => {
   describe("Given the request body payload is valid", () => {
     it("should return 201 with a message of User Created and the registered userId", async () => {
       // Arrange
@@ -22,7 +22,7 @@ describe("POST /api/users", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/users")
+        .post("/development/user/users")
         .send(requestBody);
 
       // Assert
@@ -43,7 +43,7 @@ describe("POST /api/users", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/users")
+        .post("/development/user/users")
         .send(requestBody);
 
       // Assert
@@ -61,7 +61,7 @@ describe("POST /api/users", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/users")
+        .post("/development/user/users")
         .send(requestBody);
 
       // Assert
@@ -77,7 +77,7 @@ describe("POST /api/users", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/users")
+        .post("/development/user/users")
         .send(requestBody);
 
       // Assert
@@ -99,7 +99,7 @@ describe("POST /api/users", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/users")
+        .post("/development/user/users")
         .send(requestBody);
 
       // Assert

@@ -8,7 +8,7 @@ const dbMock = db;
 
 const app = createServer();
 
-describe("GET /api/users/:userId", () => {
+describe("GET /development/user/users/:userId", () => {
   describe("Given the user id exists in the database", () => {
     it("should return 200 with the user data in json", async () => {
       // Arrange
@@ -18,7 +18,7 @@ describe("GET /api/users/:userId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/api/users/${userId}`
+        `/development/user/users/${userId}`
       );
 
       // Assert
@@ -35,7 +35,7 @@ describe("GET /api/users/:userId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/api/users/${userId}`
+        `/development/user/users/${userId}`
       );
 
       // Assert
@@ -46,7 +46,7 @@ describe("GET /api/users/:userId", () => {
   });
 });
 
-describe("GET /api/users/email?", () => {
+describe("GET /development/user/users/email?", () => {
   describe("Given the user email exists in the database", () => {
     it("should return 200 with the user data in json", async () => {
       // Arrange
@@ -56,7 +56,7 @@ describe("GET /api/users/email?", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/api/users/email?email=${email}`
+        `/development/user/users/email?email=${email}`
       );
 
       // Assert
@@ -72,7 +72,7 @@ describe("GET /api/users/email?", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/api/users/email?email=${email}`
+        `/development/user/users/email?email=${email}`
       );
 
       // Assert
@@ -85,7 +85,7 @@ describe("GET /api/users/email?", () => {
   describe("Given the query parameter is missing", () => {
     it("should return 400 with an error message in json", async () => {
       // Act
-      const { body, statusCode } = await supertest(app).get(`/api/users/email`);
+      const { body, statusCode } = await supertest(app).get(`/development/user/users/email`);
 
       // Assert
       expect(statusCode).toBe(HttpStatusCode.BAD_REQUEST);
@@ -101,7 +101,7 @@ describe("GET /api/users/email?", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/api/users/email?email=${email}`
+        `/development/user/users/email?email=${email}`
       );
 
       // Assert
@@ -121,7 +121,7 @@ describe("GET /api/users/email?", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/api/users/email?email=${email}`
+        `/development/user/users/email?email=${email}`
       );
 
       // Assert

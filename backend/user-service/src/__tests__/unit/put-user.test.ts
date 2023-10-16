@@ -7,7 +7,7 @@ import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 const dbMock = db;
 const app = createServer();
 
-describe("PUT /api/users/:userId", () => {
+describe("PUT /development/user/users/:userId", () => {
   describe("Given an existing user id with valid request body payload", () => {
     it("should return 204 with no content", async () => {
       // Arrange
@@ -22,7 +22,7 @@ describe("PUT /api/users/:userId", () => {
 
       // Act
       const { statusCode } = await supertest(app)
-        .put(`/api/users/${userId}`)
+        .put(`/development/user/users/${userId}`)
         .send(requestBody);
 
       // Assert
@@ -51,7 +51,7 @@ describe("PUT /api/users/:userId", () => {
 
       // Act
       const { statusCode } = await supertest(app)
-        .put(`/api/users/${userId}`)
+        .put(`/development/user/users/${userId}`)
         .send({ name: "New Name" });
 
       // Assert
@@ -79,7 +79,7 @@ describe("PUT /api/users/:userId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .put(`/api/users/${userId}`)
+        .put(`/development/user/users/${userId}`)
         .send(requestBody);
 
       // Assert
@@ -102,7 +102,7 @@ describe("PUT /api/users/:userId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .put(`/api/users/${userId}`)
+        .put(`/development/user/users/${userId}`)
         .send(requestBody);
 
       // Assert
@@ -121,7 +121,7 @@ describe("PUT /api/users/:userId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .put(`/api/users/${userId}`)
+        .put(`/development/user/users/${userId}`)
         .send(requestBody);
 
       // Assert
@@ -145,7 +145,7 @@ describe("PUT /api/users/:userId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/users")
+        .post("/development/user/users")
         .send(requestBody);
 
       // Assert
@@ -156,7 +156,7 @@ describe("PUT /api/users/:userId", () => {
   });
 });
 
-describe("PUT /api/users/:userId/preferences", () => {
+describe("PUT /development/user/users/:userId/preferences", () => {
   describe("Given an existing user id with valid request body payload", () => {
     it("should return 204 with no content", async () => {
       // Arrange
@@ -172,7 +172,7 @@ describe("PUT /api/users/:userId/preferences", () => {
 
       // Act
       const { statusCode } = await supertest(app)
-        .put(`/api/users/${userId}/preferences`)
+        .put(`/development/user/users/${userId}/preferences`)
         .send(requestBody);
 
       // Assert
@@ -203,7 +203,7 @@ describe("PUT /api/users/:userId/preferences", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .put(`/api/users/${userId}/preferences`)
+        .put(`/development/user/users/${userId}/preferences`)
         .send(requestBody);
 
       // Assert
@@ -225,7 +225,7 @@ describe("PUT /api/users/:userId/preferences", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .put(`/api/users/${userId}/preferences`)
+        .put(`/development/user/users/${userId}/preferences`)
         .send(requestBody);
 
       // Assert

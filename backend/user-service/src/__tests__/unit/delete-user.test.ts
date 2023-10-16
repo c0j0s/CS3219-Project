@@ -6,7 +6,7 @@ import createServer from "../utils/server";
 const app = createServer();
 const dbMock = db;
 
-describe("DELETE /api/users/:userId", () => {
+describe("DELETE /development/user/users/:userId", () => {
   describe("Given an existing user id", () => {
     it("should return 204 with no content", async () => {
       // Arrange
@@ -18,7 +18,7 @@ describe("DELETE /api/users/:userId", () => {
 
       // Act
       const { statusCode } = await supertest(app).delete(
-        `/api/users/${userId}`
+        `/development/user/users/${userId}`
       );
 
       // Assert
@@ -44,7 +44,7 @@ describe("DELETE /api/users/:userId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).delete(
-        `/api/users/${userId}`
+        `/development/user/users/${userId}`
       );
 
       // Assert
