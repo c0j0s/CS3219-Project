@@ -7,7 +7,7 @@ import db from "../../models/db";
 const app = createServer();
 const dbMock = db as jest.Mocked<typeof db>;
 
-describe("PUT /api/questions/:questionId", () => {
+describe("PUT /development/question/questions/:questionId", () => {
   describe("Given a valid request body", () => {
     it("should return 204 with no content", async () => {
       // Arrange
@@ -25,7 +25,7 @@ describe("PUT /api/questions/:questionId", () => {
 
       // Act
       const { statusCode } = await supertest(app)
-        .put(`/api/questions/${questionId}`)
+        .put(`/development/question/questions/${questionId}`)
         .send(updateQuestionRequestBody);
 
       // Assert
@@ -43,7 +43,7 @@ describe("PUT /api/questions/:questionId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .put(`/api/questions/${questionId}`)
+        .put(`/development/question/questions/${questionId}`)
         .send(updateQuestionRequestBody);
 
       // Assert
@@ -68,7 +68,7 @@ describe("PUT /api/questions/:questionId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .put(`/api/questions/${questionId}`)
+        .put(`/development/question/questions/${questionId}`)
         .send(updateQuestionRequestBody);
 
       // Assert
@@ -93,7 +93,7 @@ describe("PUT /api/questions/:questionId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .put(`/api/questions/${questionId}`)
+        .put(`/development/question/questions/${questionId}`)
         .send(updateQuestionRequestBody);
 
       // Assert
@@ -117,7 +117,7 @@ describe("PUT /api/questions/:questionId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .put(`/api/questions/${questionId}`)
+        .put(`/development/question/questions/${questionId}`)
         .send(updateQuestionRequestBody);
 
       // Assert
@@ -135,7 +135,7 @@ describe("PUT /api/questions/:questionId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).put(
-        `/api/questions/${questionId}`
+        `/development/question/questions/${questionId}`
       );
 
       // Assert

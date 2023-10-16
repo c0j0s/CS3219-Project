@@ -17,7 +17,7 @@ export default function createServer() {
   app.use(bodyParser.json());
 
   // implement routes for API endpoints
-  app.use("/api", router);
+  app.use(`/development/question`, router);
 
   return app;
 }

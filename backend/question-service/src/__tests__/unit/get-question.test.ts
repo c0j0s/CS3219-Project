@@ -17,7 +17,7 @@ describe("GET /questions", () => {
       dbMock.question.findMany = jest.fn().mockResolvedValue(questions);
 
       // Act
-      const { body, statusCode } = await supertest(app).get("/api/questions");
+      const { body, statusCode } = await supertest(app).get("/development/question/questions");
 
       // Assert
       expect(statusCode).toEqual(HttpStatusCode.OK);
@@ -29,7 +29,7 @@ describe("GET /questions", () => {
     it("should return 400 with zod error message", async () => {
       // Act
       const { body, statusCode } = await supertest(app)
-        .get("/api/questions")
+        .get("/development/question/questions")
         .query({ topic: "invalidtopic" });
 
       // Assert
@@ -50,7 +50,7 @@ describe("GET /questions/:questionId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/api/questions/${questionId}`
+        `/development/question/questions/${questionId}`
       );
 
       // Assert
@@ -65,7 +65,7 @@ describe("GET /questions/:questionId", () => {
       dbMock.question.findUnique = jest.fn().mockResolvedValue(null);
 
       const { body, statusCode } = await supertest(app).get(
-        `/api/questions/${questionId}`
+        `/development/question/questions/${questionId}`
       );
 
       expect(statusCode).toEqual(HttpStatusCode.NOT_FOUND);
@@ -84,7 +84,7 @@ describe("GET /questions/:questionId", () => {
         .mockRejectedValue(new Error("Unexpected error"));
 
       const { body, statusCode } = await supertest(app).get(
-        `/api/questions/${questionId}`
+        `/development/question/questions/${questionId}`
       );
 
       expect(statusCode).toEqual(HttpStatusCode.INTERNAL_SERVER_ERROR);
@@ -102,7 +102,7 @@ describe("GET /topics", () => {
     const topics = Object.values(Topic);
 
     // Act
-    const { body, statusCode } = await supertest(app).get("/api/topics");
+    const { body, statusCode } = await supertest(app).get("/development/question/topics");
 
     // Assert
     expect(statusCode).toEqual(HttpStatusCode.OK);

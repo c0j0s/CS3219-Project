@@ -7,7 +7,7 @@ import db from "../../models/db";
 const app = createServer();
 const dbMock = db as jest.Mocked<typeof db>;
 
-describe("DELETE /api/questions/:questionId", () => {
+describe("DELETE /development/question/questions/:questionId", () => {
   describe("Given an existing question id", () => {
     it("should return 204 with no content", async () => {
       const questionId = "existingquestionid123";
@@ -17,7 +17,7 @@ describe("DELETE /api/questions/:questionId", () => {
       dbMock.question.delete = jest.fn().mockResolvedValue(null);
 
       const { statusCode } = await supertest(app).delete(
-        `/api/questions/${questionId}`
+        `/development/question/questions/${questionId}`
       );
 
       expect(statusCode).toEqual(HttpStatusCode.NO_CONTENT);
@@ -30,7 +30,7 @@ describe("DELETE /api/questions/:questionId", () => {
       dbMock.question.findFirst = jest.fn().mockResolvedValue(null);
 
       const { body, statusCode } = await supertest(app).delete(
-        `/api/questions/${questionId}`
+        `/development/question/questions/${questionId}`
       );
 
       expect(statusCode).toEqual(HttpStatusCode.NOT_FOUND);
@@ -52,7 +52,7 @@ describe("DELETE /api/questions/:questionId", () => {
         .mockRejectedValue(new Error("Unexpected error"));
 
       const { body, statusCode } = await supertest(app).delete(
-        `/api/questions/${questionId}`
+        `/development/question/questions/${questionId}`
       );
 
       expect(statusCode).toEqual(HttpStatusCode.INTERNAL_SERVER_ERROR);
