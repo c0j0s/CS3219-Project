@@ -119,6 +119,6 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.task-def-matching.outputs.task-definition }}
-          service: ${{ env.ECS_SERVICE_QUESTION }}
+          service: ${{ env.ECS_SERVICE_MATCHING }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
