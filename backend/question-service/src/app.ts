@@ -3,10 +3,10 @@ import router from "./routes";
 import bodyParser from "body-parser";
 import cors from "./middleware/cors";
 import HttpStatusCode from "./lib/enums/HttpStatusCode";
-import dotenv from "dotenv";
 import PinoHttp from "pino-http";
 import logger from "./lib/utils/logger";
 import { authMiddleware } from "./middleware/auth";
+import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -23,8 +23,8 @@ app.use(bodyParser.json());
 
 // implement routes for API endpoints
 const NODE_ENV = process.env.NODE_ENV || 'development';
-// app.use(`/${NODE_ENV}/question`, authMiddleware, router);
-app.use(`/${NODE_ENV}/question`, router);
+app.use(`/${NODE_ENV}/question`, authMiddleware, router);
+// app.use(`/${NODE_ENV}/question`, router);
 
 
 app.all("*", (req: Request, res: Response) => {
