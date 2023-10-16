@@ -3,7 +3,7 @@ import User from "@/types/user";
 import { Avatar } from "@nextui-org/react";
 
 interface ProfilePictureProps {
-  profileUrl: string;
+  profileUrl?: string;
   size?: string;
 }
 
@@ -14,7 +14,9 @@ const ProfilePictureAvatar = ({
   return (
     <Avatar
       className={`transition-transform w-${size} h-${size}`}
-      src={profileUrl}
+      src={
+        profileUrl || "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+      }
     />
   );
 };

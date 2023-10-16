@@ -24,6 +24,11 @@ model User {
   createdOn   DateTime     @default(now())
   updatedOn   DateTime     @updatedAt
   preferences Preferences?
+
+  isVerified Boolean @default(false)
+  verificationToken String?
+
+  passwordResetToken String?
 }
 
 model Preferences {

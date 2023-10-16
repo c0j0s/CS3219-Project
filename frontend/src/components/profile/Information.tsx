@@ -11,7 +11,7 @@ import {
   Select,
 } from "@nextui-org/react";
 import User from "@/types/user";
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, Key, useEffect, useState } from "react";
 import { COMPLEXITY, LANGUAGE, TOPIC } from "@/types/enums";
 import { StringUtils } from "@/utils/stringUtils";
 import { ToastType } from "@/types/enums";
@@ -32,7 +32,7 @@ export default function Information({
   imageUrl,
   setIsChangePassword,
 }: InformationProps) {
-  const { user: currentUser, fetchUser } = useAuthContext();
+  const { mutate } = useAuthContext();
   const [name, setName] = useState<string>(user.name);
   const [bio, setBio] = useState<string>(user.bio ? user.bio : "");
   const [gender, setGender] = useState(user.gender ? user.gender : "OTHER");
@@ -111,7 +111,7 @@ export default function Information({
   let updatedUser: User = {
     name: name,
     email: user.email,
-    bio: bio ? bio : undefined,
+    bio: bio,
     role: user.role,
     gender: gender,
     image: imageUrl ? imageUrl : undefined,
@@ -123,9 +123,6 @@ export default function Information({
     preferences: Preference
   ) {
     e.preventDefault();
-
-    console.log(updatedUser);
-
     try {
       if (!user) {
         throw new Error("User not retrieved");
@@ -135,12 +132,9 @@ export default function Information({
         throw new Error("User ID not retrieved");
       }
 
-      let resPref = await UserService.updateUserPreference(
-        user.id,
-        preferences
-      );
-      let res = await UserService.updateUser(user.id, updatedUser);
-      await fetchUser(currentUser.id!);
+      await UserService.updateUserPreference(user.id, preferences);
+      await UserService.updateUser(user.id, updatedUser);
+      await mutate(true);
       displayToast("Information saved successfully!", ToastType.SUCCESS);
     } catch (error) {
       displayToast(
@@ -152,12 +146,12 @@ export default function Information({
 
   useEffect(() => {
     async function setUpTopics() {
-      await getTopics().then(topics => {
-        setTopicArray(topics)
-      })
+      await getTopics().then((topics) => {
+        setTopicArray(topics);
+      });
     }
     setUpTopics();
-  }, [])
+  }, []);
 
   return (
     <div>
@@ -176,8 +170,14 @@ export default function Information({
           label="Name"
           isClearable
           minLength={2}
+          maxLength={20}
           defaultValue={user.name}
           onValueChange={setName}
+          errorMessage={
+            (name.length < 2 && "Name must be at least 2 characters long") ||
+            (name.length == 20 &&
+              "Max length of 20 characters has been reached")
+          }
         />
         <Input
           label="Bio"
@@ -185,6 +185,10 @@ export default function Information({
           maxLength={50}
           defaultValue={user.bio}
           onValueChange={setBio}
+          onClear={() => setBio("")}
+          errorMessage={
+            bio.length == 50 && "Max length of 50 characters has been reached"
+          }
         />
         <div className="flex flex-row space-x-5 items-center">
           <p>Gender:</p>
@@ -194,7 +198,7 @@ export default function Information({
             </DropdownTrigger>
             <DropdownMenu
               aria-label="Gender"
-              onAction={(key) => handleGenderChange(String(key))}
+              onAction={(key: Key) => handleGenderChange(String(key))}
             >
               <DropdownItem key="MALE" color={"default"}>
                 Male
@@ -219,7 +223,7 @@ export default function Information({
             selectionMode="multiple"
             placeholder="Select a language"
             classNames={{
-              value: "capitalize"
+              value: "capitalize",
             }}
             selectedKeys={preferences.languages}
             onChange={handleOnLanguageChange}
@@ -236,7 +240,7 @@ export default function Information({
             selectionMode="multiple"
             placeholder="Select a complexity level"
             classNames={{
-              value: "capitalize"
+              value: "capitalize",
             }}
             selectedKeys={preferences.difficulties}
             onChange={handleOnDifficultyChange}
@@ -254,7 +258,7 @@ export default function Information({
             selectionMode="multiple"
             placeholder="Select a topic"
             classNames={{
-              value: "capitalize"
+              value: "capitalize",
             }}
             selectedKeys={preferences.topics}
             onChange={handleOnTopicChange}

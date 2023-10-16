@@ -3,7 +3,6 @@ import { getLogger } from "@/helpers/logger";
 import { HTTP_METHODS, SERVICE } from "@/types/enums";
 import User from "../../types/user";
 import HttpStatusCode from "@/types/HttpStatusCode";
-import { PeerPrepErrors } from "@/types/PeerPrepErrors";
 import { getError, throwAndLogError } from "@/utils/errorUtils";
 import Preference from "@/types/preference";
 
@@ -160,6 +159,7 @@ const updateUserPreference = async (
   userPreference: Preference,
   cache: RequestCache = "no-cache"
 ) => {
+  console.log(userPreference);
   // call PUT /api/users/:id/preferences from user service
   const response = await api({
     method: HTTP_METHODS.PUT,

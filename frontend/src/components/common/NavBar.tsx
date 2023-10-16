@@ -21,17 +21,16 @@ const NavBar = () => {
   const {
     user: { image },
     isAuthenticated,
-    logOut,
   } = useAuthContext();
   const router = useRouter();
   const handleEditProfileButtonPress = () => {
     router.push(CLIENT_ROUTES.PROFILE);
   };
   const handleLogoutButtonPress = async () => {
-    await logOut();
+    router.push(CLIENT_ROUTES.LOGOUT);
   };
 
-  if (!isAuthenticated()) {
+  if (!isAuthenticated) {
     return <></>;
   }
   return (
@@ -62,7 +61,7 @@ const NavBar = () => {
                 key="profile"
                 onClick={handleEditProfileButtonPress}
               >
-                View Profile
+                Edit Profile
               </DropdownItem>
             </DropdownSection>
             <DropdownSection>

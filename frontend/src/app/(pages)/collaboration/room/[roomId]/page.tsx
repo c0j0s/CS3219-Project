@@ -1,7 +1,7 @@
 "use client";
 
 import Workspace from "@/components/collab/Workspace";
-import { useEffect, useState } from "react";
+import { FC, useEffect } from "react";
 import { useCollabContext } from "@/contexts/collab";
 import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
 import ChatSpaceToggle from "@/components/collab/chat/ChatSpaceToggle";
@@ -33,6 +33,7 @@ const page = ({ params: { roomId } }: pageProps) => {
     }
 
     if (isNotFoundError) {
+      console.log("EROR");
       return notFound();
     }
 

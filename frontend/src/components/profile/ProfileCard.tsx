@@ -13,8 +13,6 @@ interface ProfileCardProps {
 }
 
 export default function ProfileCard({ user, setImageUrl }: ProfileCardProps) {
-  const [file, setFile] = useState<File>();
-  // const [imageUrl, setImageUrl] = useState<string>("");
   const [currImage, setCurrImage] = useState<string | undefined>(user.image);
 
   const inputFile = useRef<HTMLInputElement>(null);
@@ -113,7 +111,7 @@ export default function ProfileCard({ user, setImageUrl }: ProfileCardProps) {
               />
             </div>
             <Spacer x={5} />
-            <div className="flex flex-col align-left w-2/3">
+            <div className="flex flex-col align-left w-full">
               <text className="text-xl font-bold">{user.name}</text>
               <text className="text-m">{user.email}</text>
             </div>

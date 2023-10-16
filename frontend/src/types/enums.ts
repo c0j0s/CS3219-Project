@@ -2,6 +2,7 @@
 export enum SERVICE {
   USER = "users",
   QUESTION = "questions",
+  AUTH = "auth",
   MATCHING = "matching",
   COLLABORATION = "collaboration",
   TOPICS = "topics"

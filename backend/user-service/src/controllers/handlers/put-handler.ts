@@ -19,7 +19,6 @@ export const updateUserById = async (request: Request, response: Response) => {
     }
 
     const updateUserBody = UpdateUserValidator.parse(request.body);
-
     const inputBodyKeys = Object.keys(request.body).sort();
     const parsedBodyKeys = Object.keys(updateUserBody).sort();
 
@@ -47,7 +46,6 @@ export const updateUserById = async (request: Request, response: Response) => {
     }
 
     if (updateUserBody.email) {
-      console.log(updateUserBody.email);
       const existingUserWithSameEmail = await db.user.findFirst({
         where: {
           id: { not: userId },
@@ -165,6 +163,108 @@ export const updateUserPreferences = async (
       });
       return;
     }
+    console.log(error);
+    response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      error: "INTERNAL SERVER ERROR",
+      message: "An unexpected error has occurred.",
+    });
+  }
+};
+
+export const updateVerification = async (
+  request: Request,
+  response: Response
+) => {
+  try {
+    const email = request.params.email;
+
+    // query database for user email
+    const user = await db.user.findFirst({
+      where: {
+        email: email,
+      },
+    });
+
+    if (!user) {
+      response.status(HttpStatusCode.NOT_FOUND).json({
+        error: "NOT FOUND",
+        message: `User with id ${email} cannot be found.`,
+      });
+      return;
+    }
+
+    await db.user.update({
+      where: {
+        email: email,
+      },
+      data: { isVerified: true, verificationToken: "" },
+    });
+
+    response.status(HttpStatusCode.NO_CONTENT).send();
+  } catch (error) {
+    if (error instanceof ZodError) {
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: formatErrorMessage(error),
+      });
+      return;
+    }
+    // log the error
+    console.log(error);
+    response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      error: "INTERNAL SERVER ERROR",
+      message: "An unexpected error has occurred.",
+    });
+  }
+};
+
+export const updatePasswordResetToken = async (
+  request: Request,
+  response: Response
+) => {
+  try {
+    const email = request.params.email;
+    const passwordResetToken = request.body.passwordResetToken;
+
+    // query database for user email
+    const user = await db.user.findFirst({
+      where: {
+        email: email,
+      },
+    });
+
+    if (!user) {
+      response.status(HttpStatusCode.NOT_FOUND).json({
+        error: "NOT FOUND",
+        message: `User with id ${email} cannot be found.`,
+      });
+      return;
+    }
+
+    await db.user.update({
+      where: {
+        email: email,
+      },
+      data: { passwordResetToken: passwordResetToken },
+    });
+
+    response
+      .status(HttpStatusCode.OK)
+      .json({
+        id: user.id,
+        email: email,
+        passwordResetToken: passwordResetToken,
+        message: "Password token added",
+      });
+  } catch (error) {
+    if (error instanceof ZodError) {
+      response.status(HttpStatusCode.BAD_REQUEST).json({
+        error: "BAD REQUEST",
+        message: formatErrorMessage(error),
+      });
+      return;
+    }
+    // log the error
     console.log(error);
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
       error: "INTERNAL SERVER ERROR",

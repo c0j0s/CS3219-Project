@@ -14,16 +14,15 @@ import {
 import PeerPrepLogo from "@/components/common/PeerPrepLogo";
 import { UserService } from "@/helpers/user/user_api_wrappers";
 import { CLIENT_ROUTES } from "@/common/constants";
-// import { useRouter } from "next/router";
 import { useRouter, useParams } from "next/navigation";
 import { PeerPrepErrors } from "@/types/PeerPrepErrors";
 import User from "@/types/user";
 import { Role } from "@/types/enums";
-import { toast } from "react-toastify";
 import displayToast from "@/components/common/Toast";
 import { ToastType } from "@/types/enums";
-import { useAuthContext } from "@/contexts/auth";
 import bcrypt from "bcryptjs-react";
+import { AuthService } from "@/helpers/auth/auth_api_wrappers";
+import { useAuthContext } from "@/contexts/auth";
 
 export function LoginComponent() {
   const { logIn } = useAuthContext();
@@ -64,6 +63,8 @@ export function LoginComponent() {
       setErrorMsg("Passwords do not match. Please try again.");
     } else if (name !== "" && name.length < 2) {
       setErrorMsg("Name has to contain at least 2 characters");
+    } else if (name.length > 20) {
+      setErrorMsg("Name can only be at most 20 characters");
     } else {
       setErrorMsg("");
     }
@@ -90,7 +91,6 @@ export function LoginComponent() {
     setIsSubmitted(true);
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log(hashedPassword);
 
     let user: User = {
       name: name,
@@ -100,11 +100,9 @@ export function LoginComponent() {
     };
 
     try {
-      let res = await UserService.createUser(user);
-      // Update the user context in AuthProvider
-      await logIn(email);
+      await AuthService.registerByEmail(user);
       displayToast("Sign up success!", ToastType.SUCCESS);
-      router.push(CLIENT_ROUTES.HOME); //TODO: Update with verifying OTP/Email address when auth
+      router.push(CLIENT_ROUTES.VERIFY); //TODO: Update with verifying OTP/Email address when auth
       sessionStorage.setItem("email", email.toString());
     } catch (error) {
       if (error instanceof PeerPrepErrors.ConflictError) {
@@ -113,6 +111,7 @@ export function LoginComponent() {
           ToastType.ERROR
         );
       } else {
+        console.log(error);
         displayToast(
           "Something went wrong. Please refresh and try again.",
           ToastType.ERROR
@@ -128,13 +127,20 @@ export function LoginComponent() {
     e.preventDefault();
     try {
       setIsSubmitted(true);
-      await logIn(email);
+      await logIn(email, password);
       displayToast("Login success!", ToastType.SUCCESS);
       router.push(CLIENT_ROUTES.HOME);
     } catch (error) {
       if (error instanceof PeerPrepErrors.NotFoundError) {
         displayToast(
           "User not found, please sign up instead.",
+          ToastType.ERROR
+        );
+      } else if (error instanceof PeerPrepErrors.UnauthorisedError) {
+        displayToast("Incorrect password. Please try again.", ToastType.ERROR);
+      } else if (error instanceof PeerPrepErrors.ForbiddenError) {
+        displayToast(
+          "Please verify your email before logging in.",
           ToastType.ERROR
         );
       } else {
@@ -187,9 +193,9 @@ export function LoginComponent() {
                 onClick={togglePasswordVisibility}
               >
                 {isPasswordVisible ? (
-                  <Image src="/eye-hide.svg" />
+                  <Image src="/assets/eye-hide.svg" />
                 ) : (
-                  <Image src="/eye-show.svg" />
+                  <Image src="/assets/eye-show.svg" />
                 )}
               </Button>
             }
@@ -215,9 +221,9 @@ export function LoginComponent() {
                     onClick={() => toggleCheckPasswordVisibility()}
                   >
                     {isCheckPasswordVisible ? (
-                      <Image src="/eye-hide.svg" />
+                      <Image src="/assets/eye-hide.svg" />
                     ) : (
-                      <Image src="/eye-show.svg" />
+                      <Image src="/assets/eye-show.svg" />
                     )}
                   </Button>
                 }
@@ -259,34 +265,20 @@ export function LoginComponent() {
           ) : (
             <>
               <Spacer y={3} />
-              <div className="flex justify-between">
-                <Checkbox
-                  size="sm"
-                  onClick={() => {
-                    setIsRemembered(true);
-                  }}
-                >
-                  Remember me
-                </Checkbox>
+              <div className="flex flex-col items-center pt-2">
                 <Button
-                  className="focus:outline-none p-1"
+                  className="w-1/2"
                   type="submit"
                   isLoading={isSubmitted}
-                  isIconOnly
                   aria-label="Submit"
-                  size="sm"
                   color="primary"
-                  // onClick={() => {
-                  //   setIsSubmitted(true);
-                  // }}
-                  // href="/verify"
                 >
-                  {!isSubmitted ? <Image src="submit_button.svg" /> : null}
+                  {isSubmitted ? null : <>Log In</>}
                 </Button>
               </div>
               <Spacer y={5} />
               <div className="flex justify-between">
-                <Link size="sm" href="#">
+                <Link size="sm" href="/forgotpassword">
                   Forgot password?
                 </Link>
                 <Link
@@ -300,19 +292,6 @@ export function LoginComponent() {
                 </Link>
               </div>
               <Spacer y={5} />
-              <Divider />
-              <Spacer y={5} />
-              <div className="flex items-center justify-between h-10 w-100%">
-                <header className="text-xs">Sign in with:</header>
-                <div className="flex justify-between space-x-5 p-x-5">
-                  <Button className="p-2" isIconOnly variant="faded">
-                    <Image src="/github.svg" />
-                  </Button>
-                  <Button className="p-2" isIconOnly variant="faded">
-                    <Image src="/google.svg" />
-                  </Button>
-                </div>
-              </div>
             </>
           )}
         </form>

@@ -17,7 +17,7 @@ const verifyOrigin = (origin: string | undefined, callback: any) => {
 };
 
 const corsOptions = {
-  // credentials: true, // We need to allow this when we have the authentication functionality
+  credentials: true, // We need to allow this when we have the authentication functionality
   origin: verifyOrigin,
   methods: ["GET", "POST", "PUT", "DELETE"],
 };

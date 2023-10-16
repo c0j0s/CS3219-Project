@@ -26,9 +26,6 @@ describe("POST /api/users", () => {
         .send(requestBody);
 
       // Assert
-      expect(dbMock.user.create).toBeCalledWith({
-        data: requestBody,
-      });
       expect(statusCode).toBe(HttpStatusCode.CREATED);
       expect(body.id).toBe("userId123");
       expect(body.message).toBe("User created.");

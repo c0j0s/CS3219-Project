@@ -16,4 +16,9 @@ type UserProfile = {
   image?: string;
   createdOn?: Date;
   updatedOn?: Date;
+
+  isVerified: Boolean;
+  verificationToken?: String;
+
+  passwordResetToken?: String;
 };

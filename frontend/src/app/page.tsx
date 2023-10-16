@@ -5,14 +5,5 @@ import Landing from "@/components/landing/Landing";
 import { useAuthContext } from "@/contexts/auth";
 
 export default function Home() {
-  const { user, isAuthenticated } = useAuthContext();
-
-  const renderComponent = () => {
-    if (!isAuthenticated()) {
-      return <Landing />;
-    } else {
-      return <Dashboard />;
-    }
-  };
-  return renderComponent();
+  return <Landing />;
 }

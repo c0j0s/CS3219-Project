@@ -1,7 +1,7 @@
-import { CLIENT_ROUTES } from "@/common/constants";
+"use client";
 import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
-import { UserService } from "@/helpers/user/user_api_wrappers";
-import { Role, Status } from "@/types/enums";
+import { AuthService } from "@/helpers/auth/auth_api_wrappers";
+import { Role } from "@/types/enums";
 import User from "@/types/user";
 import { StringUtils } from "@/utils/stringUtils";
 import { useRouter } from "next/navigation";
@@ -9,14 +9,10 @@ import { createContext, useContext, useEffect, useState } from "react";
 
 interface IAuthContext {
   user: User;
-  fetchUser: (userId: string) => Promise<void>;
-  logIn: (email: string) => Promise<void>;
+  mutate: (preventLoading: boolean) => Promise<void>;
+  isAuthenticated: boolean;
+  logIn: (email: string, password: string) => Promise<void>;
   logOut: () => Promise<void>;
-  isAuthenticated: () => boolean;
-}
-
-interface IAuthProvider {
-  children: React.ReactNode;
 }
 
 const defaultUser: User = {
@@ -24,7 +20,7 @@ const defaultUser: User = {
   name: "",
   email: "",
   role: Role.USER,
-  image: "https://cdn-icons-png.flaticon.com/512/149/149071.png",
+  image: "",
   preferences: {
     languages: [],
     difficulties: [],
@@ -34,13 +30,15 @@ const defaultUser: User = {
 
 const AuthContext = createContext<IAuthContext>({
   user: defaultUser,
-  fetchUser: (userId: string) => Promise.resolve(),
-  logIn: () => Promise.resolve(),
-  isAuthenticated: () => true,
+  mutate: () => Promise.resolve(),
+  isAuthenticated: false,
+  logIn: (email: string, password: string) => Promise.resolve(),
   logOut: () => Promise.resolve(),
 });
 
-const useAuthContext = () => useContext(AuthContext);
+interface IAuthProvider {
+  children: React.ReactNode;
+}
 
 const AuthProvider = ({ children }: IAuthProvider) => {
   const [user, setUser] = useState<User>(defaultUser);
@@ -48,28 +46,27 @@ const AuthProvider = ({ children }: IAuthProvider) => {
   const router = useRouter();
 
   useEffect(() => {
-    const userId = sessionStorage.getItem("userId");
-    if (userId) {
-      const parsedUserId = JSON.parse(userId);
-      fetchUser(parsedUserId);
-    } else {
-      setIsLoading(false);
-    }
+    fetchUser();
   }, []);
 
-  const fetchUser = async (userId: string) => {
+  //fetch user using JWT cookie
+  const fetchUser = async (preventLoading?: boolean) => {
+    !preventLoading && setIsLoading(true);
     try {
-      setIsLoading(true);
-
-      if (!userId) return;
-
-      const rawUser = await UserService.getUserById(userId);
+      const rawUser = await AuthService.validateUser();
       updateUser(rawUser);
-
-      setUser(rawUser);
+    } catch (error) {
+      console.log({ error });
+      setUser(defaultUser);
     } finally {
-      setIsLoading(false);
+      !preventLoading && setIsLoading(false);
     }
+  };
+
+  //formats preferences and sets user in state
+  const updateUser = (rawUser: User) => {
+    formatPreferences(rawUser);
+    setUser(rawUser);
   };
 
   const formatPreferences = (rawUser: User) => {
@@ -80,30 +77,18 @@ const AuthProvider = ({ children }: IAuthProvider) => {
     };
   };
 
-  const logIn = async (email: string) => {
-    const rawUser = await UserService.getUserByEmail(email);
-    updateUser(rawUser);
-  };
-
-  const updateUser = (rawUser: User | undefined) => {
-    if (!rawUser) return;
-    formatPreferences(rawUser);
-    setUser(rawUser);
-    sessionStorage.setItem("userId", JSON.stringify(rawUser.id));
-  };
-
-  const isAuthenticated = () => {
-    return !!user.id;
+  const logIn = async (email: string, password: string) => {
+    await AuthService.logInByEmail(email, password);
+    await fetchUser(true);
+    console.log("logged in!");
   };
 
   const logOut = async () => {
-    // TODO: Clear cookie from backend
-    sessionStorage.removeItem("userId");
     setUser(defaultUser);
-    router.push(CLIENT_ROUTES.HOME);
+    await AuthService.logOut();
   };
 
-  const renderChildren = () => {
+  const renderComponents = () => {
     if (isLoading) {
       // this is the loading component that will render in every page when fetching user auth status
       return <LogoLoadingComponent />;
@@ -111,13 +96,21 @@ const AuthProvider = ({ children }: IAuthProvider) => {
     return children;
   };
 
-  const context = { user, fetchUser, logIn, isAuthenticated, logOut };
-
   return (
-    <AuthContext.Provider value={context}>
-      {renderChildren()}
+    <AuthContext.Provider
+      value={{
+        user,
+        mutate: fetchUser,
+        isAuthenticated: !!user.id,
+        logIn,
+        logOut,
+      }}
+    >
+      {renderComponents()}
     </AuthContext.Provider>
   );
 };
+
+const useAuthContext = () => useContext(AuthContext);
 
 export { useAuthContext, AuthProvider };

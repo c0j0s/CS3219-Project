@@ -1,4 +1,3 @@
-import React from "react";
 import ProfileDashboardCard from "./ProfileDashboardCard";
 import HeatmapCard from "./HeatmapCard";
 import MatchingCard from "../matching/MatchingCard";

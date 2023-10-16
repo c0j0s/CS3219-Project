@@ -1,9 +1,10 @@
-import express, { Express, Request, Response } from "express";
+import express, { Express, NextFunction, Request, Response } from "express";
 import dotenv from "dotenv";
 import router from "./routes";
 import bodyParser from "body-parser";
 import HttpStatusCode from "./lib/enums/HttpStatusCode";
 import cors from "./middleware/cors";
+import { authMiddleware } from "./middleware/auth";
 
 dotenv.config();
 
@@ -15,8 +16,10 @@ app.use(cors);
 // implement body-parser for parsing request body
 app.use(bodyParser.json());
 
+app.use(express.json());
+
 // implement routes for API endpoints
-app.use("/api", router);
+app.use("/api", authMiddleware, router);
 
 app.all("*", (req: Request, res: Response) => {
   res.status(HttpStatusCode.NOT_FOUND).json({

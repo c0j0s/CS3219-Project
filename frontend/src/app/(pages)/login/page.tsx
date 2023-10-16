@@ -1,14 +1,10 @@
-import React from 'react'
-import { LoginComponent } from '@/components/login/Login';
-import { redirect } from "next/navigation";
-import api from "@/helpers/endpoint";
-import type { Metadata } from "next";
+import React from "react";
+import { LoginComponent } from "@/components/login/Login";
 
 export default function LoginPage() {
-
-    return (
-        <>
-            <LoginComponent/>
-        </>
-    )
+  return (
+    <>
+      <LoginComponent />
+    </>
+  );
 }

@@ -9,9 +9,6 @@ const Landing = () => {
   const handleLogInButtonPress = () => {
     router.push(CLIENT_ROUTES.LOGIN);
   };
-  const handleSignUpButtonPress = () => {
-    router.push(CLIENT_ROUTES.SIGN_UP);
-  };
 
   return (
     <div className="grid grid-cols-2 gap-5 h-screen">
@@ -20,18 +17,12 @@ const Landing = () => {
       </div>
       <div className="grid-col-2 self-center">
         <p className="text-[500%] font-semibold"> PeerPrep </p>
-        <div className="flex flex-row justify-start gap-4">
+        <div className="flex flex-row justify-left gap-4">
           <Button
             className="bg-yellow text-black w-[150px]"
             onPress={handleLogInButtonPress}
           >
-            Log In
-          </Button>
-          <Button
-            className="bg-light-blue text-black w-[150px]"
-            onPress={handleSignUpButtonPress}
-          >
-            Sign Up
+            Start Now
           </Button>
         </div>
       </div>

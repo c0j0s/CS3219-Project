@@ -1,6 +1,8 @@
 "use server";
 import { HTTP_METHODS, SERVICE } from "@/types/enums";
 import { getLogger } from "./logger";
+import { cookies } from "next/headers";
+import HttpStatusCode from "@/types/HttpStatusCode";
 
 const logger = getLogger("endpoint");
 
@@ -15,6 +17,7 @@ type ApiConfig = {
   body?: {}; // Optional request body.
   tags?: string[]; // Optional array of caching scopes.
   cache?: RequestCache;
+  deleteJWTCookie?: boolean;
 };
 
 /**
@@ -46,12 +49,17 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
     config.path || ""
   }`;
 
-  console.log(config.body);
+  // If JWT cookies exist in the browser, add them to the request header.
+  let jwtCookieString = "";
+  if (cookies().get("jwt")) {
+    jwtCookieString = cookies().toString();
+  }
 
   // Build the final request header
   const header = {
     ...(config.body ? { "Content-Type": "application/json" } : {}),
     ...config.header,
+    Cookie: jwtCookieString,
   };
   logger.info(header, `[endpoint] ${config.method}: ${endpoint}`);
 
@@ -72,8 +80,31 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
       cache: config.cache,
     });
 
+    // If the response contains a JWT cookie, set it in the browser.
+    const resCookie = res.headers.get("set-cookie");
+    if (resCookie) {
+      const cookieVal = resCookie.split("=");
+      if (cookieVal[0] == "jwt") {
+        cookies().set("jwt", cookieVal[1].split("; ")[0], {
+          httpOnly: true,
+          secure: false,
+        });
+        logger.info(`JWT cookie has been set into browser`);
+      }
+    }
+
+    // If deleteCookie is true, delete the JWT cookie from the browser.
+    if (config.deleteJWTCookie) {
+      cookies().delete("jwt");
+      logger.info(`JWT cookie has been removed from browser`);
+    }
+
     // Parse the response body for all status codes except 204 (no content), expand this to handle more codes without content.
-    let data = res.status != 204 ? await res.json() : {};
+    let data =
+      res.status != HttpStatusCode.NO_CONTENT &&
+      res.status != HttpStatusCode.UNAUTHORIZED
+        ? await res.json()
+        : {};
     logger.info(`[${res.status}] ${config.method}: ${res.url}`);
 
     // Return an ApiResponse object with status, data, and message.
@@ -131,6 +162,9 @@ function getServicePorts(service: SERVICE) {
         break;
       case SERVICE.USER:
         servicePort += process.env.ENDPOINT_USER_PORT || "";
+        break;
+      case SERVICE.AUTH:
+        servicePort += process.env.ENDPOINT_AUTH_PORT || "";
         break;
       case SERVICE.MATCHING:
         servicePort += process.env.ENDPOINT_MATCHING_PORT || "";

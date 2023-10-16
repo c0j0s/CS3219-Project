@@ -6,6 +6,7 @@ import HttpStatusCode from "./lib/enums/HttpStatusCode";
 import dotenv from "dotenv";
 import PinoHttp from "pino-http";
 import logger from "./lib/utils/logger";
+import { authMiddleware } from "./middleware/auth";
 
 dotenv.config();
 
@@ -22,7 +23,7 @@ app.use(bodyParser.json());
 
 // implement routes for API endpoints
 const NODE_ENV = process.env.NODE_ENV || 'development';
-app.use(`/${NODE_ENV}`, router);
+app.use("/${NODE_ENV}", authMiddleware, router);
 
 app.all("*", (req: Request, res: Response) => {
   res.status(HttpStatusCode.NOT_FOUND).json({
