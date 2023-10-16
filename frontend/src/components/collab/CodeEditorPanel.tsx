@@ -7,28 +7,28 @@ import { getCodeTemplate } from "@/utils/defaultCodeUtils";
 import { useCollabContext } from "@/contexts/collab";
 
 const CodeEditorPanel: FC = ({}) => {
-  const { matchedLanguage, question, socketService } = useCollabContext();
-  if (!socketService) {
-    return null;
-  }
+  const [error, setError] = useState(false);
 
-  const questionTitle = question?.title || "";
+  const { matchedLanguage, question, socketService } = useCollabContext();
+  if (!socketService) setError(true);
+
+  const questionTitle = question?.title || setError(true);
   const editorRef = useRef(null);
   const [hasSessionTimerEnded, setHasSessionTimerEnded] =
     useState<boolean>(false);
 
   const [currentCode, setCurrentCode] = useState<string>(
-    getCodeTemplate(matchedLanguage, questionTitle)
+    getCodeTemplate(matchedLanguage, questionTitle!)
   );
 
   useEffect(() => {
-    socketService.receiveCodeUpdate(setCurrentCode);
+    socketService!.receiveCodeUpdate(setCurrentCode);
   }, [socketService]);
 
   const handleEditorChange = (currentContent: string | undefined) => {
-    if (!currentContent) return;
+    if (!currentContent) setError(true);
     setCurrentCode(currentContent!);
-    socketService.sendCodeChange(currentContent!);
+    socketService!.sendCodeChange(currentContent!);
   };
 
   const handleEditorDidMount = async (editor: any, monaco: any) => {
@@ -36,12 +36,15 @@ const CodeEditorPanel: FC = ({}) => {
   };
 
   const handleResetToDefaultCode = () => {
-    setCurrentCode(getCodeTemplate(matchedLanguage, questionTitle));
-    socketService.sendCodeChange(
-      getCodeTemplate(matchedLanguage, questionTitle)
+    setCurrentCode(getCodeTemplate(matchedLanguage, questionTitle!));
+    socketService!.sendCodeChange(
+      getCodeTemplate(matchedLanguage, questionTitle!)
     );
   };
 
+  if (error) {
+    return <></>
+  } 
   return (
     <div className="h-[calc(100vh-60px)]">
       <CodeEditorNavbar handleResetToDefaultCode={handleResetToDefaultCode} />

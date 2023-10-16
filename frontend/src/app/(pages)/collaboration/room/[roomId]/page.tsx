@@ -1,7 +1,7 @@
 "use client";
 
 import Workspace from "@/components/collab/Workspace";
-import { FC, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useCollabContext } from "@/contexts/collab";
 import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
 import ChatSpaceToggle from "@/components/collab/chat/ChatSpaceToggle";
@@ -13,8 +13,9 @@ interface pageProps {
   };
 }
 
-const page = ({ params: { roomId } }: pageProps) => {
+export default function RoomPage() {
   const searchParams = useSearchParams();
+  const roomId = searchParams.get("roomId")!;
   const partnerId = searchParams.get("partnerId")!;
   const questionId = searchParams.get("questionId")!;
   const language = searchParams.get("language")!;
@@ -33,7 +34,6 @@ const page = ({ params: { roomId } }: pageProps) => {
     }
 
     if (isNotFoundError) {
-      console.log("EROR");
       return notFound();
     }
 
@@ -58,5 +58,3 @@ const page = ({ params: { roomId } }: pageProps) => {
     </div>
   );
 };
-
-export default page;

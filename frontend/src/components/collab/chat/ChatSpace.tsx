@@ -17,8 +17,9 @@ interface IChatSpaceProps {
 
 const ChatSpace = ({ unreadMessages, onClose, setUnreadMessages, isOpen }: IChatSpaceProps) => {
   const { partner, user, socketService } = useCollabContext();
+  const [ error, setError ] = useState(false);
 
-  if (!socketService || !partner || !user) return null;
+  if (!socketService || !partner || !user) setError(true);
 
   const scrollTargetRef = useRef<HTMLDivElement>(null);
 
@@ -48,12 +49,12 @@ const ChatSpace = ({ unreadMessages, onClose, setUnreadMessages, isOpen }: IChat
   }, [isOpen])
 
   useEffect(() => {
-    socketService.updateChatMessages(setNewMessages);
-    socketService.receiveChatList(setMessages);
+    socketService?.updateChatMessages(setNewMessages);
+    socketService?.receiveChatList(setMessages);
   }, []);
 
   useEffect(() => {
-    if (newMessage.content !== "" && newMessage.senderId !== user.id) {
+    if (newMessage.content !== "" && newMessage.senderId !== user!.id) {
       setMessages([...messages, newMessage]);
       scrollToNewestMessage();
     }
@@ -69,11 +70,11 @@ const ChatSpace = ({ unreadMessages, onClose, setUnreadMessages, isOpen }: IChat
 
     const message = {
       content: messageContent,
-      senderId: user.id!,
+      senderId: user!.id!,
     };
 
     setMessages([...messages, message]);
-    socketService.sendChatMessage(message);
+    socketService!.sendChatMessage(message);
 
     e.currentTarget.message.value = "";
     scrollToNewestMessage();
@@ -82,9 +83,9 @@ const ChatSpace = ({ unreadMessages, onClose, setUnreadMessages, isOpen }: IChat
     <div className={`bg-black rounded-xl w-[400px] p-2`}>
       <div className="flex w-full justify-between mb-2">
         <div className="flex items-center gap-2">
-          <ProfilePictureAvatar profileUrl={partner.image!} size="8" />
+          <ProfilePictureAvatar profileUrl={partner!.image!} size="8" />
 
-          <span className="font-semibold text-sm"> {partner.name} </span>
+          <span className="font-semibold text-sm"> {partner!.name} </span>
         </div>
         <Button isIconOnly variant="light" onPress={onClose}>
           <RxCross2 />
@@ -104,7 +105,7 @@ const ChatSpace = ({ unreadMessages, onClose, setUnreadMessages, isOpen }: IChat
               <ChatBubble
                 key={crypto.randomUUID()}
                 message={item}
-                isSelf={item.senderId === user.id!}
+                isSelf={item.senderId === user!.id!}
               />
             ))}
           </ul>
