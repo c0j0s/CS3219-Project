@@ -1,0 +1,124 @@
+name: Build and deploy image to AWS ECS
+
+on:
+  push:
+    branches: [ "master", "development", "production" ]
+
+env:
+  AWS_REGION: ap-southeast-1
+  ECR_REPOSITORY: peerprep-dev
+  ECS_CLUSTER: peerprep-stack-dev-PeerprepECSCluster-j9yZmKM2OTY8
+  
+  ECS_SERVICE_QUESTION: peerprep-stack-dev-ServiceQuestion-DTv7pjUnCaSn
+  ECS_SERVICE_MATCHING: peerprep-stack-dev-ServiceMatching-yLyiOQ2klfeW 
+
+  ECS_TASK_DEFINITION_QUESTION: .aws/peerprep-task-def-question.json
+  ECS_TASK_DEFINITION_MATCHING: .aws/peerprep-task-def-matching.json
+
+  AUTH_CONTAINER_NAME: auth-service
+  USER_CONTAINER_NAME: user-service
+  QUESTION_CONTAINER_NAME: question-service
+  MATCHING_CONTAINER_NAME: matching-service
+  COLLABORATION_CONTAINER_NAME: collaboration-service
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build service images
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+  
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+  
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push ${{ env.QUESTION_CONTAINER_NAME }} image to Amazon ECR
+        id: build-question-service-image
+        env:
+          ENV: ${{ vars.BUILD_ENV }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ env.QUESTION_CONTAINER_NAME }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          LOG_LEVEL: ${{ vars.LOG_LEVEL }}
+        run: |
+          cd backend/$IMAGE_TAG
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . --build-arg NODE_ENV=$ENV --build-arg LOG_LEVEL=$LOG_LEVEL --build-arg DATABASE_URL=$DATABASE_URL
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      - name: Build, tag, and push ${{ env.MATCHING_CONTAINER_NAME }} image to Amazon ECR
+        id: build-matching-service-image
+        env:
+          ENV: ${{ vars.BUILD_ENV }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ env.MATCHING_CONTAINER_NAME }}
+          LOG_LEVEL: ${{ vars.LOG_LEVEL }}
+          MATCHING_TIMEOUT: ${{ vars.MATCHING_TIMEOUT }}
+        run: |
+          cd backend/$IMAGE_TAG
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . --build-arg NODE_ENV=$ENV --build-arg LOG_LEVEL=$LOG_LEVEL --build-arg MATCHING_TIMEOUT=$MATCHING_TIMEOUT
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+  config:
+    name: Deploy cluster and service
+    runs-on: ubuntu-latest
+    environment: development
+    needs: build
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Fill in the ${{ env.QUESTION_CONTAINER_NAME }} image ID in the Amazon ECS task definition
+        id: task-def-question
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ env.ECS_TASK_DEFINITION_QUESTION }}
+          container-name: ${{ env.QUESTION_CONTAINER_NAME }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.QUESTION_CONTAINER_NAME }}
+
+      - name: Deploy Amazon ECS ${{ env.QUESTION_CONTAINER_NAME }} task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def-question.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE_QUESTION }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
+
+      - name: Fill in the ${{ env.MATCHING_CONTAINER_NAME }} image ID in the Amazon ECS task definition
+        id: task-def-matching
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ env.ECS_TASK_DEFINITION_MATCHING }}
+          container-name: ${{ env.MATCHING_CONTAINER_NAME }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.MATCHING_CONTAINER_NAME }}
+
+      - name: Deploy Amazon ECS ${{ env.MATCHING_CONTAINER_NAME }} task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def-matching.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE_QUESTION }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
