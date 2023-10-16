@@ -1,5 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import HttpStatusCode from "../lib/enums/HttpStatusCode";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 export const authMiddleware = async (
   req: Request,
@@ -11,8 +14,25 @@ export const authMiddleware = async (
     return;
   }
 
-  const NODE_ENV = process.env.NODE_ENV || 'development';
   // Only allow GET requests to /development/question/questions to pass through with just user rights
+  const cookies = req.headers.cookie;
+  
+  const jwtCookieString = cookies
+  ?.split(";")
+  .find((cookie) => cookie.split("=")[0].trim() == "jwt")
+  ?.split("=")[1];
+  
+  //If there is no JWT, do not need to go through auth
+  if (!jwtCookieString) {
+    res.status(HttpStatusCode.UNAUTHORIZED).json({
+      error: "Unauthorised",
+      message: "Unauthorised",
+    });
+    return;
+  }
+  
+  // Only allow GET requests to /api/questions to pass through with just user rights
+  const NODE_ENV = process.env.NODE_ENV || 'development';
   const authEndpoint =
     req.method === "GET"
       ? process.env.AUTH_ENDPOINT || `http://localhost:5050/${NODE_ENV}/auth/auth/validate`
@@ -22,8 +42,7 @@ export const authMiddleware = async (
   const authRes = await fetch(authEndpoint, {
     method: "POST",
     headers: {
-      ...(req.headers as HeadersInit), // Pass headers from the incoming request
-      "content-length": "0", // Override content-length to 0
+      Cookie: `jwt=${jwtCookieString}`,
     },
   });
 

@@ -20,13 +20,30 @@ export const authMiddleware = async (
     return;
   }
 
+  const cookies = req.headers.cookie;
+
+  const jwtCookieString = cookies
+    ?.split(";")
+    .find((cookie) => cookie.split("=")[0].trim() == "jwt")
+    ?.split("=")[1];
+
+  //If there is no JWT, do not need to go through auth
+  if (!jwtCookieString) {
+    res.status(HttpStatusCode.UNAUTHORIZED).json({
+      error: "Unauthorised",
+      message: "Unauthorised",
+    });
+    return;
+  }
+
+  //If there is JWT, validate it through the auth endpoint
   const authEndpoint =
     process.env.AUTH_ENDPOINT || "http://localhost:5050/api/auth/validate";
+
   const authRes = await fetch(authEndpoint, {
     method: "POST",
     headers: {
-      ...(req.headers as HeadersInit), // Pass headers from the incoming request
-      "content-length": "0", // Override content-length to 0
+      Cookie: `jwt=${jwtCookieString}`,
     },
   });
 

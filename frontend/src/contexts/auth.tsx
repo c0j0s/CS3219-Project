@@ -80,7 +80,6 @@ const AuthProvider = ({ children }: IAuthProvider) => {
   const logIn = async (email: string, password: string) => {
     await AuthService.logInByEmail(email, password);
     await fetchUser(true);
-    console.log("logged in!");
   };
 
   const logOut = async () => {

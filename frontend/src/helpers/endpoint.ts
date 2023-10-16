@@ -83,9 +83,13 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
     // If the response contains a JWT cookie, set it in the browser.
     const resCookie = res.headers.get("set-cookie");
     if (resCookie) {
-      const cookieVal = resCookie.split("=");
-      if (cookieVal[0] == "jwt") {
-        cookies().set("jwt", cookieVal[1].split("; ")[0], {
+      const jwtCookieString = resCookie
+        ?.split(";")
+        .find((cookie) => cookie.split("=")[0].trim() == "jwt")
+        ?.split("=")[1];
+
+      if (jwtCookieString) {
+        cookies().set("jwt", jwtCookieString, {
           httpOnly: true,
           secure: false,
         });
