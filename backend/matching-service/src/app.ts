@@ -26,7 +26,8 @@ app.use(cors);
 app.use(bodyParser.json());
 
 // implement routes for API endpoints
-app.use("/api", router);
+const NODE_ENV = process.env.NODE_ENV || 'development';
+app.use(`/${NODE_ENV}`, router);
 
 app.all("*", (req: Request, res: Response) => {
   res.status(HttpStatusCode.NOT_FOUND).json({
@@ -47,12 +48,12 @@ io.on(SocketEvent.CONNECTION_ERROR, (error) => {
   logger.error(error, 'Connection error..');
 });
 
-const SERVICE_PORT = process.env.SERVICE_PORT || 5200;
+const PORT = process.env.SERVICE_PORT || 5200;
 const LOG_LEVEL = process.env.LOG_LEVEL || 'debug';
 const MATCHING_TIMEOUT = process.env.MATCHING_TIMEOUT || 60000;
 
-httpServer.listen(SERVICE_PORT, () => {
-  logger.info(`Matching server running on port ${SERVICE_PORT} with room_timeout:${MATCHING_TIMEOUT}, log_level:${LOG_LEVEL}.`);
+httpServer.listen(PORT, () => {
+  logger.info(`Server running at port[${PORT}] build[${NODE_ENV}] log[${LOG_LEVEL}] timeout[${MATCHING_TIMEOUT}]`);
 });
 
 export { io };

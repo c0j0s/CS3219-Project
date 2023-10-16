@@ -21,7 +21,8 @@ app.use(cors);
 app.use(bodyParser.json());
 
 // implement routes for API endpoints
-app.use("/api", router);
+const NODE_ENV = process.env.NODE_ENV || 'development';
+app.use(`/${NODE_ENV}`, router);
 
 app.all("*", (req: Request, res: Response) => {
   res.status(HttpStatusCode.NOT_FOUND).json({
@@ -30,10 +31,9 @@ app.all("*", (req: Request, res: Response) => {
   });
 });
 
-
 const PORT = process.env.SERVICE_PORT || 5100;
 const LOG_LEVEL = process.env.LOG_LEVEL || 'debug';
 
 app.listen(PORT, () => {
-  logger.info(`Question service running on port ${PORT} with log_level:${LOG_LEVEL}.`);
+  logger.info(`Server running at port[${PORT}] build[${NODE_ENV}] log[${LOG_LEVEL}]`);
 });

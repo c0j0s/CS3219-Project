@@ -1,33 +1,25 @@
-# Reference
-# https://www.andreadiotallevi.com/blog/how-to-create-a-production-image-for-a-node-typescript-app-using-docker-multi-stage-builds
+FROM node:20
 
-# Stage 1: Build the project
-FROM node:20 AS builder
-ENV NODE_ENV=development
-WORKDIR /app
-COPY . .
-RUN npm install
-RUN npm run build
+# Defing service arguments
+ARG NODE_ENV
+ENV NODE_ENV=$NODE_ENV
 
-# Stage 2: Build the image
-FROM node:20 AS final
-ENV NODE_ENV=production
-
-WORKDIR /app
-COPY --from=builder ./app/dist ./dist
-COPY package*.json ./
-
-RUN npm ci --omit=dev
+ARG LOG_LEVEL=info
+ENV LOG_LEVEL=$LOG_LEVEL
 
 ARG PORT=5200
 EXPOSE $PORT
 
-# default matching timeout
+# Defing service specific arguments
 ARG MATCHING_TIMEOUT=60000
 ENV MATCHING_TIMEOUT=$MATCHING_TIMEOUT
 
-# default matching log level
-ARG LOG_LEVEL=info
-ENV LOG_LEVEL=$LOG_LEVEL
+# Build steps
+WORKDIR /app
+COPY . .
+RUN npm ci
+RUN npm run build
+
+RUN npm ci --omit=dev
 
 CMD ["node", "dist/app.js"]
