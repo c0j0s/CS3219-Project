@@ -27,7 +27,7 @@ app.use(bodyParser.json());
 
 // implement routes for API endpoints
 const NODE_ENV = process.env.NODE_ENV || 'development';
-app.use(`/${NODE_ENV}`, router);
+app.use(`/${NODE_ENV}/matching`, router);
 
 app.all("*", (req: Request, res: Response) => {
   res.status(HttpStatusCode.NOT_FOUND).json({

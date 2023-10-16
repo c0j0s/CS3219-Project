@@ -23,7 +23,9 @@ app.use(bodyParser.json());
 
 // implement routes for API endpoints
 const NODE_ENV = process.env.NODE_ENV || 'development';
-app.use("/${NODE_ENV}", authMiddleware, router);
+app.use(`/${NODE_ENV}/question`, authMiddleware, router);
+// app.use(`/${NODE_ENV}/question`, router);
+
 
 app.all("*", (req: Request, res: Response) => {
   res.status(HttpStatusCode.NOT_FOUND).json({
