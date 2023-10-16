@@ -1,7 +1,16 @@
 // Used in api path, value should be in small caps
+export enum DOMAIN {
+  QUESTION = "question",
+  MATCHING = "matching",
+  USER = "user",
+  AUTH = "auth",
+  COLLABORATION = "collaboration",
+}
+
+// DEPRECIATED, changed to domain to support aws api route mapping
 export enum SERVICE {
   USER = "users",
-  QUESTION = "questions",
+  QUESTION = "question",
   AUTH = "auth",
   MATCHING = "matching",
   COLLABORATION = "collaboration",

@@ -76,7 +76,6 @@ export default function MatchingLobby({
   // User fired events
   /////////////////////////////////////////////
   const handleClose = () => {
-    logger.info("Cancel matching")
     socketService?.disconnect();
     onClose();
   }
