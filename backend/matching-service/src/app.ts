@@ -39,7 +39,7 @@ app.all("*", (req: Request, res: Response) => {
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: corsOptions,
-  path:'/socket/matching/'
+  path:`/${NODE_ENV}/matching/socket`
 });
 
 // Socket handlers
