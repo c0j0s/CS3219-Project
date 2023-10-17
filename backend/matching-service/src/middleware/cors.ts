@@ -1,6 +1,6 @@
 import cors from "cors";
 
-// TODO: Add production site to allowed origins
+
 const allowedOrigins = ["http://localhost:3000"];
 
 const verifyOrigin = (origin: string | undefined, callback: any) => {
@@ -16,9 +16,15 @@ const verifyOrigin = (origin: string | undefined, callback: any) => {
   }
 };
 
+/**
+ * CORS will be handled by AWS Api Gateway instead, 
+ * since instances are in a private VPC,
+ *  cors here does not matter anymore.
+ */
 export const corsOptions = {
   // credentials: true, // We need to allow this when we have the authentication functionality
-  origin: verifyOrigin,
+  // origin: "*",
+  origin: ["http://localhost:3000", "https://*.d218r20arshixx.amplifyapp.com"],
   methods: ["GET", "POST", "PUT", "DELETE"],
 };
 

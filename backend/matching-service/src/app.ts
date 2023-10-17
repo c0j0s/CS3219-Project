@@ -27,7 +27,7 @@ app.use(bodyParser.json());
 
 // implement routes for API endpoints
 const NODE_ENV = process.env.NODE_ENV || 'development';
-app.use(`/${NODE_ENV}/matching`, router);
+app.use(`/${NODE_ENV}/matching/api`, router);
 
 app.all("*", (req: Request, res: Response) => {
   res.status(HttpStatusCode.NOT_FOUND).json({
@@ -39,7 +39,8 @@ app.all("*", (req: Request, res: Response) => {
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: corsOptions,
-  path:`/${NODE_ENV}/matching/socket`
+  path:`/${NODE_ENV}/matching/socket`,
+  allowUpgrades: false
 });
 
 // Socket handlers
