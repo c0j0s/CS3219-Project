@@ -9,20 +9,6 @@ env:
   ECR_REPOSITORY: peerprep-dev-ecr-container-repo
   ECS_CLUSTER:    peerprep-dev-ECSCluster
   
-  ECS_SERVICE_QUESTION:       peerprep-dev-ServiceQuestion
-  ECS_SERVICE_MATCHING:       peerprep-dev-ServiceMatching
-  ECS_SERVICE_AUTH:           peerprep-dev-ServiceAuth
-  ECS_SERVICE_USER:           peerprep-dev-ServiceUser
-  ECS_SERVICE_COLLABORATION:  peerprep-dev-ServiceCollaboration
-  ECS_SERVICE_HISTORY:        peerprep-dev-ServiceHistory
-  
-  ECS_TASK_DEFINITION_QUESTION:       peerprep-dev-TaskDefinitionQuestion
-  ECS_TASK_DEFINITION_MATCHING:       peerprep-dev-TaskDefinitionMatching
-  ECS_TASK_DEFINITION_AUTH:           peerprep-dev-TaskDefinitionAuth
-  ECS_TASK_DEFINITION_USER:           peerprep-dev-TaskDefinitionUser
-  ECS_TASK_DEFINITION_COLLABORATION:  peerprep-dev-TaskDefinitionCollaboration
-  ECS_TASK_DEFINITION_HISTORY:        peerprep-dev-TaskDefinitionHistory
-
   QUESTION_CONTAINER_NAME:      question-service
   MATCHING_CONTAINER_NAME:      matching-service
   AUTH_CONTAINER_NAME:          auth-service
