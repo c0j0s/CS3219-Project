@@ -84,11 +84,42 @@ jobs:
     runs-on: ubuntu-latest
     environment: development
     needs: build
+    strategy:
+      matrix:
+        service: [
+          {
+            name: question-service,
+            ecs_service: peerprep-dev-ServiceQuestion,
+            ecs_task_def: peerprep-dev-TaskDefinitionQuestion
+          },
+          {
+            name: matching-service,
+            ecs_service: peerprep-dev-ServiceMatching,
+            ecs_task_def: peerprep-dev-TaskDefinitionMatching
+          },
+          # {
+          #   name: user-service,
+          #   ecs_service: peerprep-dev-ServiceUser,
+          #   ecs_task_def: peerprep-dev-TaskDefinitionUser
+          # },
+          # {
+          #   name: auth-service,
+          #   ecs_service: peerprep-dev-ServiceAuth,
+          #   ecs_task_def: peerprep-dev-TaskDefinitionAuth
+          # },
+          # {
+          #   name: collaboration-service,
+          #   ecs_service: peerprep-dev-ServiceCollaboration,
+          #   ecs_task_def: peerprep-dev-TaskDefinitionCollaboration
+          # },
+          # {
+          #   name: history-service,
+          #   ecs_service: peerprep-dev-ServiceHistory,
+          #   ecs_task_def: peerprep-dev-TaskDefinitionHistory
+          # },
+        ]
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -100,50 +131,26 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Download ${{ env.QUESTION_CONTAINER_NAME }} task definition
-        id: download-task-def-question
+      - name: Download ${{ matrix.service.name }} task definition
+        id: download-task-def
         env:
-          FAMILY: ${{ env.ECS_TASK_DEFINITION_QUESTION }}
+          FAMILY: ${{ matrix.service.ecs_task_def }}
         run: |
           aws ecs describe-task-definition --task-definition $FAMILY --query taskDefinition > $FAMILY.json
           echo "file=$FAMILY.json" >> "$GITHUB_OUTPUT"
 
-      - name: Fill in the ${{ env.QUESTION_CONTAINER_NAME }} image ID in the Amazon ECS task definition
-        id: task-def-question
+      - name: Fill in the ${{ matrix.service.name }} image ID in the Amazon ECS task definition
+        id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ${{ steps.download-task-def-question.outputs.file }}
-          container-name: ${{ env.QUESTION_CONTAINER_NAME }}
-          image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.QUESTION_CONTAINER_NAME }}
+          task-definition: ${{ steps.download-task-def.outputs.file }}
+          container-name: ${{ matrix.service.name }}
+          image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ matrix.service.name }}
 
-      - name: Deploy Amazon ECS ${{ env.QUESTION_CONTAINER_NAME }} task definition
+      - name: Deploy Amazon ECS ${{ matrix.service.name }} task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
-          task-definition: ${{ steps.task-def-question.outputs.task-definition }}
-          service: ${{ env.ECS_SERVICE_QUESTION }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          wait-for-service-stability: true
-
-      - name: Download ${{ env.MATCHING_CONTAINER_NAME }} task definition
-        id: download-task-def-matching
-        env:
-          FAMILY: ${{ env.ECS_TASK_DEFINITION_QUESTION }}
-        run: |
-          aws ecs describe-task-definition --task-definition $FAMILY --query taskDefinition > $FAMILY.json
-          echo "file=$FAMILY.json" >> "$GITHUB_OUTPUT"
-
-      - name: Fill in the ${{ env.MATCHING_CONTAINER_NAME }} image ID in the Amazon ECS task definition
-        id: task-def-matching
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ${{ steps.download-task-def-matching.outputs.file }}
-          container-name: ${{ env.MATCHING_CONTAINER_NAME }}
-          image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.MATCHING_CONTAINER_NAME }}
-
-      - name: Deploy Amazon ECS ${{ env.MATCHING_CONTAINER_NAME }} task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.task-def-matching.outputs.task-definition }}
-          service: ${{ env.ECS_SERVICE_MATCHING }}
+          task-definition: ${{ steps.task-def.outputs.task-definition }}
+          service: ${{ matrix.service.ecs_service }}
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
