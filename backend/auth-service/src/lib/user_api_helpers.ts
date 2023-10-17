@@ -15,7 +15,7 @@ const getUserServiceEndpoint = (): string => {
 };
 
 const createUser = async (user: UserProfile) => {
-  const res = await fetch(`${getUserServiceEndpoint()}/${NODE_ENV}/user/users/`, {
+  const res = await fetch(`${getUserServiceEndpoint()}/${NODE_ENV}/user/api/users/`, {
     method: "POST",
     body: JSON.stringify(user),
     headers: {
@@ -29,7 +29,7 @@ const createUser = async (user: UserProfile) => {
 
 const getUserByEmail = async (email: string) => {
   const res = await fetch(
-    `${getUserServiceEndpoint()}/${NODE_ENV}/user/users/email?email=${email}`,
+    `${getUserServiceEndpoint()}/${NODE_ENV}/user/api/users/email?email=${email}`,
     {
       headers: {
         "Content-Type": "application/json",
@@ -41,7 +41,7 @@ const getUserByEmail = async (email: string) => {
 };
 
 const getUserById = async (id: string) => {
-  const res = await fetch(`${getUserServiceEndpoint()}/${NODE_ENV}/user/users/${id}`, {
+  const res = await fetch(`${getUserServiceEndpoint()}/${NODE_ENV}/user/api/users/${id}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -52,7 +52,7 @@ const getUserById = async (id: string) => {
 };
 
 const updateVerfication = async(email:string, token:string) => {
-  const res = await fetch(`${getUserServiceEndpoint()}/${NODE_ENV}/user/users/updateVerification/${email}`, {
+  const res = await fetch(`${getUserServiceEndpoint()}/${NODE_ENV}/user/api/users/updateVerification/${email}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -64,7 +64,7 @@ const updateVerfication = async(email:string, token:string) => {
 }
 
 const updatePasswordResetToken = async(email:string, updateBody: {}) => {
-  const res = await fetch(`${getUserServiceEndpoint()}/${NODE_ENV}/user/users/updatePasswordResetToken/${email}`, {
+  const res = await fetch(`${getUserServiceEndpoint()}/${NODE_ENV}/user/api/users/updatePasswordResetToken/${email}`, {
     method: "PUT",
     body: JSON.stringify(updateBody),
     headers: {
@@ -76,7 +76,7 @@ const updatePasswordResetToken = async(email:string, updateBody: {}) => {
 }
 
 const updatePassword = async (id: string, updateBody: {}) => {
-  const res = await fetch(`${getUserServiceEndpoint()}/${NODE_ENV}/user/users/${id}`, {
+  const res = await fetch(`${getUserServiceEndpoint()}/${NODE_ENV}/user/api/users/${id}`, {
     method: "PUT",
     body: JSON.stringify(updateBody),
     headers: {

@@ -34,9 +34,10 @@ app.all("*", (req: Request, res: Response) => {
 
 const PORT = process.env.SERVICE_PORT || 5100;
 const LOG_LEVEL = process.env.LOG_LEVEL || "debug";
+const CORS_ALLOWED_ORIGINS = process.env.CORS_ALLOWED_ORIGINS || "http://localhost:3000";
 
 app.listen(PORT, () => {
   logger.info(
-    `Server running at port[${PORT}] build[${NODE_ENV}] log[${LOG_LEVEL}] cors[${process.env.CORS_ALLOWED_ORIGINS}]`
+    `Server running at port[${PORT}] build[${NODE_ENV}] log[${LOG_LEVEL}] cors[${CORS_ALLOWED_ORIGINS}]`
   );
 });

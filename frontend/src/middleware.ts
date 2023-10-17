@@ -22,7 +22,7 @@ export async function middleware(request: NextRequest) {
 
   const stage = process.env.NODE_ENV || "development";
 
-  const authValidateEndpoint = `${http}://${host}:${process.env.ENDPOINT_AUTH_PORT}/${stage}/auth/validate`;
+  const authValidateEndpoint = `${http}://${host}:${process.env.ENDPOINT_AUTH_PORT}/${stage}/auth/api/validate`;
 
   const publicContent = ["/_next", "/assets", "/logout", "/forgotpassword"];
 
@@ -32,6 +32,7 @@ export async function middleware(request: NextRequest) {
 
   const jwtCookieString = request.cookies.get("jwt")?.value as string;
   
+  // Can try passing cookie as parameter to validateUser for validation
   const res = await fetch(authValidateEndpoint, {
     method: "POST",
     headers: {
