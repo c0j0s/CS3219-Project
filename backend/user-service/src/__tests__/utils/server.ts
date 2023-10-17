@@ -3,7 +3,7 @@ import cors from "../../middleware/cors";
 import bodyParser from "body-parser";
 import router from "../../routes";
 
-export default function createServer() {
+export default function createUnitTestServer() {
   const app = express();
 
   // implement cors for CORS protection
@@ -13,7 +13,8 @@ export default function createServer() {
   app.use(bodyParser.json());
 
   // implement routes for API endpoints
-  app.use("/development/user", router);
+  const NODE_ENV = process.env.NODE_ENV || "test";
+  app.use(`/${NODE_ENV}/user/api`, router);
 
   return app;
 }

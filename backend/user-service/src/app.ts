@@ -19,10 +19,10 @@ app.use(bodyParser.json());
 app.use(express.json());
 
 // implement routes for API endpoints
-const NODE_ENV = process.env.NODE_ENV || 'development';
-app.use(`/${NODE_ENV}/user`, authMiddleware, router);
+const NODE_ENV = process.env.NODE_ENV || "development";
+app.use(`/${NODE_ENV}/user/api`, authMiddleware, router);
 
-app.all("*", (req: Request, res: Response) => {
+app.all("*", (_: Request, res: Response) => {
   res.status(HttpStatusCode.NOT_FOUND).json({
     error: "NOT FOUND",
     message: "The requested resource could not be found.",

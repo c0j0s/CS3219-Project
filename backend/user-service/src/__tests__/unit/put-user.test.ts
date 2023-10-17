@@ -1,13 +1,15 @@
 import * as testPayloads from "../utils/payloads";
 import supertest from "supertest";
-import createServer from "../utils/server";
+import createUnitTestServer from "../utils/server";
 import db from "../../lib/db";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 
-const dbMock = db;
-const app = createServer();
+const dbMock = db as jest.Mocked<typeof db>;
+const app = createUnitTestServer();
+const NODE_ENV = process.env.NODE_ENV || "test";
+const API_PREFIX = `${NODE_ENV}/user/api`;
 
-describe("PUT /development/user/users/:userId", () => {
+describe("PUT /api/users/:userId", () => {
   describe("Given an existing user id with valid request body payload", () => {
     it("should return 204 with no content", async () => {
       // Arrange
@@ -22,7 +24,7 @@ describe("PUT /development/user/users/:userId", () => {
 
       // Act
       const { statusCode } = await supertest(app)
-        .put(`/development/user/users/${userId}`)
+        .put(`/${API_PREFIX}/users/${userId}`)
         .send(requestBody);
 
       // Assert
@@ -51,7 +53,7 @@ describe("PUT /development/user/users/:userId", () => {
 
       // Act
       const { statusCode } = await supertest(app)
-        .put(`/development/user/users/${userId}`)
+        .put(`/${API_PREFIX}/users/${userId}`)
         .send({ name: "New Name" });
 
       // Assert
@@ -79,7 +81,7 @@ describe("PUT /development/user/users/:userId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .put(`/development/user/users/${userId}`)
+        .put(`/${API_PREFIX}/users/${userId}`)
         .send(requestBody);
 
       // Assert
@@ -102,7 +104,7 @@ describe("PUT /development/user/users/:userId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .put(`/development/user/users/${userId}`)
+        .put(`/${API_PREFIX}/users/${userId}`)
         .send(requestBody);
 
       // Assert
@@ -121,7 +123,7 @@ describe("PUT /development/user/users/:userId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .put(`/development/user/users/${userId}`)
+        .put(`/${API_PREFIX}/users/${userId}`)
         .send(requestBody);
 
       // Assert
@@ -134,18 +136,19 @@ describe("PUT /development/user/users/:userId", () => {
   describe("Given an existing user id with duplicated email", () => {
     it("should return 409 with an error message in json", async () => {
       // Arrange
+      const userId = "existinguserid123";
       const email = "duplicated@email.com";
       let requestBody = testPayloads.getPostUserPayload();
       requestBody.email = email;
-      const user = testPayloads.getUserPayload({});
+      const user = testPayloads.getUserPayload({ userId: userId });
       dbMock.user.findFirst = jest
         .fn()
         .mockResolvedValueOnce(user)
-        .mockResolvedValueOnce(null);
+        .mockResolvedValueOnce(email);
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/development/user/users")
+        .put(`/${API_PREFIX}/users/${userId}`)
         .send(requestBody);
 
       // Assert
@@ -156,7 +159,7 @@ describe("PUT /development/user/users/:userId", () => {
   });
 });
 
-describe("PUT /development/user/users/:userId/preferences", () => {
+describe("PUT /api/users/:userId/preferences", () => {
   describe("Given an existing user id with valid request body payload", () => {
     it("should return 204 with no content", async () => {
       // Arrange
@@ -172,7 +175,7 @@ describe("PUT /development/user/users/:userId/preferences", () => {
 
       // Act
       const { statusCode } = await supertest(app)
-        .put(`/development/user/users/${userId}/preferences`)
+        .put(`/${API_PREFIX}/users/${userId}/preferences`)
         .send(requestBody);
 
       // Assert
@@ -203,7 +206,7 @@ describe("PUT /development/user/users/:userId/preferences", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .put(`/development/user/users/${userId}/preferences`)
+        .put(`/${API_PREFIX}/users/${userId}/preferences`)
         .send(requestBody);
 
       // Assert
@@ -225,7 +228,7 @@ describe("PUT /development/user/users/:userId/preferences", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .put(`/development/user/users/${userId}/preferences`)
+        .put(`/${API_PREFIX}/users/${userId}/preferences`)
         .send(requestBody);
 
       // Assert

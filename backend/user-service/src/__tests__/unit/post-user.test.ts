@@ -1,13 +1,15 @@
 import supertest from "supertest";
 import db from "../../lib/db";
 import * as testPayloads from "../utils/payloads";
-import createServer from "../utils/server";
+import createUnitTestServer from "../utils/server";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 
-const app = createServer();
-const dbMock = db;
+const app = createUnitTestServer();
+const dbMock = db as jest.Mocked<typeof db>;
+const NODE_ENV = process.env.NODE_ENV || "test";
+const API_PREFIX = `${NODE_ENV}/user/api`;
 
-describe("POST /development/user/users", () => {
+describe("POST /api/users", () => {
   describe("Given the request body payload is valid", () => {
     it("should return 201 with a message of User Created and the registered userId", async () => {
       // Arrange
@@ -22,7 +24,7 @@ describe("POST /development/user/users", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/development/user/users")
+        .post(`/${API_PREFIX}/users`)
         .send(requestBody);
 
       // Assert
@@ -43,7 +45,7 @@ describe("POST /development/user/users", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/development/user/users")
+        .post(`/${API_PREFIX}/users`)
         .send(requestBody);
 
       // Assert
@@ -61,7 +63,7 @@ describe("POST /development/user/users", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/development/user/users")
+        .post(`/${API_PREFIX}/users`)
         .send(requestBody);
 
       // Assert
@@ -77,7 +79,7 @@ describe("POST /development/user/users", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/development/user/users")
+        .post(`/${API_PREFIX}/users`)
         .send(requestBody);
 
       // Assert
@@ -99,7 +101,7 @@ describe("POST /development/user/users", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/development/user/users")
+        .post(`/${API_PREFIX}/users`)
         .send(requestBody);
 
       // Assert
