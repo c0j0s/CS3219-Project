@@ -29,7 +29,7 @@ class SocketService {
     this.partnerId = partnerId;
     this.questionId = questionId;
     this.language = language;
-    this.socket = io(endpoint, { path: path });
+    this.socket = io(endpoint, { path: path, transports: ["polling"] });
     this.socket.connect();
     this.joinRoom();
   }

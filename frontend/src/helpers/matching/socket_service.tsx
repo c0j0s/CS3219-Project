@@ -11,7 +11,7 @@ class SocketService {
     private preferences?: Preference;
 
     constructor(endpoint: string, path: string) {
-        this.socket = io(endpoint, { path: path });
+        this.socket = io(endpoint, { path: path, transports: ["polling"] });
     }
 
     public static async getInstance(): Promise<SocketService> {
