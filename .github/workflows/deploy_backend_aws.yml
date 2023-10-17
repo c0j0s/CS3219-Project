@@ -44,18 +44,18 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      # - name: Build, tag, and push ${{ env.QUESTION_CONTAINER_NAME }} image to Amazon ECR
-      #   id: build-question-service-image
-      #   env:
-      #     ENV: ${{ vars.BUILD_ENV }}
-      #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-      #     IMAGE_TAG: ${{ env.QUESTION_CONTAINER_NAME }}
-      #     DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      #     LOG_LEVEL: ${{ vars.LOG_LEVEL }}
-      #   run: |
-      #     cd backend/$IMAGE_TAG
-      #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . --build-arg NODE_ENV=$ENV --build-arg LOG_LEVEL=$LOG_LEVEL --build-arg DATABASE_URL=$DATABASE_URL
-      #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+      - name: Build, tag, and push ${{ env.QUESTION_CONTAINER_NAME }} image to Amazon ECR
+        id: build-question-service-image
+        env:
+          ENV: ${{ vars.BUILD_ENV }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ env.QUESTION_CONTAINER_NAME }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          LOG_LEVEL: ${{ vars.LOG_LEVEL }}
+        run: |
+          cd backend/$IMAGE_TAG
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . --build-arg NODE_ENV=$ENV --build-arg LOG_LEVEL=$LOG_LEVEL --build-arg DATABASE_URL=$DATABASE_URL
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Build, tag, and push ${{ env.MATCHING_CONTAINER_NAME }} image to Amazon ECR
         id: build-matching-service-image
@@ -99,13 +99,13 @@ jobs:
           container-name: ${{ env.QUESTION_CONTAINER_NAME }}
           image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.QUESTION_CONTAINER_NAME }}
 
-      # - name: Deploy Amazon ECS ${{ env.QUESTION_CONTAINER_NAME }} task definition
-      #   uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-      #   with:
-      #     task-definition: ${{ steps.task-def-question.outputs.task-definition }}
-      #     service: ${{ env.ECS_SERVICE_QUESTION }}
-      #     cluster: ${{ env.ECS_CLUSTER }}
-      #     wait-for-service-stability: true
+      - name: Deploy Amazon ECS ${{ env.QUESTION_CONTAINER_NAME }} task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def-question.outputs.task-definition }}
+          service: ${{ env.ECS_SERVICE_QUESTION }}
+          cluster: ${{ env.ECS_CLUSTER }}
+          wait-for-service-stability: true
 
       - name: Fill in the ${{ env.MATCHING_CONTAINER_NAME }} image ID in the Amazon ECS task definition
         id: task-def-matching

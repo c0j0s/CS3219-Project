@@ -23,6 +23,7 @@ const verifyOrigin = (origin: string | undefined, callback: any) => {
  */
 export const corsOptions = {
   // credentials: true, // We need to allow this when we have the authentication functionality
+  // origin: "*",
   origin: ["http://localhost:3000", "https://*.d218r20arshixx.amplifyapp.com"],
   methods: ["GET", "POST", "PUT", "DELETE"],
 };
