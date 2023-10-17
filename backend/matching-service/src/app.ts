@@ -3,11 +3,11 @@ import dotenv from "dotenv";
 import router from "./routes";
 import bodyParser from "body-parser";
 import HttpStatusCode from "./lib/enums/HttpStatusCode";
-import cors, {corsOptions} from "./middleware/cors";
+import cors, { corsOptions } from "./middleware/cors";
 import { createServer } from "http";
 import { Server } from "socket.io";
-import {SocketHandler} from "./controllers";
-import logger from './lib/utils/logger'; 
+import { SocketHandler } from "./controllers";
+import logger from './lib/utils/logger';
 import SocketEvent from "./lib/enums/SocketEvent";
 import PinoHttp from "pino-http";
 
@@ -39,7 +39,7 @@ app.all("*", (req: Request, res: Response) => {
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: corsOptions,
-  path:`/${NODE_ENV}/matching/socket`,
+  path: `/${NODE_ENV}/matching/socket`,
   allowUpgrades: false
 });
 
@@ -54,7 +54,9 @@ const LOG_LEVEL = process.env.LOG_LEVEL || 'debug';
 const MATCHING_TIMEOUT = process.env.MATCHING_TIMEOUT || 60000;
 
 httpServer.listen(PORT, () => {
-  logger.info(`Server running at port[${PORT}] build[${NODE_ENV}] log[${LOG_LEVEL}] timeout[${MATCHING_TIMEOUT}]`);
+  logger.info(
+    `Server running at port[${PORT}] build[${NODE_ENV}] log[${LOG_LEVEL}] cors[${process.env.CORS_ALLOWED_ORIGINS}] timeout[${MATCHING_TIMEOUT}]`
+  );
 });
 
 export { io };
