@@ -5,21 +5,30 @@ on:
     branches: [ "master", "development", "production" ]
 
 env:
-  AWS_REGION: ap-southeast-1
-  ECR_REPOSITORY: peerprep-dev
-  ECS_CLUSTER: peerprep-stack-dev-PeerprepECSCluster-j9yZmKM2OTY8
+  AWS_REGION:     ap-southeast-1
+  ECR_REPOSITORY: peerprep-dev-ecr-container-repo
+  ECS_CLUSTER:    peerprep-dev-ECSCluster
   
-  ECS_SERVICE_QUESTION: peerprep-stack-dev-ServiceQuestion-DTv7pjUnCaSn
-  ECS_SERVICE_MATCHING: peerprep-stack-dev-ServiceMatching-yLyiOQ2klfeW 
+  ECS_SERVICE_QUESTION:       peerprep-dev-ServiceQuestion
+  ECS_SERVICE_MATCHING:       peerprep-dev-ServiceMatching
+  ECS_SERVICE_AUTH:           peerprep-dev-ServiceAuth
+  ECS_SERVICE_USER:           peerprep-dev-ServiceUser
+  ECS_SERVICE_COLLABORATION:  peerprep-dev-ServiceCollaboration
+  ECS_SERVICE_HISTORY:        peerprep-dev-ServiceHistory
+  
+  ECS_TASK_DEFINITION_QUESTION:       peerprep-dev-TaskDefinitionQuestion
+  ECS_TASK_DEFINITION_MATCHING:       peerprep-dev-TaskDefinitionMatching
+  ECS_TASK_DEFINITION_AUTH:           peerprep-dev-TaskDefinitionAuth
+  ECS_TASK_DEFINITION_USER:           peerprep-dev-TaskDefinitionUser
+  ECS_TASK_DEFINITION_COLLABORATION:  peerprep-dev-TaskDefinitionCollaboration
+  ECS_TASK_DEFINITION_HISTORY:        peerprep-dev-TaskDefinitionHistory
 
-  ECS_TASK_DEFINITION_QUESTION: .aws/peerprep-task-def-question.json
-  ECS_TASK_DEFINITION_MATCHING: .aws/peerprep-task-def-matching.json
-
-  AUTH_CONTAINER_NAME: auth-service
-  USER_CONTAINER_NAME: user-service
-  QUESTION_CONTAINER_NAME: question-service
-  MATCHING_CONTAINER_NAME: matching-service
+  QUESTION_CONTAINER_NAME:      question-service
+  MATCHING_CONTAINER_NAME:      matching-service
+  AUTH_CONTAINER_NAME:          auth-service
+  USER_CONTAINER_NAME:          user-service
   COLLABORATION_CONTAINER_NAME: collaboration-service
+  HISTORY_CONTAINER_NAME:       history-service
 
 permissions:
   contents: read
@@ -91,11 +100,19 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
+      - name: Download ${{ env.QUESTION_CONTAINER_NAME }} task definition
+        id: download-task-def-question
+        env:
+          FAMILY: ${{ env.ECS_TASK_DEFINITION_QUESTION }}
+        run: |
+          aws ecs describe-task-definition --task-definition $FAMILY --query taskDefinition > $FAMILY.json
+          echo "file=$FAMILY.json" >> "$GITHUB_OUTPUT"
+
       - name: Fill in the ${{ env.QUESTION_CONTAINER_NAME }} image ID in the Amazon ECS task definition
         id: task-def-question
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ${{ env.ECS_TASK_DEFINITION_QUESTION }}
+          task-definition: ${{ steps.download-task-def-question.outputs.file }}
           container-name: ${{ env.QUESTION_CONTAINER_NAME }}
           image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.QUESTION_CONTAINER_NAME }}
 
@@ -107,11 +124,19 @@ jobs:
           cluster: ${{ env.ECS_CLUSTER }}
           wait-for-service-stability: true
 
+      - name: Download ${{ env.MATCHING_CONTAINER_NAME }} task definition
+        id: download-task-def-matching
+        env:
+          FAMILY: ${{ env.ECS_TASK_DEFINITION_QUESTION }}
+        run: |
+          aws ecs describe-task-definition --task-definition $FAMILY --query taskDefinition > $FAMILY.json
+          echo "file=$FAMILY.json" >> "$GITHUB_OUTPUT"
+
       - name: Fill in the ${{ env.MATCHING_CONTAINER_NAME }} image ID in the Amazon ECS task definition
         id: task-def-matching
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ${{ env.ECS_TASK_DEFINITION_MATCHING }}
+          task-definition: ${{ steps.download-task-def-matching.outputs.file }}
           container-name: ${{ env.MATCHING_CONTAINER_NAME }}
           image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.MATCHING_CONTAINER_NAME }}
 
