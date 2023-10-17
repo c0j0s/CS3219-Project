@@ -64,7 +64,7 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
           cd backend/$IMAGE_TAG
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . --build-arg NODE_ENV=$ENV --build-arg LOG_LEVEL=$LOG_LEVEL --build-arg LOG_LEVEL=$CORS --build-arg DATABASE_URL=$DATABASE_URL
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . --build-arg NODE_ENV=$ENV --build-arg LOG_LEVEL=$LOG_LEVEL --build-arg CORS_ALLOWED_ORIGINS=$CORS --build-arg DATABASE_URL=$DATABASE_URL
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Build, tag, and push ${{ env.MATCHING_CONTAINER_NAME }} image to Amazon ECR
@@ -78,7 +78,7 @@ jobs:
           MATCHING_TIMEOUT: ${{ vars.MATCHING_TIMEOUT }}
         run: |
           cd backend/$IMAGE_TAG
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . --build-arg NODE_ENV=$ENV --build-arg LOG_LEVEL=$LOG_LEVEL --build-arg LOG_LEVEL=$CORS --build-arg MATCHING_TIMEOUT=$MATCHING_TIMEOUT
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . --build-arg NODE_ENV=$ENV --build-arg LOG_LEVEL=$LOG_LEVEL --build-arg CORS_ALLOWED_ORIGINS=$CORS --build-arg MATCHING_TIMEOUT=$MATCHING_TIMEOUT
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
   config:
