@@ -1,7 +1,7 @@
 import cors from "cors";
 
 // TODO: Add production site to allowed origins
-const allowedOrigins = ["http://localhost:3000"];
+const allowedOrigins = ["http://localhost:3000", ""];
 
 const verifyOrigin = (origin: string | undefined, callback: any) => {
   //  when the call is made from the same origin
@@ -16,10 +16,10 @@ const verifyOrigin = (origin: string | undefined, callback: any) => {
   }
 };
 
-export const corsOptions = {
+const corsOptions = {
   // credentials: true, // We need to allow this when we have the authentication functionality
-  origin: verifyOrigin,
-  methods: ["GET", "POST"],
+  origin: ["http://localhost:3000", "https://development.d218r20arshixx.amplifyapp.com"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
 };
 
 export default cors(corsOptions);
