@@ -48,14 +48,6 @@ type ApiResponse = {
  * @returns {Promise<ApiResponse>} - Response from the API call.
  */
 export default async function api(config: ApiConfig): Promise<ApiResponse> {
-  // Configure gateway host based on the environment (production or development).
-  const host =
-    process.env.NODE_ENV == "production"
-      ? process.env.ENDPOINT_PROD
-      : process.env.ENDPOINT_DEV;
-
-  const stage = process.env.NODE_ENV || "development";
-
   // Configure local domain port based on the 'domain' property in the configuration.
   let servicePort = getServicePorts(config.domain);
 
