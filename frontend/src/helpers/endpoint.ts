@@ -60,7 +60,7 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
   let servicePort = getServicePorts(config.domain);
 
   // Build the final API endpoint URL.
-  const endpoint = `${http}://${host}${servicePort}/${stage}/${config.domain}/${
+  const endpoint = `${http}://${host}${servicePort}/${stage}/${config.domain}/api/${
     config.path || ""
   }`;
 

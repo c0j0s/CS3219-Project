@@ -35,9 +35,9 @@ export const authMiddleware = async (
   const NODE_ENV = process.env.NODE_ENV || 'development';
   const authEndpoint =
     req.method === "GET"
-      ? process.env.AUTH_ENDPOINT || `http://localhost:5050/${NODE_ENV}/auth/validate`
+      ? process.env.AUTH_ENDPOINT || `http://localhost:5050/${NODE_ENV}/auth/api/validate`
       : process.env.AUTH_ADMIN_ENDPOINT ||
-      `http://localhost:5050/${NODE_ENV}/auth/validateAdmin`;
+      `http://localhost:5050/${NODE_ENV}/auth/api/validateAdmin`;
 
   const authRes = await fetch(authEndpoint, {
     method: "POST",
