@@ -37,6 +37,6 @@ const LOG_LEVEL = process.env.LOG_LEVEL || "debug";
 
 app.listen(PORT, () => {
   logger.info(
-    `Server running at port[${PORT}] build[${NODE_ENV}] log[${LOG_LEVEL}]`
+    `Server running at port[${PORT}] build[${NODE_ENV}] log[${LOG_LEVEL}] cors[${process.env.CORS_ALLOWED_ORIGINS}]`
   );
 });
