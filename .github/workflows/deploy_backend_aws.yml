@@ -91,8 +91,8 @@ jobs:
             DATABASE_URL: ${{ secrets.DATABASE_URL }}
             EMAIL_VERIFICATION_SECRET: ${{ secrets.EMAIL_VERIFICATION_SECRET }}
 
-  config:
-    name: Deploy cluster and service
+  deploy:
+    name: Deploy
     runs-on: ubuntu-latest
     environment: development
     needs: build

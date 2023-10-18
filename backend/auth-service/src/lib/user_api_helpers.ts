@@ -10,11 +10,11 @@ dotenv.config();
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const getUserServiceEndpoint = (): string => {
-  return process.env.GATEWAY || "http://localhost:5005";
+  return process.env.GATEWAY? `${process.env.GATEWAY}/${NODE_ENV}` : `http://localhost:5005/${NODE_ENV}`;
 };
 
 const createUser = async (user: UserProfile) => {
-  const res = await fetch(`${getUserServiceEndpoint()}/${NODE_ENV}/user/api/users/`, {
+  const res = await fetch(`${getUserServiceEndpoint()}/user/api/users/`, {
     method: "POST",
     body: JSON.stringify(user),
     headers: {
@@ -28,7 +28,7 @@ const createUser = async (user: UserProfile) => {
 
 const getUserByEmail = async (email: string) => {
   const res = await fetch(
-    `${getUserServiceEndpoint()}/${NODE_ENV}/user/api/users/email?email=${email}`,
+    `${getUserServiceEndpoint()}/user/api/users/email?email=${email}`,
     {
       headers: {
         "Content-Type": "application/json",
@@ -40,7 +40,7 @@ const getUserByEmail = async (email: string) => {
 };
 
 const getUserById = async (id: string) => {
-  const res = await fetch(`${getUserServiceEndpoint()}/${NODE_ENV}/user/api/users/${id}`, {
+  const res = await fetch(`${getUserServiceEndpoint()}/user/api/users/${id}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -51,7 +51,7 @@ const getUserById = async (id: string) => {
 };
 
 const updateVerfication = async(email:string, token:string) => {
-  const res = await fetch(`${getUserServiceEndpoint()}/${NODE_ENV}/user/api/users/updateVerification/${email}`, {
+  const res = await fetch(`${getUserServiceEndpoint()}/user/api/users/updateVerification/${email}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -63,7 +63,7 @@ const updateVerfication = async(email:string, token:string) => {
 }
 
 const updatePasswordResetToken = async(email:string, updateBody: {}) => {
-  const res = await fetch(`${getUserServiceEndpoint()}/${NODE_ENV}/user/api/users/updatePasswordResetToken/${email}`, {
+  const res = await fetch(`${getUserServiceEndpoint()}/user/api/users/updatePasswordResetToken/${email}`, {
     method: "PUT",
     body: JSON.stringify(updateBody),
     headers: {
@@ -75,7 +75,7 @@ const updatePasswordResetToken = async(email:string, updateBody: {}) => {
 }
 
 const updatePassword = async (id: string, updateBody: {}) => {
-  const res = await fetch(`${getUserServiceEndpoint()}/${NODE_ENV}/user/api/users/${id}`, {
+  const res = await fetch(`${getUserServiceEndpoint()}/user/api/users/${id}`, {
     method: "PUT",
     body: JSON.stringify(updateBody),
     headers: {

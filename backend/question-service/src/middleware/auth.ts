@@ -36,11 +36,11 @@ export const authMiddleware = async (
   const GATEWAY = process.env.GATEWAY || "http://localhost:5050"
   const authEndpoint =
     req.method === "GET"
-      ? process.env.AUTH_ENDPOINT || `${NODE_ENV}/auth/api/validate`
+      ? process.env.AUTH_ENDPOINT || `auth/api/validate`
       : process.env.AUTH_ADMIN_ENDPOINT ||
-      `${NODE_ENV}/auth/api/validateAdmin`;
+      `auth/api/validateAdmin`;
 
-  const authRes = await fetch(`${GATEWAY}/${authEndpoint}`, {
+  const authRes = await fetch(`${GATEWAY}/${NODE_ENV}/${authEndpoint}`, {
     method: "POST",
     headers: {
       Cookie: `jwt=${jwtCookieString}`,
