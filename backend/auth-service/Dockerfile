@@ -38,7 +38,6 @@ ENV NM_PASS=$NM_PASS
 WORKDIR /app
 COPY . .
 RUN npm install
-RUN npx prisma generate
 RUN npm run build
 
 COPY package*.json ./
