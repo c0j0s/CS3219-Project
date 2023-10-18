@@ -39,43 +39,41 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Build, tag, and push ${{ env.QUESTION_CONTAINER_NAME }} image to Amazon ECR
-        id: build-question-service-image
-        env:
-          ENV: ${{ vars.BUILD_ENV }}
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ env.QUESTION_CONTAINER_NAME }}
-          LOG_LEVEL: ${{ vars.LOG_LEVEL }}
-          CORS: ${{ secrets.CORS_ALLOWED_ORIGINS }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        run: |
-          cd backend/$IMAGE_TAG
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . --build-arg NODE_ENV=$ENV --build-arg LOG_LEVEL=$LOG_LEVEL --build-arg CORS_ALLOWED_ORIGINS=$CORS --build-arg DATABASE_URL=$DATABASE_URL
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+      # - name: Build, tag, and push ${{ env.QUESTION_CONTAINER_NAME }} image to Amazon ECR
+      #   id: build-question-service-image
+      #   env:
+      #     ENV: ${{ vars.BUILD_ENV }}
+      #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      #     IMAGE_TAG: ${{ env.QUESTION_CONTAINER_NAME }}
+      #     LOG_LEVEL: ${{ vars.LOG_LEVEL }}
+      #     CORS: ${{ secrets.CORS_ALLOWED_ORIGINS }}
+      #     DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      #   run: |
+      #     cd backend/$IMAGE_TAG
+      #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . --build-arg NODE_ENV=$ENV --build-arg LOG_LEVEL=$LOG_LEVEL --build-arg CORS_ALLOWED_ORIGINS=$CORS --build-arg DATABASE_URL=$DATABASE_URL
+      #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Build, tag, and push ${{ env.MATCHING_CONTAINER_NAME }} image to Amazon ECR
-        id: build-matching-service-image
-        env:
-          ENV: ${{ vars.BUILD_ENV }}
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ env.MATCHING_CONTAINER_NAME }}
-          LOG_LEVEL: ${{ vars.LOG_LEVEL }}
-          CORS: ${{ secrets.CORS_ALLOWED_ORIGINS }}
-          MATCHING_TIMEOUT: ${{ vars.MATCHING_TIMEOUT }}
-        run: |
-          cd backend/$IMAGE_TAG
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . --build-arg NODE_ENV=$ENV --build-arg LOG_LEVEL=$LOG_LEVEL --build-arg CORS_ALLOWED_ORIGINS=$CORS --build-arg MATCHING_TIMEOUT=$MATCHING_TIMEOUT
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+      # - name: Build, tag, and push ${{ env.MATCHING_CONTAINER_NAME }} image to Amazon ECR
+      #   id: build-matching-service-image
+      #   env:
+      #     ENV: ${{ vars.BUILD_ENV }}
+      #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      #     IMAGE_TAG: ${{ env.MATCHING_CONTAINER_NAME }}
+      #     LOG_LEVEL: ${{ vars.LOG_LEVEL }}
+      #     CORS: ${{ secrets.CORS_ALLOWED_ORIGINS }}
+      #     MATCHING_TIMEOUT: ${{ vars.MATCHING_TIMEOUT }}
+      #   run: |
+      #     cd backend/$IMAGE_TAG
+      #     docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . --build-arg NODE_ENV=$ENV --build-arg LOG_LEVEL=$LOG_LEVEL --build-arg CORS_ALLOWED_ORIGINS=$CORS --build-arg MATCHING_TIMEOUT=$MATCHING_TIMEOUT
+      #     docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Build, tag, and push ${{ env.AUTH_CONTAINER_NAME }} image to Amazon ECR
         id: build-auth-service-image
         uses: docker/build-push-action@v5
-        env:
-          IMAGE_TAG: ${{ env.AUTH_CONTAINER_NAME }}
         with: 
-          context: backend/$IMAGE_TAG
+          context: backend/${{ env.AUTH_CONTAINER_NAME }}
           push: true
-          tags: ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
+          tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.AUTH_CONTAINER_NAME }}
           build-args: |
             NODE_ENV: ${{ vars.BUILD_ENV }}
             LOG_LEVEL: ${{ vars.LOG_LEVEL }}
