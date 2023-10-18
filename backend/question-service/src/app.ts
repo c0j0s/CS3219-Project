@@ -34,10 +34,12 @@ app.all("*", (req: Request, res: Response) => {
 
 const PORT = process.env.SERVICE_PORT || 5100;
 const LOG_LEVEL = process.env.LOG_LEVEL || "debug";
-const CORS_ALLOWED_ORIGINS = process.env.CORS_ALLOWED_ORIGINS || "http://localhost:3000";
+const CORS_ALLOWED_ORIGINS = process.env.CORS_ALLOWED_ORIGINS || "default";
+const AUTH_ENDPOINT = process.env.AUTH_ENDPOINT || "default";
+const AUTH_ADMIN_ENDPOINT = process.env.AUTH_ADMIN_ENDPOINT || "default";
 
 app.listen(PORT, () => {
   logger.info(
-    `Server running at port[${PORT}] build[${NODE_ENV}] log[${LOG_LEVEL}] cors[${CORS_ALLOWED_ORIGINS}]`
+    `Server running at port[${PORT}] build[${NODE_ENV}] log[${LOG_LEVEL}] cors[${CORS_ALLOWED_ORIGINS}] auth[${AUTH_ENDPOINT}] authAdmin[${AUTH_ADMIN_ENDPOINT}]`
   );
 });
