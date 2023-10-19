@@ -2,7 +2,7 @@ name: Build and deploy image to AWS ECS (Dev)
 
 on:
   push:
-    branches: [ "master", "development", "production" ]
+    branches: [ "master", "development" ]
 
 env:
   AWS_REGION:     ap-southeast-1
