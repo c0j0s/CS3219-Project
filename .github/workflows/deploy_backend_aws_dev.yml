@@ -23,7 +23,7 @@ jobs:
   build:
     name: Build service images
     runs-on: ubuntu-latest
-    environment: production
+    environment: development
     steps:
       - name: Checkout
         uses: actions/checkout@v3
