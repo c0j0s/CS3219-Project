@@ -6,11 +6,11 @@ export const config = {
 
 export async function middleware(request: NextRequest) {
   const host =
-    process.env.NODE_ENV == "production"
+    process.env.BUILD_ENV == "production"
       ? process.env.ENDPOINT_PROD
-      : `${process.env.ENDPOINT_DEV}`;
+      : `${process.env.ENDPOINT}`;
 
-  const stage = process.env.NODE_ENV || "development";
+  const stage = process.env.BUILD_ENV || "development";
 
   const authValidateEndpoint = `${host}/${stage}/auth/api/validate`;
 

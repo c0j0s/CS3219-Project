@@ -8,11 +8,11 @@ const logger = getLogger("endpoint");
 
 // Configure gateway host based on the environment (production or development).
 const host =
-  process.env.NODE_ENV == "production"
+  process.env.BUILD_ENV == "production"
     ? process.env.ENDPOINT_PROD
-    : process.env.ENDPOINT_DEV;
+    : process.env.ENDPOINT;
 
-const stage = process.env.NODE_ENV || "development";
+const stage = process.env.BUILD_ENV || "development";
 
 /**
  * Configuration object for API calls.
@@ -45,11 +45,11 @@ type ApiResponse = {
 export default async function api(config: ApiConfig): Promise<ApiResponse> {
   // Configure gateway host based on the environment (production or development).
   const host =
-    process.env.NODE_ENV == "production"
+    process.env.BUILD_ENV == "production"
       ? process.env.ENDPOINT_PROD
-      : process.env.ENDPOINT_DEV;
+      : process.env.ENDPOINT;
 
-  const stage = process.env.NODE_ENV || "development";
+  const stage = process.env.BUILD_ENV || "development";
 
   // Configure local domain port based on the 'domain' property in the configuration.
   let servicePort = getServicePorts(config.domain);
@@ -161,7 +161,7 @@ export async function getSocketConfig(domain: DOMAIN) {
  * @returns port number
  */
 function getServicePorts(domain: DOMAIN) {
-  if (process.env.NODE_ENV == "development") {
+  if (process.env.BUILD_ENV == "development") {
     let servicePort = ":";
     switch (domain) {
       case DOMAIN.QUESTION:
