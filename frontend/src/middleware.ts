@@ -5,6 +5,8 @@ export const config = {
 };
 
 export async function middleware(request: NextRequest) {
+  console.log(process.env.);
+  
   const host = process.env.ENDPOINT || "http://localhost"
   const stage = process.env.BUILD_ENV || "development";
 
