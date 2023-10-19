@@ -28,8 +28,6 @@ const createUser = async (user: UserProfile) => {
 };
 
 const getUserByEmail = async (email: string) => {
-  console.debug(`[getUserByEmail] fetch ${getUserServiceEndpoint()}/user/api/users/email?email=${email}`);
-  
   const res = await fetch(
     `${getUserServiceEndpoint()}/user/api/users/email?email=${email}`,
     {
@@ -39,11 +37,11 @@ const getUserByEmail = async (email: string) => {
       },
     }
     );
+    console.debug(`[getUserByEmail][${res.status}] fetch ${getUserServiceEndpoint()}/user/api/users/email?email=${email}`);
     return res;
   };
   
 const getUserById = async (id: string) => {
-  console.debug(`[getUserById] fetch ${getUserServiceEndpoint()}/user/api/users/email?email=${id}`);
   const res = await fetch(`${getUserServiceEndpoint()}/user/api/users/${id}`, {
     method: "GET",
     headers: {
@@ -51,11 +49,11 @@ const getUserById = async (id: string) => {
       bypass: getServiceSecret(),
     },
   });
+  console.debug(`[getUserById][${res.status}] fetch ${getUserServiceEndpoint()}/user/api/users/${id}`);
   return res;
 };
 
 const updateVerfication = async(email:string, token:string) => {
-  console.debug(`[updateVerfication] fetch ${getUserServiceEndpoint()}/user/api/users/updateVerification/${email}`);
   const res = await fetch(`${getUserServiceEndpoint()}/user/api/users/updateVerification/${email}`, {
     method: "PUT",
     headers: {
@@ -64,11 +62,11 @@ const updateVerfication = async(email:string, token:string) => {
     },
   });
   
+  console.debug(`[updateVerfication][${res.status}] fetch ${getUserServiceEndpoint()}/user/api/users/updateVerification/${email}`);
   return res;
 }
 
 const updatePasswordResetToken = async(email:string, updateBody: {}) => {
-  console.debug(`[updatePasswordResetToken] fetch ${getUserServiceEndpoint()}/user/api/users/updatePasswordResetToken/${email}`);
   const res = await fetch(`${getUserServiceEndpoint()}/user/api/users/updatePasswordResetToken/${email}`, {
     method: "PUT",
     body: JSON.stringify(updateBody),
@@ -77,11 +75,11 @@ const updatePasswordResetToken = async(email:string, updateBody: {}) => {
       bypass: getServiceSecret(),
     },
   });
+  console.debug(`[updatePasswordResetToken][${res.status}] fetch ${getUserServiceEndpoint()}/user/api/users/updatePasswordResetToken/${email}`);
   return res;
 }
 
 const updatePassword = async (id: string, updateBody: {}) => {
-  console.debug(`[updatePassword] fetch ${getUserServiceEndpoint()}/user/api/users/${id}`);
   const res = await fetch(`${getUserServiceEndpoint()}/user/api/users/${id}`, {
     method: "PUT",
     body: JSON.stringify(updateBody),
@@ -90,6 +88,7 @@ const updatePassword = async (id: string, updateBody: {}) => {
       bypass: getServiceSecret(),
     },
   });
+  console.debug(`[updatePassword][${res.status}] fetch ${getUserServiceEndpoint()}/user/api/users/${id}`);
   return res;
 };
 

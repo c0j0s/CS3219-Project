@@ -5,24 +5,14 @@ export const config = {
 };
 
 export async function middleware(request: NextRequest) {
-  const http =
-  process.env.NODE_ENV == "production"
-    ? 'https'
-    : 'http';
-
   const host =
     process.env.NODE_ENV == "production"
       ? process.env.ENDPOINT_PROD
-      : process.env.ENDPOINT_DEV;
-
-  const baseUrl =
-    process.env.NODE_ENV == "production"
-      ? `${http}://${host}`
-      : `${http}://${host}:${process.env.ENDPOINT_FRONTEND_PORT}`;
+      : `${process.env.ENDPOINT_DEV}`;
 
   const stage = process.env.NODE_ENV || "development";
 
-  const authValidateEndpoint = `${http}://${host}:${process.env.ENDPOINT_AUTH_PORT}/${stage}/auth/api/validate`;
+  const authValidateEndpoint = `${host}/${stage}/auth/api/validate`;
 
   const publicContent = ["/_next", "/assets", "/logout", "/forgotpassword"];
 
@@ -31,6 +21,7 @@ export async function middleware(request: NextRequest) {
   }
 
   const jwtCookieString = request.cookies.get("jwt")?.value as string;
+  console.log(authValidateEndpoint);
   
   // Can try passing cookie as parameter to validateUser for validation
   const res = await fetch(authValidateEndpoint, {
@@ -47,7 +38,7 @@ export async function middleware(request: NextRequest) {
       request.nextUrl.pathname === "/" ||
       request.nextUrl.pathname === "/verify"
     ) {
-      return NextResponse.redirect(new URL("/dashboard", baseUrl));
+      return NextResponse.redirect(new URL("/dashboard", request.nextUrl.origin));
     }
     return NextResponse.next();
   }
@@ -60,5 +51,5 @@ export async function middleware(request: NextRequest) {
   ) {
     return NextResponse.next();
   }
-  return NextResponse.redirect(new URL("/login", baseUrl));
+  return NextResponse.redirect(new URL("/login", request.nextUrl.origin));
 }

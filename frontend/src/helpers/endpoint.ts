@@ -7,11 +7,6 @@ import HttpStatusCode from "@/types/HttpStatusCode";
 const logger = getLogger("endpoint");
 
 // Configure gateway host based on the environment (production or development).
-const http =
-  process.env.NODE_ENV == "production"
-    ? 'https'
-    : 'http';
-
 const host =
   process.env.NODE_ENV == "production"
     ? process.env.ENDPOINT_PROD
@@ -60,7 +55,7 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
   let servicePort = getServicePorts(config.domain);
 
   // Build the final API endpoint URL.
-  const endpoint = `${http}://${host}${servicePort}/${stage}/${config.domain}/api/${
+  const endpoint = `${host}${servicePort}/${stage}/${config.domain}/api/${
     config.path || ""
   }`;
 
@@ -154,7 +149,7 @@ export async function getSocketConfig(domain: DOMAIN) {
   let servicePort = getServicePorts(domain);
 
   // Build the final API endpoint URL.
-  const endpoint = `${http}://${host}${servicePort}`;
+  const endpoint = `${host}${servicePort}`;
   const path = `/${stage}/${domain}/socket`;
   logger.info(`[endpoint] socket: ${endpoint}`);
   return { endpoint, path };
