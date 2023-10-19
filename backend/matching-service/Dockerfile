@@ -1,4 +1,16 @@
+# Stage 1: Build environment
+FROM node:20 AS build
+WORKDIR /app
+
+# Copy the source code and install dependencies
+COPY package*.json ./
+RUN npm install --include=dev
+COPY . .
+RUN npm run build 
+
+# Stage 2: Production environment
 FROM node:20
+WORKDIR /app
 
 # Defing service arguments
 ARG NODE_ENV
@@ -11,18 +23,20 @@ ARG CORS_ALLOWED_ORIGINS=http://localhost:3000
 ENV CORS_ALLOWED_ORIGINS=$CORS_ALLOWED_ORIGINS
 
 ARG PORT=5200
-EXPOSE $PORT
+ENV PORT=$PORT
 
 # Defing service specific arguments
 ARG MATCHING_TIMEOUT=60000
 ENV MATCHING_TIMEOUT=$MATCHING_TIMEOUT
 
-# Build steps
-WORKDIR /app
-COPY . .
-RUN npm ci
-RUN npm run build
+# Copy only the production artifacts from the build stage
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/package*.json ./
 
-RUN npm ci --omit=dev
+RUN npm install --omit=dev
 
+# Expose the application's port
+EXPOSE $PORT
+
+# Run image
 CMD ["node", "dist/app.js"]

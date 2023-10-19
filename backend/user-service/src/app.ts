@@ -30,5 +30,5 @@ app.all("*", (_: Request, res: Response) => {
 });
 
 app.listen(process.env.SERVICE_PORT, () => {
-  console.log(`Server listens on port ${process.env.SERVICE_PORT} db[${process.env.DATABASE_URL}]`);
+  console.log(`Server listens on port ${process.env.SERVICE_PORT} build[${process.env.NODE_ENV}] log[${process.env.LOG_LEVEL}] db[${process.env.DATABASE_URL}]`);
 });

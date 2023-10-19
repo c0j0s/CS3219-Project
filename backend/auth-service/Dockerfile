@@ -1,4 +1,16 @@
+FROM node:20 AS build
+WORKDIR /app
+
+# Copy the source code and install dependencies
+COPY package*.json ./
+RUN npm install --include=dev
+COPY . .
+RUN npm run build 
+
+# Stage 2: Production environment
 FROM node:20
+WORKDIR /app
+
 # Defing service arguments
 ARG NODE_ENV
 ENV NODE_ENV=$NODE_ENV
@@ -28,13 +40,14 @@ ENV NM_MAIL=$NM_MAIL
 ARG NM_PASS
 ENV NM_PASS=$NM_PASS
 
-# Build steps
-WORKDIR /app
-COPY . .
-RUN npm install
-RUN npm run build
+# Copy only the production artifacts from the build stage
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/package*.json ./
 
-COPY package*.json ./
+RUN npm install --omit=dev
+
+# Expose the application's port
+EXPOSE $PORT
 
 # Run image
 CMD ["node", "dist/app.js"]
