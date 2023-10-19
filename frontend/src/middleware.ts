@@ -5,14 +5,12 @@ export const config = {
 };
 
 export async function middleware(request: NextRequest) {
-  const host =
-    process.env.NODE_ENV == "production"
-      ? process.env.ENDPOINT_PROD
-      : `${process.env.ENDPOINT_DEV}`;
+  const host = process.env.ENDPOINT || "http://localhost"
+  const stage = process.env.BUILD_ENV || "development";
 
-  const stage = process.env.NODE_ENV || "development";
-
-  const authValidateEndpoint = `${host}/${stage}/auth/api/validate`;
+  // Needs to support cloud development deployment without port number
+  const port = host.startsWith('https') ? '' : ':5050';
+  const authValidateEndpoint = `${host}${port}/${stage}/auth/api/validate`;
 
   const publicContent = ["/_next", "/assets", "/logout", "/forgotpassword"];
 
@@ -32,6 +30,8 @@ export async function middleware(request: NextRequest) {
   });
 
   //authenticated
+  console.log(res.status);
+  
   if (res.status === 200) {
     if (
       request.nextUrl.pathname === "/login" ||
