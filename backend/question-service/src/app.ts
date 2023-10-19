@@ -38,9 +38,10 @@ const CORS_ALLOWED_ORIGINS = process.env.CORS_ALLOWED_ORIGINS || "default";
 const GATEWAY = process.env.GATEWAY || "gateway"
 const AUTH_ENDPOINT = process.env.AUTH_ENDPOINT || "default";
 const AUTH_ADMIN_ENDPOINT = process.env.AUTH_ADMIN_ENDPOINT || "default";
+const DATABASE_URL = process.env.DATABASE_URL || "default";
 
 app.listen(PORT, () => {
   logger.info(
-    `Server running at port[${PORT}] build[${NODE_ENV}] log[${LOG_LEVEL}] cors[${CORS_ALLOWED_ORIGINS}] auth[${GATEWAY}/${NODE_ENV}/${AUTH_ENDPOINT}] authAdmin[${GATEWAY}/${NODE_ENV}/${AUTH_ADMIN_ENDPOINT}]`
+    `Server running at port[${PORT}] build[${NODE_ENV}] log[${LOG_LEVEL}] cors[${CORS_ALLOWED_ORIGINS}] db[${DATABASE_URL}] auth[${GATEWAY}/${NODE_ENV}/${AUTH_ENDPOINT}] authAdmin[${GATEWAY}/${NODE_ENV}/${AUTH_ADMIN_ENDPOINT}]`
   );
 });
