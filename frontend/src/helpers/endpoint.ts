@@ -7,11 +7,7 @@ import HttpStatusCode from "@/types/HttpStatusCode";
 const logger = getLogger("endpoint");
 
 // Configure gateway host based on the environment (production or development).
-const host =
-  process.env.BUILD_ENV == "production"
-    ? process.env.ENDPOINT_PROD
-    : process.env.ENDPOINT;
-
+const host = process.env.ENDPOINT;
 const stage = process.env.BUILD_ENV || "development";
 
 /**
