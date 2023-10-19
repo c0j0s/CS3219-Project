@@ -6,9 +6,12 @@ import { ZodError } from "zod";
 
 export const getHealth = async (_: Request, response: Response) => {
   try {
-    if (typeof db.$disconnect !== "function") {
-      throw new Error("No database connection from the server.");
+    const result = await db.$queryRaw`SELECT 1`;
+
+    if (!result) {
+      throw new Error("No database connection from the server");
     }
+
     response.status(HttpStatusCode.OK).json({ message: "Healthy" });
   } catch (error) {
     console.log(error);
