@@ -6,7 +6,7 @@ on:
 
 env:
   AWS_REGION:     ap-southeast-1
-  ECR_REPOSITORY: peerprep-development-ecr-container-repo
+  ECR_REPOSITORY: peerprep-development-ecr-repo
   ECS_CLUSTER:    peerprep-development-ECSCluster
   
   QUESTION_CONTAINER_NAME:      question-service
