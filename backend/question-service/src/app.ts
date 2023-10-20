@@ -23,7 +23,7 @@ app.use(bodyParser.json());
 
 // implement routes for API endpoints
 const NODE_ENV = process.env.NODE_ENV || "development";
-app.use(`/${NODE_ENV}/question/api`, authMiddleware, router);
+app.use(`/question/api`, authMiddleware, router);
 
 app.all("*", (req: Request, res: Response) => {
   res.status(HttpStatusCode.NOT_FOUND).json({
@@ -42,6 +42,6 @@ const DATABASE_URL = process.env.DATABASE_URL || "default";
 
 app.listen(PORT, () => {
   logger.info(
-    `Server running at port[${PORT}] build[${NODE_ENV}] log[${LOG_LEVEL}] cors[${CORS_ALLOWED_ORIGINS}] db[${DATABASE_URL}] auth[${GATEWAY}/${NODE_ENV}/${AUTH_ENDPOINT}] authAdmin[${GATEWAY}/${NODE_ENV}/${AUTH_ADMIN_ENDPOINT}]`
+    `Server running at port[${PORT}] build[${NODE_ENV}] log[${LOG_LEVEL}] cors[${CORS_ALLOWED_ORIGINS}] db[${DATABASE_URL}] auth[${GATEWAY}/${AUTH_ENDPOINT}] authAdmin[${GATEWAY}/${AUTH_ADMIN_ENDPOINT}]`
   );
 });

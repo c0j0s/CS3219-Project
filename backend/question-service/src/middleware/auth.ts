@@ -40,7 +40,7 @@ export const authMiddleware = async (
       : process.env.AUTH_ADMIN_ENDPOINT ||
       `auth/api/validateAdmin`;
 
-  const authRes = await fetch(`${GATEWAY}/${NODE_ENV}/${authEndpoint}`, {
+  const authRes = await fetch(`${GATEWAY}/${authEndpoint}`, {
     method: "POST",
     headers: {
       Cookie: `jwt=${jwtCookieString}`,

@@ -6,8 +6,8 @@ on:
 
 env:
   AWS_REGION:     ap-southeast-1
-  ECR_REPOSITORY: peerprep-ecr-container-dev-repo
-  ECS_CLUSTER:    peerprep-ECSDevCluster
+  ECR_REPOSITORY: peerprep-development-ecr-repo
+  ECS_CLUSTER:    peerprep-development-ECSCluster
   
   QUESTION_CONTAINER_NAME:      question-service
   MATCHING_CONTAINER_NAME:      matching-service
@@ -101,33 +101,33 @@ jobs:
         service: [
           {
             name: question-service,
-            ecs_service: peerprep-ServiceDevQuestion,
-            ecs_task_def: peerprep-TaskDefinitionDevQuestion
+            ecs_service:  peerprep-development-ServiceQuestion,
+            ecs_task_def: peerprep-development-TaskDefinitionQuestion
           },
           {
             name: matching-service,
-            ecs_service: peerprep-ServiceDevMatching,
-            ecs_task_def: peerprep-TaskDefinitionDevMatching
+            ecs_service:  peerprep-development-ServiceMatching,
+            ecs_task_def: peerprep-development-TaskDefinitionMatching
           },
           {
             name: user-service,
-            ecs_service: peerprep-ServiceDevUser,
-            ecs_task_def: peerprep-TaskDefinitionDevUser
+            ecs_service:  peerprep-development-ServiceUser,
+            ecs_task_def: peerprep-development-TaskDefinitionUser
           },
           {
             name: auth-service,
-            ecs_service: peerprep-ServiceDevAuth,
-            ecs_task_def: peerprep-TaskDefinitionDevAuth
+            ecs_service:  peerprep-development-ServiceAuth,
+            ecs_task_def: peerprep-development-TaskDefinitionAuth
           },
           # {
           #   name: collaboration-service,
-          #   ecs_service: peerprep-ServiceDevCollaboration,
-          #   ecs_task_def: peerprep-TaskDefinitionDevCollaboration
+          #   ecs_service:  peerprep-development-ServiceCollaboration,
+          #   ecs_task_def: peerprep-development-TaskDefinitionCollaboration
           # },
           # {
           #   name: history-service,
-          #   ecs_service: peerprep-ServiceDevHistory,
-          #   ecs_task_def: peerprep-TaskDefinitionDevHistory
+          #   ecs_service:  peerprep-development-ServiceHistory,
+          #   ecs_task_def: peerprep-development-TaskDefinitionHistory
           # },
         ]
 

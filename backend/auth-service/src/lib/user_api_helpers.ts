@@ -10,7 +10,7 @@ dotenv.config();
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const getUserServiceEndpoint = (): string => {
-  return process.env.GATEWAY? `${process.env.GATEWAY}/${NODE_ENV}` : `http://localhost:5005/${NODE_ENV}`;
+  return process.env.GATEWAY || `http://localhost:5005`;
 };
 
 const createUser = async (user: UserProfile) => {
