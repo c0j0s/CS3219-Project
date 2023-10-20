@@ -51,7 +51,7 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
   let servicePort = getServicePorts(config.domain);
 
   // Build the final API endpoint URL.
-  const endpoint = `${host}${servicePort}/${stage}/${config.domain}/api/${
+  const endpoint = `${host}${servicePort}/${config.domain}/api/${
     config.path || ""
   }`;
 
@@ -146,7 +146,7 @@ export async function getSocketConfig(domain: DOMAIN) {
 
   // Build the final API endpoint URL.
   const endpoint = `${host}${servicePort}`;
-  const path = `/${stage}/${domain}/socket`;
+  const path = `/${domain}/socket`;
   logger.info(`[endpoint] socket: ${endpoint}`);
   return { endpoint, path };
 }

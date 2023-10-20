@@ -23,7 +23,7 @@ app.use(passport.initialize());
 
 // implement routes for API endpoints
 const NODE_ENV = process.env.NODE_ENV || 'development';
-app.use(`/${NODE_ENV}/auth/api`, router);
+app.use(`/auth/api`, router);
 
 app.all("*", (req: Request, res: Response) => {
   res.status(HttpStatusCode.NOT_FOUND).json({

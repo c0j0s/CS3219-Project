@@ -14,7 +14,7 @@ export default function createUnitTestServer() {
 
   // implement routes for API endpoints
   const NODE_ENV = process.env.NODE_ENV || "test";
-  app.use(`/${NODE_ENV}/user/api`, router);
+  app.use(`/user/api`, router);
 
   return app;
 }
