@@ -12,7 +12,7 @@ RUN npm run build
 FROM node:20
 WORKDIR /app
 
-# Define service arguments
+# Defing service arguments
 ARG NODE_ENV
 ENV NODE_ENV=$NODE_ENV
 
@@ -22,13 +22,17 @@ ENV LOG_LEVEL=$LOG_LEVEL
 ARG CORS_ALLOWED_ORIGINS=http://localhost:3000
 ENV CORS_ALLOWED_ORIGINS=$CORS_ALLOWED_ORIGINS
 
-ARG PORT=5100
-ENV PORT=$PORT
-EXPOSE $PORT
+ENV AUTH_ENDPOINT="${GATEWAY}/auth/api/validate"
 
-# Define service specific arguments
+ARG PORT=5005
+ENV PORT=$PORT
+
+# Defing service specific arguments
 ARG DATABASE_URL
 ENV DATABASE_URL=$DATABASE_URL
+
+ARG EMAIL_VERIFICATION_SECRET
+ENV EMAIL_VERIFICATION_SECRET=$EMAIL_VERIFICATION_SECRET
 
 # Copy only the production artifacts from the build stage
 COPY --from=build /app/dist ./dist

@@ -1,7 +1,9 @@
 import cors from "cors";
 
-// TODO: Add production site to allowed origins
-const allowedOrigins = ["http://localhost:3000"];
+const allowedOrigins =
+  process.env.CORS_ALLOWED_ORIGINS
+    ? process.env.CORS_ALLOWED_ORIGINS.split(",")
+    : ["http://localhost:3000"];
 
 const verifyOrigin = (origin: string | undefined, callback: any) => {
   //  when the call is made from the same origin

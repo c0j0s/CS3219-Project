@@ -20,7 +20,7 @@ app.use(express.json());
 
 // implement routes for API endpoints
 const NODE_ENV = process.env.NODE_ENV || "development";
-app.use(`/${NODE_ENV}/user/api`, authMiddleware, router);
+app.use(`/user/api`, authMiddleware, router);
 
 app.all("*", (_: Request, res: Response) => {
   res.status(HttpStatusCode.NOT_FOUND).json({
@@ -30,5 +30,5 @@ app.all("*", (_: Request, res: Response) => {
 });
 
 app.listen(process.env.SERVICE_PORT, () => {
-  console.log(`Server listens on port ${process.env.SERVICE_PORT}`);
+  console.log(`Server listens on port ${process.env.SERVICE_PORT} build[${process.env.NODE_ENV}] log[${process.env.LOG_LEVEL}] db[${process.env.DATABASE_URL}]`);
 });

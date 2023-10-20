@@ -27,7 +27,7 @@ app.use(bodyParser.json());
 
 // implement routes for API endpoints
 const NODE_ENV = process.env.NODE_ENV || 'development';
-app.use(`/${NODE_ENV}/matching/api`, router);
+app.use(`/matching/api`, router);
 
 app.all("*", (req: Request, res: Response) => {
   res.status(HttpStatusCode.NOT_FOUND).json({
@@ -39,7 +39,7 @@ app.all("*", (req: Request, res: Response) => {
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: corsOptions,
-  path: `/${NODE_ENV}/matching/socket`,
+  path: `/matching/socket`,
   allowUpgrades: false
 });
 
@@ -50,9 +50,9 @@ io.on(SocketEvent.CONNECTION_ERROR, (error) => {
 });
 
 const PORT = process.env.SERVICE_PORT || 5200;
-const LOG_LEVEL = process.env.LOG_LEVEL || 'debug';
-const CORS_ALLOWED_ORIGINS = process.env.CORS_ALLOWED_ORIGINS || "http://localhost:3000";
-const MATCHING_TIMEOUT = process.env.MATCHING_TIMEOUT || 60000;
+const LOG_LEVEL = process.env.LOG_LEVEL || 'default';
+const CORS_ALLOWED_ORIGINS = process.env.CORS_ALLOWED_ORIGINS || 'default';
+const MATCHING_TIMEOUT = process.env.MATCHING_TIMEOUT || 'default';
 
 httpServer.listen(PORT, () => {
   logger.info(

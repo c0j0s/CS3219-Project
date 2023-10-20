@@ -6,18 +6,7 @@ import HttpStatusCode from "@/types/HttpStatusCode";
 
 const logger = getLogger("endpoint");
 
-// Configure gateway host based on the environment (production or development).
-const http =
-  process.env.NODE_ENV == "production"
-    ? 'https'
-    : 'http';
-
-const host =
-  process.env.NODE_ENV == "production"
-    ? process.env.ENDPOINT_PROD
-    : process.env.ENDPOINT_DEV;
-
-const stage = process.env.NODE_ENV || "development";
+const host = process.env.ENDPOINT || "http://localhost";
 
 /**
  * Configuration object for API calls.
@@ -52,7 +41,7 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
   let servicePort = getServicePorts(config.domain);
 
   // Build the final API endpoint URL.
-  const endpoint = `${http}://${host}${servicePort}/${stage}/${config.domain}/api/${
+  const endpoint = `${host}${servicePort}/${config.domain}/api/${
     config.path || ""
   }`;
 
@@ -146,8 +135,8 @@ export async function getSocketConfig(domain: DOMAIN) {
   let servicePort = getServicePorts(domain);
 
   // Build the final API endpoint URL.
-  const endpoint = `${http}://${host}${servicePort}`;
-  const path = `/${stage}/${domain}/socket`;
+  const endpoint = `${host}${servicePort}`;
+  const path = `/${domain}/socket`;
   logger.info(`[endpoint] socket: ${endpoint}`);
   return { endpoint, path };
 }
@@ -158,7 +147,7 @@ export async function getSocketConfig(domain: DOMAIN) {
  * @returns port number
  */
 function getServicePorts(domain: DOMAIN) {
-  if (process.env.NODE_ENV == "development") {
+  if (process.env.BUILD_ENV == "development") {
     let servicePort = ":";
     switch (domain) {
       case DOMAIN.QUESTION:

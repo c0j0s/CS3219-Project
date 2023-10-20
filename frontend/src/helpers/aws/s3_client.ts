@@ -4,9 +4,9 @@ import { HTTP_METHODS } from "@/types/enums";
 import S3 from "aws-sdk/clients/s3";
 
 const s3Client = new S3({
-  region: process.env.AWS_REGION,
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AMZ_REGION,
+  accessKeyId: process.env.AMZ_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AMZ_SECRET_ACCESS_KEY,
   signatureVersion: "v4",
 });
 
@@ -20,7 +20,7 @@ export const uploadImageToS3 = async (
 ) => {
   try {
     const fileParams = {
-      Bucket: process.env.AWS_BUCKET_NAME,
+      Bucket: process.env.AMZ_BUCKET_NAME,
       Key: fileKey,
       Expires: 600,
       ContentType: fileType,
@@ -59,5 +59,5 @@ export const uploadImageToS3 = async (
 };
 
 function getImageUrlFromS3(userId: string, fileName: string) {
-  return `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/users/${userId}/image/${fileName}`;
+  return `https://${process.env.AMZ_BUCKET_NAME}.s3.${process.env.AMZ_REGION}.amazonaws.com/users/${userId}/image/${fileName}`;
 }
