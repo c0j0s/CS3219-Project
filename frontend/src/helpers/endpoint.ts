@@ -6,9 +6,7 @@ import HttpStatusCode from "@/types/HttpStatusCode";
 
 const logger = getLogger("endpoint");
 
-// Configure gateway host based on the environment (production or development).
-const host = process.env.ENDPOINT;
-const stage = process.env.BUILD_ENV || "development";
+const host = process.env.ENDPOINT || "http://localhost";
 
 /**
  * Configuration object for API calls.
@@ -39,14 +37,6 @@ type ApiResponse = {
  * @returns {Promise<ApiResponse>} - Response from the API call.
  */
 export default async function api(config: ApiConfig): Promise<ApiResponse> {
-  // Configure gateway host based on the environment (production or development).
-  const host =
-    process.env.BUILD_ENV == "production"
-      ? process.env.ENDPOINT_PROD
-      : process.env.ENDPOINT;
-
-  const stage = process.env.BUILD_ENV || "development";
-
   // Configure local domain port based on the 'domain' property in the configuration.
   let servicePort = getServicePorts(config.domain);
 

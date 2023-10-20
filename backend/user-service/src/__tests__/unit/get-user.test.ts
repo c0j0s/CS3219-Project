@@ -6,8 +6,8 @@ import * as testPayloads from "../utils/payloads";
 
 const dbMock = db as jest.Mocked<typeof db>;
 const app = createUnitTestServer();
-const NODE_ENV = process.env.NODE_ENV || "test";
-const API_PREFIX = `${NODE_ENV}/user/api`;
+
+const API_PREFIX = `user/api`;
 
 describe("GET /api/users/:userId", () => {
   describe("Given the user id exists in the database", () => {

@@ -6,8 +6,8 @@ import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 
 const dbMock = db as jest.Mocked<typeof db>;
 const app = createUnitTestServer();
-const NODE_ENV = process.env.NODE_ENV || "test";
-const API_PREFIX = `${NODE_ENV}/user/api`;
+
+const API_PREFIX = `user/api`;
 
 describe("PUT /api/users/:userId", () => {
   describe("Given an existing user id with valid request body payload", () => {

@@ -32,7 +32,6 @@ export const authMiddleware = async (
   }
   
   // Only allow GET requests to /development/user/questions to pass through with just user rights
-  const NODE_ENV = process.env.NODE_ENV || 'development';
   const GATEWAY = process.env.GATEWAY || "http://localhost:5050"
   const authEndpoint =
     req.method === "GET"
