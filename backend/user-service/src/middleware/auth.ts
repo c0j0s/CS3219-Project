@@ -44,7 +44,7 @@ export const authMiddleware = async (
   const authEndpoint =
     process.env.AUTH_ENDPOINT || `auth/api/validate`;
 
-  const authRes = await fetch(`${GATEWAY}//${NODE_ENV}/${authEndpoint}`, {
+  const authRes = await fetch(`${GATEWAY}/${authEndpoint}`, {
     method: "POST",
     headers: {
       Cookie: `jwt=${jwtCookieString}`,

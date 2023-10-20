@@ -6,8 +6,8 @@ on:
 
 env:
   AWS_REGION:     ap-southeast-1
-  ECR_REPOSITORY: peerprep-ecr-container-prod-repo
-  ECS_CLUSTER:    peerprep-ECSProdCluster
+  ECR_REPOSITORY: peerprep-prod-ecr-container-repo
+  ECS_CLUSTER:    peerprep-prod-ECSCluster
   
   QUESTION_CONTAINER_NAME:      question-service
   MATCHING_CONTAINER_NAME:      matching-service
@@ -101,33 +101,33 @@ jobs:
         service: [
           {
             name: question-service,
-            ecs_service: peerprep-ServiceProdQuestion,
-            ecs_task_def: peerprep-TaskDefinitionProdQuestion
+            ecs_service:  peerprep-prod-ServiceQuestion,
+            ecs_task_def: peerprep-prod-TaskDefinitionQuestion
           },
           {
             name: matching-service,
-            ecs_service: peerprep-ServiceProdMatching,
-            ecs_task_def: peerprep-TaskDefinitionProdMatching
+            ecs_service:  peerprep-prod-ServiceMatching,
+            ecs_task_def: peerprep-prod-TaskDefinitionMatching
           },
           {
             name: user-service,
-            ecs_service: peerprep-ServiceProdUser,
-            ecs_task_def: peerprep-TaskDefinitionProdUser
+            ecs_service:  peerprep-prod-ServiceUser,
+            ecs_task_def: peerprep-prod-TaskDefinitionUser
           },
           {
             name: auth-service,
-            ecs_service: peerprep-ServiceProdAuth,
-            ecs_task_def: peerprep-TaskDefinitionProdAuth
+            ecs_service:  peerprep-prod-ServiceAuth,
+            ecs_task_def: peerprep-prod-TaskDefinitionAuth
           },
           # {
           #   name: collaboration-service,
-          #   ecs_service: peerprep-ServiceProdCollaboration,
-          #   ecs_task_def: peerprep-TaskDefinitionProdCollaboration
+          #   ecs_service:  peerprep-prod-ServiceCollaboration,
+          #   ecs_task_def: peerprep-prod-TaskDefinitionCollaboration
           # },
           # {
           #   name: history-service,
-          #   ecs_service: peerprep-ServiceProdHistory,
-          #   ecs_task_def: peerprep-TaskDefinitionProdHistory
+          #   ecs_service:  peerprep-prod-ServiceHistory,
+          #   ecs_task_def: peerprep-prod-TaskDefinitionHistory
           # },
         ]
 

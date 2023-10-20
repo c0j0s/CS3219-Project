@@ -10,7 +10,7 @@ export async function middleware(request: NextRequest) {
 
   // Needs to support cloud development deployment without port number
   const port = host.startsWith('https') ? '' : ':5050';
-  const authValidateEndpoint = `${host}${port}/${stage}/auth/api/validate`;
+  const authValidateEndpoint = `${host}${port}/auth/api/validate`;
 
   const publicContent = ["/_next", "/assets", "/logout", "/forgotpassword"];
 
