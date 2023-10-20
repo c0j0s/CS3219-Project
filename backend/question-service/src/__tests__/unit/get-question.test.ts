@@ -7,8 +7,7 @@ import db from "../../models/db";
 
 const app = createUnitTestServer();
 const dbMock = db as jest.Mocked<typeof db>;
-const NODE_ENV = process.env.NODE_ENV || "test";
-const API_PREFIX = `${NODE_ENV}/question/api`;
+const API_PREFIX = `question/api`;
 
 describe("GET /questions", () => {
   describe("Given an authorized API call", () => {

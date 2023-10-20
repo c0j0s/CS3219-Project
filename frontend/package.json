@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "build": "next build",
+    "start": "next start",
     "dev": "next dev | pino-pretty",
     "dev:frontend": "npm run dev | pino-pretty",
     "dev:user-service": "cd ../backend/user-service && npm run dev",
@@ -17,9 +19,7 @@
     "setup:auth-service": "cd ../backend/auth-service && npm i",
     "setup:collaboration-service": "cd ../backend/collaboration-service && npm i",
     "setup:matching-service": "cd ../backend/matching-service && npm i",
-    "setup-all": "concurrently \"npm run setup:frontend\" \"npm run setup:user-service\" \"npm run setup:question-service\" \"npm run setup:auth-service\" \"npm run setup:matching-service\" \"npm run setup:collaboration-service\"",
-    "build": "next build",
-    "start": "next start | pino-pretty",
+    "setup-all": "concurrently \"npm run setup:user-service\" \"npm run setup:question-service\" \"npm run setup:auth-service\" \"npm run setup:matching-service\" \"npm run setup:collaboration-service\"",
     "lint": "next lint",
     "checkstyle": "prettier . --check",
     "pretty": "prettier . --write"
@@ -49,7 +49,6 @@
     "next": "^13.5.2",
     "npm": "^10.2.0",
     "pino": "^8.15.0",
-    "pino-pretty": "^10.2.0",
     "postcss": "8.4.29",
     "quill-image-compress": "^1.2.30",
     "react": "^18.2.0",
@@ -69,6 +68,7 @@
     "@types/uuid": "^9.0.4",
     "concurrently": "^8.2.1",
     "css-loader": "^6.8.1",
+    "pino-pretty": "^10.2.0",
     "eslint-config-prettier": "^9.0.0",
     "prettier": "3.0.3",
     "style-loader": "^3.3.3"

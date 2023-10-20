@@ -19,7 +19,6 @@ app.use(bodyParser.json());
 app.use(express.json());
 
 // implement routes for API endpoints
-const NODE_ENV = process.env.NODE_ENV || "development";
 app.use(`/user/api`, authMiddleware, router);
 
 app.all("*", (_: Request, res: Response) => {

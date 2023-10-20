@@ -5,8 +5,8 @@ import createUnitTestServer from "../utils/server";
 
 const app = createUnitTestServer();
 const dbMock = db as jest.Mocked<typeof db>;
-const NODE_ENV = process.env.NODE_ENV || "test";
-const API_PREFIX = `${NODE_ENV}/user/api`;
+
+const API_PREFIX = `user/api`;
 
 describe("DELETE /api/users/:userId", () => {
   describe("Given an existing user id", () => {

@@ -38,7 +38,6 @@ export const authMiddleware = async (
     return;
   }
 
-  const NODE_ENV = process.env.NODE_ENV || 'development';
   const GATEWAY = process.env.GATEWAY || "http://localhost:5050"
   //If there is JWT, validate it through the auth endpoint
   const authEndpoint =
