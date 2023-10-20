@@ -6,7 +6,6 @@ export const config = {
 
 export async function middleware(request: NextRequest) {
   const host = process.env.ENDPOINT || "http://localhost"
-  const stage = process.env.BUILD_ENV || "development";
 
   // Needs to support cloud endpoint deployment without port number
   const port = host.startsWith('https') ? '' : ':5050';
