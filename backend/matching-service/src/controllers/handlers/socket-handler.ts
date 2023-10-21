@@ -7,6 +7,7 @@ import Room from '../../models/types/room';
 import { generateRoomId } from '../../lib/utils/encoder';
 import SocketEvent from '../../lib/enums/SocketEvent';
 import logger from '../../lib/utils/logger';
+import { eventBus } from '../../models/event_bus/event_bus';
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -120,6 +121,9 @@ const handleStart = (socket: Socket, problemId: string) => {
           questionId: problemId,
           language: lang,
         };
+
+        // Emit to collaboration service to create the room
+        eventBus.publish('matching-collaboration', JSON.stringify({ roomId: roomId, user1: roomConfig.owner, user2: roomConfig.partner }))
 
         io.sockets.in(r).emit("redirect_collaboration", roomConfig);
       }

@@ -1,9 +1,37 @@
-# Simple guide about how to launch the collaboration service
+### Setting up for development
 
-## Set up
+Install docker engine:
 
-`SERVICE_PORT` = 5300
+```
+$ sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
 
-## Running the service
+Or for windows download <a href="https://docs.docker.com/desktop/install/windows-install/">here</a>
 
-`npm run dev` to run the WebSocket server.
+Run this command to cache session database details:
+```
+$ sudo docker run -p 6379:6379 --name peerprep-database -d redis
+```
+
+Run event bus between matching and collaboration service:
+```
+$ sudo docker run -p 6380:6379 --name peerprep-eventbus -d redis
+```
+
+Example of .env file:
+```
+SERVICE_PORT=5300
+REDIS_URL=redis://localhost:6379/
+REDIS_EVENT_BUS=redis://localhost:6380/
+LOG_LEVEL=info
+```
+
+Removing the containers (if needed):
+```
+$ sudo docker stop peerprep-database
+$ sudo docker stop peerprep-eventbus
+
+$ sudo docker remove peerprep-database
+$ sudo docker remove peerprep-eventbus
+```
+

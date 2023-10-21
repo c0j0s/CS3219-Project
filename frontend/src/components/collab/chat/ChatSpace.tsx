@@ -1,21 +1,22 @@
 "use client";
 import { useEffect, useRef, useState, useLayoutEffect } from "react";
 import ChatBubble from "./ChatBubble";
-import { BsSendFill } from "react-icons/bs";
-import { RxCross2 } from "react-icons/rx";
-import { Button, Divider } from "@nextui-org/react";
+import { Button, Divider, Tooltip } from "@nextui-org/react";
 import ProfilePictureAvatar from "@/components/common/ProfilePictureAvatar";
 import { useCollabContext } from "@/contexts/collab";
 import ChatMessage from "@/types/chat_message";
+import { Icons } from "@/components/common/Icons";
 
 interface IChatSpaceProps {
+  toggleLeft: boolean;
+  setToggleLeft: React.Dispatch<React.SetStateAction<boolean>>;
   unreadMessages: number;
   setUnreadMessages: React.Dispatch<React.SetStateAction<number>>;
   isOpen: boolean;
   onClose: () => void;
 }
 
-const ChatSpace = ({ unreadMessages, onClose, setUnreadMessages, isOpen }: IChatSpaceProps) => {
+const ChatSpace = ({ toggleLeft, setToggleLeft, unreadMessages, onClose, setUnreadMessages, isOpen }: IChatSpaceProps) => {
   const { partner, user, socketService } = useCollabContext();
   const [ error, setError ] = useState(false);
 
@@ -24,7 +25,7 @@ const ChatSpace = ({ unreadMessages, onClose, setUnreadMessages, isOpen }: IChat
   const scrollTargetRef = useRef<HTMLDivElement>(null);
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [justMounted, setJustMounted] = useState(true); 
+  const [isPartnerConnected, setIsPartnerConnected] = useState<boolean>(false);
   const [newMessage, setNewMessages] = useState<ChatMessage>({
     content: "",
     senderId: "",
@@ -51,6 +52,7 @@ const ChatSpace = ({ unreadMessages, onClose, setUnreadMessages, isOpen }: IChat
   useEffect(() => {
     socketService?.updateChatMessages(setNewMessages);
     socketService?.receiveChatList(setMessages);
+    socketService?.receivePartnerConnection(setIsPartnerConnected);
   }, []);
 
   useEffect(() => {
@@ -61,6 +63,9 @@ const ChatSpace = ({ unreadMessages, onClose, setUnreadMessages, isOpen }: IChat
   }, [newMessage]);
 
   const handleSubmitMessage = (e: React.FormEvent<HTMLFormElement>) => {
+
+    if (!isPartnerConnected) return;
+
     e.preventDefault();
 
     const messageContent = e.currentTarget.message.value;
@@ -79,6 +84,11 @@ const ChatSpace = ({ unreadMessages, onClose, setUnreadMessages, isOpen }: IChat
     e.currentTarget.message.value = "";
     scrollToNewestMessage();
   };
+
+  const handleToggleLeft = () => {
+    setToggleLeft(!toggleLeft);
+  }
+
   return (
     <div className={`bg-black rounded-xl w-[400px] p-2`}>
       <div className="flex w-full justify-between mb-2">
@@ -87,9 +97,16 @@ const ChatSpace = ({ unreadMessages, onClose, setUnreadMessages, isOpen }: IChat
 
           <span className="font-semibold text-sm"> {partner!.name} </span>
         </div>
-        <Button isIconOnly variant="light" onPress={onClose}>
-          <RxCross2 />
-        </Button>
+        <div>
+          <Tooltip content={toggleLeft ? "Move chat to the right" : "Move chat to the left"}>
+            <Button isIconOnly variant="light" onPress={handleToggleLeft}>
+                <Icons.HiSwitchHorizontal/>
+            </Button>
+          </Tooltip>
+          <Button isIconOnly variant="light" onPress={onClose}>
+            <Icons.RxCross2 />
+          </Button>
+        </div>
       </div>
       <Divider />
 
@@ -122,8 +139,14 @@ const ChatSpace = ({ unreadMessages, onClose, setUnreadMessages, isOpen }: IChat
           autoComplete="off"
           className="px-2 py-2  rounded-md flex-1 font-light text-sm focus:outline-none focus:bg-zinc-800"
         />
-        <button className="bg-yellow px-2.5 rounded-md text-black hover:bg-amber-200  active:bg-white">
-          <BsSendFill />
+        <button 
+          className={ isPartnerConnected 
+            ? "bg-yellow px-2.5 rounded-md text-black hover:bg-amber-200  active:bg-white" 
+            : "bg-yellow px-2.5 rounded-md text-black text-opacity-30 cursor-not-allowed" 
+          }
+          disabled={!isPartnerConnected}
+        >
+          <Icons.BsSendFill />
         </button>
       </form>
     </div>

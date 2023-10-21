@@ -8,6 +8,12 @@ NODE_ENV=development
 SERVICE_PORT=5200
 CORS_ALLOWED_ORIGINS=http://localhost:3000
 MATCHING_TIMEOUT=15000
+REDIS_EVENT_BUS=redis://localhost:6380/
+```
+
+Run event bus between matching and collaboration service:
+```
+$ sudo docker run -p 6380:6379 --name peerprep-eventbus -d redis
 ```
 
 If you wish to change any configurations, create a .env file directly under `/matching-service` and fill the corresponding values.

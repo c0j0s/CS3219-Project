@@ -58,10 +58,10 @@ export const getQuestions = async (request: Request, response: Response) => {
       },
     });
 
-    if (!questions) {
+    if (!questions || questions.length == 0) {
       response
         .status(HttpStatusCode.NOT_FOUND)
-        .json({ error: "NOT FOUND", message: "No questions found." });
+        .json({ error: "NOT FOUND", message: "No questions found" });
       return;
     }
 

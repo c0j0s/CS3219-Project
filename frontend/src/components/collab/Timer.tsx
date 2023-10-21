@@ -12,12 +12,12 @@ interface TimerProps {
 const Timer = ({ setSessionEnded, timeDifference } : TimerProps) => {
   const [error, setError] = useState(false);
   const { socketService } = useCollabContext();
-
-  if (!socketService) setError(true);
-
   const [showTimer, setShowTimer] = useState<boolean>(true);
   const [time, setTime] = useState<number>(timeDifference); 
   
+
+  if (!socketService) setError(true);
+
   const formatTime = (): string => {
     if (time <= 0) {
       return "00:00:00";
@@ -53,26 +53,27 @@ const Timer = ({ setSessionEnded, timeDifference } : TimerProps) => {
   }, []);
 
   if (error) {
-    return (<></>)
-  } else {
-    return (
-      <div>
-        {showTimer ? (
-          <div className="flex items-center space-x-2 p-1.5 cursor-pointer rounded">
-            <div onClick={() => setShowTimer(false)}>{formatTime()}</div>
-          </div>
-        ) : (
-          <div
-            className="flex items-center text-white cursor-pointer rounded"
-            onClick={() => {
-              setShowTimer(true)
-            }}
-          >
-            <Image src="/timer.svg" className="" />
-          </div>
-        )}
-      </div>
-    );
+    return <></>
   }
+
+  return (
+    <div>
+      {showTimer ? (
+        <div className="flex items-center space-x-2 p-1.5 cursor-pointer rounded">
+          <div onClick={() => setShowTimer(false)}>{formatTime()}</div>
+        </div>
+      ) : (
+        <div
+          className="flex items-center text-white cursor-pointer rounded"
+          onClick={() => {
+            setShowTimer(true)
+          }}
+        >
+          <Image src="/timer.svg" className="" />
+        </div>
+      )}
+    </div>
+  );
 };
+
 export default Timer;

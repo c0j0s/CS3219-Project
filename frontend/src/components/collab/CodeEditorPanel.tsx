@@ -5,11 +5,14 @@ import CodeEditor from "./CodeEditor";
 import { getCodeTemplate } from "@/utils/defaultCodeUtils";
 
 import { useCollabContext } from "@/contexts/collab";
+import { notFound } from "next/navigation";
+import displayToast from "../common/Toast";
+import { ToastType } from "@/types/enums";
 
 const CodeEditorPanel: FC = ({}) => {
   const [error, setError] = useState(false);
-
   const { matchedLanguage, question, socketService } = useCollabContext();
+
   if (!socketService) setError(true);
 
   const questionTitle = question?.title || setError(true);
@@ -20,10 +23,19 @@ const CodeEditorPanel: FC = ({}) => {
   const [currentCode, setCurrentCode] = useState<string>(
     getCodeTemplate(matchedLanguage, questionTitle!)
   );
+  const [isUserNotValid, setIsUserNotValid] = useState<boolean>(false);
 
   useEffect(() => {
-    socketService!.receiveCodeUpdate(setCurrentCode);
+    socketService?.receiveCodeUpdate(setCurrentCode);
+    socketService?.receiveUserNotValid(setIsUserNotValid);
   }, [socketService]);
+
+  useEffect(() => {
+    if (isUserNotValid) {
+      console.log("EROR");
+      notFound();
+    }
+  }, [isUserNotValid]);
 
   const handleEditorChange = (currentContent: string | undefined) => {
     if (!currentContent) setError(true);
@@ -45,6 +57,7 @@ const CodeEditorPanel: FC = ({}) => {
   if (error) {
     return <></>
   } 
+
   return (
     <div className="h-[calc(100vh-60px)]">
       <CodeEditorNavbar handleResetToDefaultCode={handleResetToDefaultCode} />

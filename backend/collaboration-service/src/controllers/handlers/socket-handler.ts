@@ -6,25 +6,23 @@ import logger from '../../lib/utils/logger';
 import { get } from "http";
 
 /** 
- * Redis key-value pairs
+ * Redis structures
  * 
  * Room endSessionTime:
- * <roomid>_sessionEnd: endSession: string
+ * <roomid>: { sessionEndTime: string, users: user1,user2 }
  * 
  * Room content:
  * <roomid>_content: string
  *
  * Chat messages:
- * <roomid>_messages: { TBD }
+ * <roomid>_messages: [string, string, ...] (in reverse order)
  * 
 */
 
 // This keeps track of the userId in each session
-const activeSessions = new Map<string, [string]>();
+const activeSessions = new Map<string, string[]>();
 
 export const SocketHandler = (socket: Socket) => {
-
-  logger.debug(`[SocketHandler]: ${socket.id} connected`)
 
   socket.on(SocketEvent.JOIN_ROOM, async (
     joinDict: { 
@@ -47,13 +45,13 @@ export const SocketHandler = (socket: Socket) => {
   socket.on(SocketEvent.END_SESSION, (roomID) => {
     handleEndSession(socket, roomID);
     logger.debug(`[SocketHandler]: ${socket.id} ended session`)
-    // if (activeSessions.get(roomID)?.length == 1) clearSessionDetails(roomID);
   });
 
-  socket.on((SocketEvent.CONFIRM_END_SESSION), (roomID) => {
-    if (activeSessions.get(roomID)?.length == 1) clearSessionDetails(roomID);
+  socket.on((SocketEvent.CONFIRM_END_SESSION), async ( leaveDict: { roomId: string, userId: string }) => {
+    await handleTerminateSession(socket, leaveDict.roomId, leaveDict.userId);
+    if (activeSessions.get(leaveDict.roomId)?.length == 1) clearSessionDetails(leaveDict.roomId);
   })
-
+  
   socket.on((SocketEvent.GET_SESSION_TIMER), (roomID) => {
     handleGetSessionTimer(socket, roomID);
   })
@@ -77,26 +75,30 @@ export const SocketHandler = (socket: Socket) => {
  */
 export async function handleJoinRoom(socket: Socket, joinDict: { userId: string, roomId: string; sessionEndTime: string}) {
 
-  socket.join(joinDict.roomId);
+  logger.debug(`[SocketHandler]: ${joinDict.userId} connected`)
 
-  logger.debug(`[handleJoinroom]: SocketId: ${socket.id} joined room ${joinDict.roomId}`)
-
-
-  if (activeSessions.get(joinDict.roomId)?.indexOf(joinDict.userId)! >= 0) {
-    // Should emit that user is already inside.
-  } else {
-    // User not found in session, add to session
-    if (activeSessions.has(joinDict.roomId)) {
-      activeSessions.get(joinDict.roomId)?.push(joinDict.userId);
-    } else {
-      activeSessions.set(joinDict.roomId, [joinDict.userId]);
-    }
+  if (!await RedisHandler.doesRoomIdExist(joinDict.roomId)) {
+    socket.emit(SocketEvent.ROOM_NOT_FOUND);
+    return;
   }
 
-  const sockets = (await io.in(joinDict.roomId).fetchSockets()).length;
+  let sessionDetails = await RedisHandler.getSessionDetails(joinDict.roomId);
+  logger.info(`[handleJoinRoom]: Session end: ${sessionDetails.sessionEndTime}`)
+  let validUsers = sessionDetails.users.split(',');
+  logger.info(`[handleJoinRoom]: validUsers: ${validUsers.toString()}`);
 
-  logger.debug(`[handleJoinRoom]: Number of unique sockets: ${sockets}`)
-  logger.debug(`[handleJoinRoom]: Number of users in active sessions: ${activeSessions.get(joinDict.roomId)?.length}`)
+  if (!validUsers.includes(joinDict.userId)) {
+    socket.emit(SocketEvent.USER_NOT_VALID);
+    return;
+  }
+
+  socket.join(joinDict.roomId);
+
+  if (activeSessions.get(joinDict.roomId)) {
+    activeSessions.get(joinDict.roomId)?.push(joinDict.userId);
+  } else {
+    activeSessions.set(joinDict.roomId, [joinDict.userId]);
+  }
 
   // Broadcast to room that partner's connection is active
   io.in(joinDict.roomId).emit(SocketEvent.PARTNER_CONNECTION, {userId: joinDict.userId, status: true });
@@ -105,26 +107,14 @@ export async function handleJoinRoom(socket: Socket, joinDict: { userId: string,
   let cachedEditorContent = await RedisHandler.getEditorContent(joinDict.roomId);
 
   if (cachedEditorContent) {
-    // Unable to emit to oneself in dev environment, otherwise can use io.to(socket.id).emit()
-    // Will have to broadcast the change here such that it works in both dev and prod
-    // Same idea for subsequent cached logics
-    io.in(joinDict.roomId).emit(SocketEvent.CODE_UPDATE, cachedEditorContent);
-  }
-
-  let cachedSessionEndTime = await RedisHandler.getSessionEndTime(joinDict.roomId);
-
-  if (cachedSessionEndTime) {
-    io.in(joinDict.roomId).emit(SocketEvent.SESSION_TIMER, cachedSessionEndTime);
-  } else {
-    RedisHandler.setSessionEndTime(joinDict.roomId, joinDict.sessionEndTime);
-    io.in(joinDict.roomId).emit(SocketEvent.SESSION_TIMER, cachedSessionEndTime);
+    socket.emit(SocketEvent.CODE_UPDATE, cachedEditorContent);
   }
 
   let cachedMessages = await RedisHandler.getMessages(joinDict.roomId);
 
   if (cachedMessages) {
     logger.debug(`[handleJoinRoom]: Cached messages: ${cachedMessages.toString()}`)
-    io.in(joinDict.roomId).emit(SocketEvent.UPDATE_CHAT_LIST, cachedMessages.toString())
+    socket.emit(SocketEvent.UPDATE_CHAT_LIST, cachedMessages.toString())
   }
 
   // Local (room) notification
@@ -132,8 +122,6 @@ export async function handleJoinRoom(socket: Socket, joinDict: { userId: string,
     activeSessions.get(joinDict.roomId)?.splice(
       activeSessions.get(joinDict.roomId)?.indexOf(joinDict.userId)!, 1
     );
-    const sockets = (await io.in(joinDict.roomId).fetchSockets()).length;
-    logger.debug(`[handleJoinRoom]: Number of unique sockets: ${sockets}`)
     io.in(joinDict.roomId).emit(SocketEvent.PARTNER_CONNECTION, {userId: joinDict.userId, status: false });
     socket.removeAllListeners();
   })
@@ -153,7 +141,7 @@ export function handleCodeChange(socket: Socket, editorDict: { roomId: string; c
 /**
  * Emits chat messages back to client and stores to cache
  * @param socket socket instance
- * @param messageDict message dictionay
+ * @param messageDict message dictionary
  */
 
 export function handleChatMessage(socket: Socket, messageDict: { roomId: string; message: { uuid: string; content: string; senderId: string; }; }) {
@@ -166,20 +154,46 @@ export function handleChatMessage(socket: Socket, messageDict: { roomId: string;
   logger.debug(`[handleCodeChange]: Setting message change for room ${messageDict.roomId}]`)
 }
 
+/**
+ * Handles the first click on the end of session button
+ * @param socket socket instance
+ * @param roomId roomId of the session
+ */
 export async function handleEndSession(socket: Socket, roomId: string) {
   let editorContent = await RedisHandler.getEditorContent(roomId);
   socket.emit(SocketEvent.END_SESSION, editorContent);
 }
 
+/**
+ * Obtains the session timer from Redis and emits it back to the client (useful for page refresh)
+ * @param socket socket instance
+ * @param roomId roomId of the session
+ */
 export async function handleGetSessionTimer(socket: Socket, roomId: string) {
   let endSessionTime = await RedisHandler.getSessionEndTime(roomId);
   socket.emit(SocketEvent.SESSION_TIMER, endSessionTime);
 }
 
+/**
+ * Ensures user does not join back once he terminates the session
+ * @param socket socket instance
+ * @param roomId room id of the session
+ */
+export async function handleTerminateSession(socket: Socket, roomId: string, userId: string) {
+  let validUsers = await RedisHandler.getUserIds(roomId);
+  if (!validUsers) return;
+  let validUsersList = validUsers!.split(',');
+  if (validUsers && validUsersList.includes(userId)) {
+    validUsersList.splice(validUsersList.indexOf(userId), 1);
+    RedisHandler.setUserIds(roomId, validUsersList.toString());
+  }
+  socket.to(roomId).emit(SocketEvent.PARTNER_LEFT);
+}
+
 export function clearSessionDetails(roomId: string) {
   RedisHandler.delCodeChange(roomId);
-  RedisHandler.delSessionEndTime(roomId);
   RedisHandler.delMessages(roomId);
+  RedisHandler.delSessionDetails(roomId);
 }
 
 export { activeSessions };

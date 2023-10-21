@@ -17,7 +17,7 @@ export const getHealth = async (_: Request, response: Response) => {
     console.log(error);
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
       error: "INTERNAL SERVER ERROR",
-      message: "No database connection from the server.",
+      message: "No database connection from the server",
     });
   }
 };

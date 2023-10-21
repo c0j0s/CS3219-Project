@@ -3,15 +3,31 @@ import dotenv from "dotenv";
 import { Socket, Server } from "socket.io";
 import cors, { corsOptions } from "./middleware/cors";
 import { SocketEvent } from "./lib/enums/SocketEvent";
-import { SocketHandler } from "./controllers";
+import { SocketHandler, PubSubHandler } from "./controllers";
 import { createServer } from "http";
 import logger from './lib/utils/logger'; 
 import pinoHttp from "pino-http";
+import { eventBus } from "./models/event_bus";
 
 dotenv.config();
 
 const app = express();
 const expressLogger = pinoHttp({ logger });
+
+const channel = 'matching-collaboration'
+
+eventBus.subscribe(channel, (err) => {
+  if (err) {
+    logger.error(`Error subscribing to ${channel}: ${err}`)
+    // Should exit because the service will not work properly
+    process.exit(0);
+  }
+  logger.info(`Subscribed to ${channel} channel successfully.`)
+})
+
+eventBus.on("message", (channel, message) => {
+  PubSubHandler.handleRedisMessage(channel, message);
+})
 
 app.use(expressLogger)
 
@@ -43,7 +59,7 @@ const server = createServer(app);
 
 const io = new Server(server, {
     cors: corsOptions,
-    path: '/socket/collaboration/'
+    path: '/socket/collaboration/',
 })
 
 io.on(SocketEvent.CONNECTION, (socket: Socket) => {

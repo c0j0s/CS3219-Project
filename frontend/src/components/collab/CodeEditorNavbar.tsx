@@ -8,6 +8,8 @@ import ProfilePictureAvatar from "../common/ProfilePictureAvatar";
 import Timer from "./Timer";
 import EndSessionModal from "./EndSessionModal";
 import { useCollabContext } from "@/contexts/collab";
+import displayToast from "../common/Toast";
+import { ToastType } from "@/types/enums";
 
 interface CodeEditorNavbarProps {
   handleResetToDefaultCode: () => void;
@@ -24,6 +26,7 @@ const CodeEditorNavbar = ({
   const [isFullScreen, setIsFullScreen] = useState<boolean>(false);
   const [isReady, setIsReady] = useState<boolean>(false);
   const [isPartnerConnected, setIsPartnerConnected] = useState<boolean>(false);
+  const [hasPartnerLeft, setHasPartnerLeft] = useState<boolean>(false);
   const [hasSessionTimerEnded, setHasSessionTimerEnded] =
     useState<boolean>(false);
   const [sessionEndTime, setSessionEndTime] = useState<Date>(defaultDate);
@@ -50,19 +53,19 @@ const CodeEditorNavbar = ({
   useEffect(() => {
     if (!socketService) return;
 
-    if (getTimer() < 0) {
-      // If timer is in the past
-      socketService.sendGetSessionTimer();
-    } else {
-      // Else, the timer is set and ready to render
+    if (getTimer() >= 0) {
       setReceivedSessionEndTime(true);
+    } else {
+      socketService.sendGetSessionTimer();
     }
+
     socketService.receiveSessionTimer(setSessionEndTime);
   }, [socketService, sessionEndTime]);
 
   useEffect(() => {
     if (socketService) {
       socketService.receivePartnerConnection(setIsPartnerConnected);
+      socketService.receiveHasPartnerLeft(setHasPartnerLeft); 
     }
   }, [socketService]);
 
@@ -88,6 +91,22 @@ const CodeEditorNavbar = ({
       setIsReady(true);
     }
   }, [partner, receivedSessionEndTime]);
+
+  useEffect(() => {
+    if (!isReady) return;
+
+    if (hasPartnerLeft) {
+      displayToast("Your partner has terminated his session. The session will remain active until you are done.", ToastType.INFO);
+      return;
+    } 
+    
+    if (isPartnerConnected) {
+      displayToast("Your partner has connected.", ToastType.SUCCESS);
+    } else {
+      displayToast("Your partner has disconnected.", ToastType.WARNING);
+    }
+
+  }, [isPartnerConnected])
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 

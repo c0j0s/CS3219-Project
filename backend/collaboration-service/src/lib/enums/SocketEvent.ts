@@ -12,5 +12,8 @@ export enum SocketEvent {
   GET_SESSION_TIMER = "get_session_timer",
   PARTNER_CONNECTION = "partner_connection",
   SEND_CHAT_LIST = "send_chat_list",
-  UPDATE_CHAT_LIST = "update_chat_list"
+  UPDATE_CHAT_LIST = "update_chat_list",
+  ROOM_NOT_FOUND = "room_not_found",
+  USER_NOT_VALID = "user_not_valid",
+  PARTNER_LEFT = "partner_left",
 }

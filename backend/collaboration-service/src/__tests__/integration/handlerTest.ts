@@ -17,8 +17,6 @@ let sessionEndTime: string = "SAMPLE_SESSION_END_TIME";
 
 let prevEnv = process.env.NODE_ENV;
 
-
-
 describe("Handlers Test", () => {
 
     let httpServer: http.Server;
@@ -55,11 +53,13 @@ describe("Handlers Test", () => {
                 if (serverSocket1 == null) {
                     serverSocket1 = socket;
                     // User 1 joins first
-                    await handleJoinRoom(serverSocket1, joinDict1); 
+                    socket.join(roomId);
+                    redis.hset(roomId, 'sessionEndTime', sessionEndTime);
                 } else {
                     serverSocket2 = socket;
                     // User 2 joins
-                    await handleJoinRoom(serverSocket2, joinDict2); 
+                    socket.join(roomId);
+                    redis.hset(roomId, 'sessionEndTime', sessionEndTime);
                 }
             });
 
@@ -82,6 +82,10 @@ describe("Handlers Test", () => {
         clientSocketUser1.disconnect();
         process.env.NODE_ENV = prevEnv;
     });
+
+    /**
+     * These tests are for the basic functionality of the handlers with the socket.io server
+     */
 
     test("Handle chat message test", async () => {
 

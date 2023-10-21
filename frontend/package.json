@@ -67,8 +67,8 @@
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
     "@types/uuid": "^9.0.4",
-    "concurrently": "^8.2.1",
     "css-loader": "^6.8.1",
+    "concurrently": "^8.2.2",
     "pino-pretty": "^10.2.0",
     "eslint-config-prettier": "^9.0.0",
     "prettier": "3.0.3",

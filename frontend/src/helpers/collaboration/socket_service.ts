@@ -81,8 +81,6 @@ class SocketService {
   };
 
   leaveRoom = () => {
-    // This clears the things from the cache, confirming that a user has the data saved
-    this.sendConfirmEndSession();
     this.socket.disconnect();
   };
 
@@ -109,8 +107,12 @@ class SocketService {
   receiveSessionTimer = (
     setSessionTimer: React.Dispatch<React.SetStateAction<Date>>
   ) => {
-    this.socket.on(SocketEvent.SESSION_TIMER, (endSession: string) => {
-      setSessionTimer(new Date(endSession));
+    this.socket.on(SocketEvent.SESSION_TIMER, (sessionEndTime: string) => {
+      let utcDate = new Date(sessionEndTime);
+      console.log("Received session timer ", utcDate)
+      // let localDate = new Date(utcDate.getTime() + utcDate.getTimezoneOffset() * 60000);
+      // console.log("localDate :", localDate)
+      setSessionTimer(utcDate);
     });
   }
 
@@ -157,7 +159,6 @@ class SocketService {
       date: Date;
     }>>) => {
 
-      
     this.socket.on(SocketEvent.END_SESSION, (code: string) => {
       console.log(`Session ended with code ${code}`);
       setEndSessionState({
@@ -171,14 +172,28 @@ class SocketService {
   }
 
   sendConfirmEndSession = () => {
-    this.socket.emit(SocketEvent.CONFIRM_END_SESSION, this.roomId);
+    this.socket.emit(SocketEvent.CONFIRM_END_SESSION, { roomId: this.roomId, userId: this.userId });
   }
 
-  leaveSession = () => {
-    console.log("Trying to end session")
-    this.socket.emitWithAck(SocketEvent.END_SESSION, this.roomId, async (response: string) => {
-      console.log(`Session ended with code ${response}`);
-    });
+  receiveRoomNotFound = (setRoomNotFound: React.Dispatch<SetStateAction<boolean>>) => {
+    this.socket.on(SocketEvent.ROOM_NOT_FOUND, () => {
+      console.log("Room not found");
+      setRoomNotFound(true);
+    })
+  }
+
+  receiveUserNotValid(setUserNotValid: React.Dispatch<SetStateAction<boolean>>) {
+    this.socket.on(SocketEvent.USER_NOT_VALID, () => {
+      console.log("User not found");
+      setUserNotValid(true);
+    })
+  }
+
+  receiveHasPartnerLeft(setPartnerLeft: React.Dispatch<SetStateAction<boolean>>) {
+    this.socket.on(SocketEvent.PARTNER_LEFT, () => {
+      console.log("Partner left");
+      setPartnerLeft(true);
+    })
   }
 
 }
