@@ -14,6 +14,11 @@ dotenv.config();
 const app = express();
 const expressLogger = pinoHttp({ logger });
 
+// Setting up environment variables
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const LOG_LEVEL = process.env.LOG_LEVEL || 'default';
+const CORS_ALLOWED_ORIGINS = process.env.CORS_ALLOWED_ORIGINS || 'default';
+
 const channel = 'matching-collaboration'
 
 eventBus.subscribe(channel, (err) => {
@@ -59,7 +64,8 @@ const server = createServer(app);
 
 const io = new Server(server, {
     cors: corsOptions,
-    path: '/socket/collaboration/',
+    path: '/collaboration/socket/',
+    allowUpgrades: false,
 })
 
 io.on(SocketEvent.CONNECTION, (socket: Socket) => {
@@ -67,7 +73,7 @@ io.on(SocketEvent.CONNECTION, (socket: Socket) => {
 })
 
 server.listen(process.env.SERVICE_PORT, () => {
-  logger.info(`Server running on port ${process.env.SERVICE_PORT}`);
+  logger.info(`Server running on port[${process.env.SERVICE_PORT}] build[${NODE_ENV}] log[${LOG_LEVEL}] cors[${CORS_ALLOWED_ORIGINS}]`);
 });
 
 process.on('SIGINT', async () => {
