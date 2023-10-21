@@ -25,7 +25,7 @@ eventBus.subscribe(channel, (err) => {
   if (err) {
     logger.error(`Error subscribing to ${channel}: ${err}`)
     // Should exit because the service will not work properly
-    process.exit(0);
+    process.exit(1);
   }
   logger.info(`Subscribed to ${channel} channel successfully.`)
 })
