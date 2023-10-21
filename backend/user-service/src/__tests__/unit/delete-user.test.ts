@@ -1,10 +1,12 @@
 import supertest from "supertest";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import db from "../../lib/db";
-import createServer from "../utils/server";
+import createUnitTestServer from "../utils/server";
 
-const app = createServer();
-const dbMock = db;
+const app = createUnitTestServer();
+const dbMock = db as jest.Mocked<typeof db>;
+
+const API_PREFIX = `user/api`;
 
 describe("DELETE /api/users/:userId", () => {
   describe("Given an existing user id", () => {
@@ -18,7 +20,7 @@ describe("DELETE /api/users/:userId", () => {
 
       // Act
       const { statusCode } = await supertest(app).delete(
-        `/api/users/${userId}`
+        `/${API_PREFIX}/users/${userId}`
       );
 
       // Assert
@@ -44,7 +46,7 @@ describe("DELETE /api/users/:userId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).delete(
-        `/api/users/${userId}`
+        `/${API_PREFIX}/users/${userId}`
       );
 
       // Assert

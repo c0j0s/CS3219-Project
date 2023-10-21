@@ -1,17 +1,19 @@
 "use server";
-import { HTTP_METHODS, SERVICE } from "@/types/enums";
+import { HTTP_METHODS, DOMAIN } from "@/types/enums";
 import { getLogger } from "./logger";
 import { cookies } from "next/headers";
 import HttpStatusCode from "@/types/HttpStatusCode";
 
 const logger = getLogger("endpoint");
 
+const host = process.env.ENDPOINT || "http://localhost";
+
 /**
  * Configuration object for API calls.
  */
 type ApiConfig = {
   method: HTTP_METHODS; // HTTP method.
-  service: SERVICE; // Enum representing the service type.
+  domain: DOMAIN; // Enum representing the domain type.
   header?: {}; // Optional headers
   path?: string; // Optional endpoint path.
   body?: {}; // Optional request body.
@@ -35,17 +37,11 @@ type ApiResponse = {
  * @returns {Promise<ApiResponse>} - Response from the API call.
  */
 export default async function api(config: ApiConfig): Promise<ApiResponse> {
-  // Configure gateway host based on the environment (production or development).
-  const host =
-    process.env.NODE_ENV == "production"
-      ? process.env.ENDPOINT_PROD
-      : process.env.ENDPOINT_DEV;
-
-  // Configure local service port based on the 'service' property in the configuration.
-  let servicePort = getServicePorts(config.service);
+  // Configure local domain port based on the 'domain' property in the configuration.
+  let servicePort = getServicePorts(config.domain);
 
   // Build the final API endpoint URL.
-  const endpoint = `http://${host}${servicePort}/api/${config.service}/${
+  const endpoint = `${host}${servicePort}/${config.domain}/api/${
     config.path || ""
   }`;
 
@@ -131,49 +127,42 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
 
 /**
  * Builds the corresponding Socket IO
- * @param service
+ * @param domain
  * @returns
  */
-export async function getSocketConfig(service: SERVICE) {
-  // Configure gateway host based on the environment (production or development).
-  const host =
-    process.env.NODE_ENV == "production"
-      ? process.env.ENDPOINT_PROD
-      : process.env.ENDPOINT_DEV;
-
-  // Configure local service port.
-  let servicePort = getServicePorts(service);
+export async function getSocketConfig(domain: DOMAIN) {
+  // Configure local domain port.
+  let servicePort = getServicePorts(domain);
 
   // Build the final API endpoint URL.
-  const endpoint = `http://${host}${servicePort}`;
-  const path = `/socket/${service}/`;
+  const endpoint = `${host}${servicePort}`;
+  const path = `/${domain}/socket`;
   logger.info(`[endpoint] socket: ${endpoint}`);
   return { endpoint, path };
 }
 
 /**
  * Retrieves the corresponding port number from .env base on services.
- * @param service {SERVICE}
+ * @param domain {SERVICE}
  * @returns port number
  */
-function getServicePorts(service: SERVICE) {
-  if (process.env.NODE_ENV == "development") {
+function getServicePorts(domain: DOMAIN) {
+  if (process.env.BUILD_ENV == "development") {
     let servicePort = ":";
-    switch (service) {
-      case SERVICE.QUESTION:
-      case SERVICE.TOPICS:
+    switch (domain) {
+      case DOMAIN.QUESTION:
         servicePort += process.env.ENDPOINT_QUESTION_PORT || "";
         break;
-      case SERVICE.USER:
+      case DOMAIN.USER:
         servicePort += process.env.ENDPOINT_USER_PORT || "";
         break;
-      case SERVICE.AUTH:
+      case DOMAIN.AUTH:
         servicePort += process.env.ENDPOINT_AUTH_PORT || "";
         break;
-      case SERVICE.MATCHING:
+      case DOMAIN.MATCHING:
         servicePort += process.env.ENDPOINT_MATCHING_PORT || "";
         break;
-      case SERVICE.COLLABORATION:
+      case DOMAIN.COLLABORATION:
         servicePort += process.env.ENDPOINT_COLLABORATION_PORT || "";
         break;
       default:

@@ -22,7 +22,8 @@ app.use(cookieParser());
 app.use(passport.initialize());
 
 // implement routes for API endpoints
-app.use("/api", router);
+const NODE_ENV = process.env.NODE_ENV || 'development';
+app.use(`/auth/api`, router);
 
 app.all("*", (req: Request, res: Response) => {
   res.status(HttpStatusCode.NOT_FOUND).json({
@@ -32,5 +33,5 @@ app.all("*", (req: Request, res: Response) => {
 });
 
 app.listen(process.env.SERVICE_PORT, () => {
-  console.log(`Server listens on port ${process.env.SERVICE_PORT}`);
+  console.log(`Server listens on port ${process.env.SERVICE_PORT} build[${NODE_ENV}] gateway[${process.env.GATEWAY}]`);
 });

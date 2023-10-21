@@ -7,6 +7,7 @@ import {
 import { formatErrorMessage } from "../../lib/utils/errorUtils";
 import { ZodError } from "zod";
 import db from "../../models/db";
+import logger from "../../lib/utils/logger";
 
 export const postQuestion = async (request: Request, response: Response) => {
   try {
@@ -71,7 +72,7 @@ export const postQuestion = async (request: Request, response: Response) => {
       return;
     }
     // log the error
-    console.log(error);
+    logger.error(error);
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
       error: "INTERNAL SERVER ERROR",
       message: "An unexpected error has occurred.",

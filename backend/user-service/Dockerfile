@@ -22,26 +22,24 @@ ENV LOG_LEVEL=$LOG_LEVEL
 ARG CORS_ALLOWED_ORIGINS=http://localhost:3000
 ENV CORS_ALLOWED_ORIGINS=$CORS_ALLOWED_ORIGINS
 
-# event bus = redis://<container_name>:6380/
-ARG REDIS_EVENT_BUS=redis://peerprep-eventbus:6380/
-ENV REDIS_EVENT_BUS=$REDIS_EVENT_BUS
+ENV AUTH_ENDPOINT="${GATEWAY}/auth/api/validate"
 
-# Copy only the production artifacts from the build stage
-COPY --from=build /app/dist ./dist
-COPY --from=build /app/package*.json ./
-
-ARG PORT=5200
+ARG PORT=5005
 ENV PORT=$PORT
 
 # Defing service specific arguments
-ARG MATCHING_TIMEOUT=60000
-ENV MATCHING_TIMEOUT=$MATCHING_TIMEOUT
+ARG DATABASE_URL
+ENV DATABASE_URL=$DATABASE_URL
+
+ARG EMAIL_VERIFICATION_SECRET
+ENV EMAIL_VERIFICATION_SECRET=$EMAIL_VERIFICATION_SECRET
 
 # Copy only the production artifacts from the build stage
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/package*.json ./
-
+COPY --from=build /app/src/models/prisma/ ./src/models/prisma/
 RUN npm install --omit=dev
+RUN npx prisma generate
 
 # Expose the application's port
 EXPOSE $PORT

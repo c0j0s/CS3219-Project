@@ -3,12 +3,17 @@ import router from "./routes";
 import bodyParser from "body-parser";
 import cors from "./middleware/cors";
 import HttpStatusCode from "./lib/enums/HttpStatusCode";
-import dotenv from "dotenv";
+import PinoHttp from "pino-http";
+import logger from "./lib/utils/logger";
 import { authMiddleware } from "./middleware/auth";
+import dotenv from "dotenv";
 
 dotenv.config();
 
-const app: Express = express();
+const app = express();
+const expressLogger = PinoHttp({ logger });
+
+app.use(expressLogger);
 
 // implement cors for CORS protection
 app.use(cors);
@@ -17,7 +22,8 @@ app.use(cors);
 app.use(bodyParser.json());
 
 // implement routes for API endpoints
-app.use("/api", authMiddleware, router);
+const NODE_ENV = process.env.NODE_ENV || "development";
+app.use(`/question/api`, authMiddleware, router);
 
 app.all("*", (req: Request, res: Response) => {
   res.status(HttpStatusCode.NOT_FOUND).json({
@@ -26,6 +32,16 @@ app.all("*", (req: Request, res: Response) => {
   });
 });
 
-app.listen(process.env.SERVICE_PORT, () => {
-  console.log(`Question service running on port ${process.env.SERVICE_PORT}`);
+const PORT = process.env.SERVICE_PORT || 5100;
+const LOG_LEVEL = process.env.LOG_LEVEL || "debug";
+const CORS_ALLOWED_ORIGINS = process.env.CORS_ALLOWED_ORIGINS || "default";
+const GATEWAY = process.env.GATEWAY || "gateway"
+const AUTH_ENDPOINT = process.env.AUTH_ENDPOINT || "default";
+const AUTH_ADMIN_ENDPOINT = process.env.AUTH_ADMIN_ENDPOINT || "default";
+const DATABASE_URL = process.env.DATABASE_URL || "default";
+
+app.listen(PORT, () => {
+  logger.info(
+    `Server running at port[${PORT}] build[${NODE_ENV}] log[${LOG_LEVEL}] cors[${CORS_ALLOWED_ORIGINS}] db[${DATABASE_URL}] auth[${GATEWAY}/${AUTH_ENDPOINT}] authAdmin[${GATEWAY}/${AUTH_ADMIN_ENDPOINT}]`
+  );
 });

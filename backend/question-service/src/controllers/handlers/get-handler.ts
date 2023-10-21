@@ -7,6 +7,7 @@ import { formatErrorMessage } from "../../lib/utils/errorUtils";
 import Topic from "../../lib/enums/Topic";
 import Complexity from "../../lib/enums/Complexity";
 import { Example } from "../../models/question";
+import logger from "../../lib/utils/logger";
 
 // Check if database connection is successful
 export const getHealth = async (_: Request, response: Response) => {
@@ -19,7 +20,7 @@ export const getHealth = async (_: Request, response: Response) => {
 
     response.status(HttpStatusCode.OK).json({ message: "Healthy" });
   } catch (error) {
-    console.log(error);
+    logger.error(error);
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
       error: "INTERNAL SERVER ERROR",
       message: "No database connection from the server",
@@ -75,7 +76,7 @@ export const getQuestions = async (request: Request, response: Response) => {
       return;
     }
     // log the error
-    console.log(error);
+    logger.error(error);
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
       error: "INTERNAL SERVER ERROR",
       message: "An unexpected error has occurred.",
@@ -123,7 +124,7 @@ export const getQuestionById = async (request: Request, response: Response) => {
     response.status(HttpStatusCode.OK).json({ ...question, examples });
   } catch (error) {
     // log the error
-    console.log(error);
+    logger.error(error);
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
       error: "INTERNAL SERVER ERROR",
       message: "An unexpected error has occurred.",
@@ -137,7 +138,7 @@ export const getQuestionTopics = (_: Request, response: Response) => {
     response.status(HttpStatusCode.OK).json({ topics });
   } catch (error) {
     // log the error
-    console.log(error);
+    logger.error(error);
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
       error: "INTERNAL SERVER ERROR",
       message: "An unexpected error has occurred.",

@@ -1,12 +1,13 @@
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import db from "../../lib/db";
 import supertest from "supertest";
-import createServer from "../utils/server";
+import createUnitTestServer from "../utils/server";
 import * as testPayloads from "../utils/payloads";
 
-const dbMock = db;
+const dbMock = db as jest.Mocked<typeof db>;
+const app = createUnitTestServer();
 
-const app = createServer();
+const API_PREFIX = `user/api`;
 
 describe("GET /api/users/:userId", () => {
   describe("Given the user id exists in the database", () => {
@@ -18,7 +19,7 @@ describe("GET /api/users/:userId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/api/users/${userId}`
+        `/${API_PREFIX}/users/${userId}`
       );
 
       // Assert
@@ -35,7 +36,7 @@ describe("GET /api/users/:userId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/api/users/${userId}`
+        `/${API_PREFIX}/users/${userId}`
       );
 
       // Assert
@@ -46,7 +47,7 @@ describe("GET /api/users/:userId", () => {
   });
 });
 
-describe("GET /api/users/email?", () => {
+describe("GET /api/users/email", () => {
   describe("Given the user email exists in the database", () => {
     it("should return 200 with the user data in json", async () => {
       // Arrange
@@ -56,7 +57,7 @@ describe("GET /api/users/email?", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/api/users/email?email=${email}`
+        `/${API_PREFIX}/users/email?email=${email}`
       );
 
       // Assert
@@ -72,7 +73,7 @@ describe("GET /api/users/email?", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/api/users/email?email=${email}`
+        `/${API_PREFIX}/users/email?email=${email}`
       );
 
       // Assert
@@ -85,7 +86,9 @@ describe("GET /api/users/email?", () => {
   describe("Given the query parameter is missing", () => {
     it("should return 400 with an error message in json", async () => {
       // Act
-      const { body, statusCode } = await supertest(app).get(`/api/users/email`);
+      const { body, statusCode } = await supertest(app).get(
+        `/${API_PREFIX}/users/email`
+      );
 
       // Assert
       expect(statusCode).toBe(HttpStatusCode.BAD_REQUEST);
@@ -101,7 +104,7 @@ describe("GET /api/users/email?", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/api/users/email?email=${email}`
+        `/${API_PREFIX}/users/email?email=${email}`
       );
 
       // Assert
@@ -121,7 +124,7 @@ describe("GET /api/users/email?", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/api/users/email?email=${email}`
+        `/${API_PREFIX}/users/email?email=${email}`
       );
 
       // Assert

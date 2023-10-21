@@ -16,20 +16,20 @@ DATABASE_URL="postgresql://postgres:<your_local_database_password>localhost:5432
 
 Once you have set up the `SERVICE_PORT`, you may start the dev server by running `npm run dev`.
 
-All the API endpoints' route are available in `src/routes` directory, so for example, if you want to get a user data by the user id, you can call the `GET /api/users/:userId` endpoint, replace the `:userId` with the actual user id.
+All the API endpoints' route are available in `src/routes` directory, so for example, if you want to get a user data by the user id, you can call the `GET /<NODE_ENV>/user/users/:userId` endpoint, replace the `:userId` with the actual user id.
 
 On your side, you can try calling the API by using either Postman/cURL request.
 
 ## Docs for user service API (unofficial)
 
-### GET /api/users/:userId
+### GET /<NODE_ENV>/user/users/:userId
 
 This endpoint returns the user information with the specific user id `userId` from the database. If you don't know how to get the `userId`, please use the `getUserByEmail` endpoint.
 
 **Request**:
 
 ```
-GET http://localhost:5000/api/users/clmlp93wz00007kbwvws8oynd
+GET http://localhost:5000/<NODE_ENV>/user/users/clmlp93wz00007kbwvws8oynd
 ```
 
 **Response**:
@@ -57,13 +57,13 @@ Response Body:
 |404|The given user id cannot be found|
 |500|Server error, please see log message for details|
 
-### GET /api/users/email
+### GET /<NODE_ENV>/user/users/email
 
 This endpoint returns the user information based on the user email provided in the query parameter. The `email` query parameter must exist.
 
 **Request**:
 ```
-GET http://localhost:5000/api/users/email?email=youremail@domain.com
+GET http://localhost:5000/<NODE_ENV>/user/users/email?email=youremail@domain.com
 ```
 
 **Response**:
@@ -92,7 +92,7 @@ Response Body:
 |404|The given user email cannot be found|
 |500|Server error, please see log message for details|
 
-### POST /api/users
+### POST /<NODE_ENV>/user/users
 
 This endpoint allows creating a new user given some necessary information like `name`, `email`, and `role` in the request body.
 
@@ -110,7 +110,7 @@ Request Body format:
 
 **Request**:
 ```
-POST  http://localhost:5000/api/users
+POST  http://localhost:5000/<NODE_ENV>/user/users
 
 Request Body:
 
@@ -134,7 +134,7 @@ Response Body:
 |409|The input user email is already taken|
 |500|Server error, please see log message for details|
 
-### PUT /api/users/:userId
+### PUT /<NODE_ENV>/user/users/:userId
 
 This endpoint updates the user information according to the request body provided.
 
@@ -152,7 +152,7 @@ This endpoint updates the user information according to the request body provide
 
 **Request**:
 ```
-PUT http://localhost:5000/api/users/clmlp93wz00007kbwvws8oynd
+PUT http://localhost:5000/<NODE_ENV>/user/users/clmlp93wz00007kbwvws8oynd
 
 Request Body:
 {
@@ -181,13 +181,13 @@ No response body.
 |409|The user email is already taken|
 |500|Server error, please see log message for details|
 
-### DELETE /api/users/:userId
+### DELETE /<NODE_ENV>/user/users/:userId
 
 This endpoint deletes user record from the database, be cautious when you are using this endpoint.
 
 **Request**:
 ```
-DELETE http://localhost:5000/api/users/clmlp93wz00007kbwvws8oynd
+DELETE http://localhost:5000/<NODE_ENV>/user/users/clmlp93wz00007kbwvws8oynd
 ```
 
 **Response**:
@@ -204,13 +204,13 @@ No response body.
 |404|The given user id cannot be found in the database|
 |500|Server error, please see log message for details|
 
-## GET /api/users/:userId/preferences
+## GET /<NODE_ENV>/user/users/:userId/preferences
 
 This endpoints returns the languages, question difficulties, and the question topics preferences that are previously set by the user with `userId`.
 
 **Request**:
 ```
-GET http://localhost:5000/api/users/clmlp93wz00007kbwvws8oynd/preferences
+GET http://localhost:5000/<NODE_ENV>/user/users/clmlp93wz00007kbwvws8oynd/preferences
 ```
 
 **Response**:
@@ -241,7 +241,7 @@ Response Body
 |404|The given user id does not exist, or the preferences are not set yet|
 |500|Server error, please see log message for details|
 
-## POST /api/users/:userId/preferences
+## POST /<NODE_ENV>/user/users/:userId/preferences
 
 This endpoint creates the preferences record in the database. This is required when the user does not have any preferences record in the database yet. For subsequent update of preferences, please use the `PUT /preferences` endpoint.
 
@@ -256,7 +256,7 @@ This endpoint creates the preferences record in the database. This is required w
 
 **Request**:
 ```
-PUT http://localhost:5000/api/users/clmlp93wz00007kbwvws8oynd/preferences
+PUT http://localhost:5000/<NODE_ENV>/user/users/clmlp93wz00007kbwvws8oynd/preferences
 
 Request Body:
 {
@@ -285,7 +285,7 @@ Response Body
 |409|The user preferences record is already there|
 |500|Server error, please see log message for details|
 
-## PUT /api/users/:userId/preferences
+## PUT /<NODE_ENV>/user/users/:userId/preferences
 
 This endpoint updates the user preferences, provided that there already have a preferences record in the database.
 
@@ -301,7 +301,7 @@ Take note that although each field can be omitted, at least one field need to be
 
 **Request**:
 ```
-PUT http://localhost:5000/api/users/clmlp93wz00007kbwvws8oynd/preferences
+PUT http://localhost:5000/<NODE_ENV>/user/users/clmlp93wz00007kbwvws8oynd/preferences
 
 Request Body:
 {

@@ -5,7 +5,6 @@ import { get } from "http";
 import { SetStateAction } from "react";
 import { Socket, io } from "socket.io-client";
 import { getCollaborationSocketConfig } from "./collaboration_api_wrappers";
-import { notFound } from "next/navigation";
 
 class SocketService {
   static instance: SocketService;
@@ -30,7 +29,7 @@ class SocketService {
     this.partnerId = partnerId;
     this.questionId = questionId;
     this.language = language;
-    this.socket = io(endpoint, { path: path });
+    this.socket = io(endpoint, { path: path, transports: ["polling"] });
     this.socket.connect();
     this.joinRoom();
   }
@@ -82,7 +81,6 @@ class SocketService {
   };
 
   leaveRoom = () => {
-    // This clears the things from the cache, confirming that a user has the data saved
     this.socket.disconnect();
   };
 

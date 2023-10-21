@@ -1,20 +1,21 @@
 "use client";
 
 import Workspace from "@/components/collab/Workspace";
-import { FC, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useCollabContext } from "@/contexts/collab";
 import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
 import ChatSpaceToggle from "@/components/collab/chat/ChatSpaceToggle";
 import { notFound, useSearchParams } from "next/navigation";
 
-interface pageProps {
+interface RoomPageProps {
   params: {
     roomId: string;
   };
 }
 
-const page = ({ params: { roomId } }: pageProps) => {
+export default function RoomPage({ params }: RoomPageProps) {
   const searchParams = useSearchParams();
+  const roomId = params.roomId;
   const partnerId = searchParams.get("partnerId")!;
   const questionId = searchParams.get("questionId")!;
   const language = searchParams.get("language")!;
@@ -28,15 +29,10 @@ const page = ({ params: { roomId } }: pageProps) => {
     isNotFoundError,
   } = useCollabContext();
 
-  const handleBeforeUnload = (e: { returnValue: string; }) => {
-    if (socketService) {
-      e.returnValue = 'Are you sure you want to navigate out of this page?';
-    }
-  };
-
   useEffect(() => {
     if (!socketService) {
       handleConnectToRoom(roomId, questionId, partnerId, language);
+      console.log(roomId, questionId, partnerId, language);
     }
 
     if (socketService) socketService?.receiveRoomNotFound(setRoomNotFound);
@@ -69,5 +65,3 @@ const page = ({ params: { roomId } }: pageProps) => {
     </div>
   );
 };
-
-export default page;

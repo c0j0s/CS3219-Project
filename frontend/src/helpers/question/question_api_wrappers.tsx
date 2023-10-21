@@ -1,15 +1,16 @@
 "use server";
 import api from "@/helpers/endpoint";
 import { getLogger } from "@/helpers/logger";
-import { HTTP_METHODS, SERVICE } from "@/types/enums";
+import { HTTP_METHODS, DOMAIN } from "@/types/enums";
 import Question from "@/types/question";
 import { revalidateTag } from "next/cache";
 import Preference from "@/types/preference";
 import HttpStatusCode from "@/types/HttpStatusCode";
 
 const logger = getLogger("wrapper");
-const service = SERVICE.QUESTION;
-const scope = [SERVICE.QUESTION];
+const domain = DOMAIN.QUESTION;
+const resourceQuestion = 'questions'
+const scope = [DOMAIN.QUESTION];
 
 type MongoQuestionList = {
   count: number;
@@ -26,7 +27,8 @@ export async function getQuestionList(): Promise<Question[]> {
 
   const response = await api({
     method: HTTP_METHODS.GET,
-    service: service,
+    domain: domain,
+    path: resourceQuestion,
     tags: scope
   });
 
@@ -52,8 +54,8 @@ export async function getQuestionById(
 ) {
   const response = await api({
     method: HTTP_METHODS.GET,
-    service: service,
-    path: id,
+    domain: domain,
+    path: `${resourceQuestion}/${id}`,
     tags: scope,
     cache: cache,
   });
@@ -83,8 +85,8 @@ export async function getQuestionByPreference(
 
   const response = await api({
     method: HTTP_METHODS.GET,
-    service: service,
-    path: queryPath,
+    domain: domain,
+    path: `${resourceQuestion}/${queryPath}`,
     tags: scope,
     cache: cache,
   });
@@ -102,10 +104,11 @@ export async function getQuestionByPreference(
 export async function getTopics() {
   const response = await api({
     method: HTTP_METHODS.GET,
-    service: SERVICE.TOPICS,
-    tags: [SERVICE.TOPICS],
+    domain: domain,
+    path: `topics`,
+    tags: [`topics`],
   });
-
+  
   if (response.status === HttpStatusCode.OK) {
     const topics = response.data['topics'] as string[]
     logger.info(`[getTopics] Got ${topics.length} items.`);
@@ -125,14 +128,15 @@ export async function postQuestion(
 ) {
   const response = await api({
     method: HTTP_METHODS.POST,
-    service: service,
+    domain: domain,
     body: question,
+    path: resourceQuestion,
     tags: scope,
   });
 
   logger.debug(response, `[postQuestion]`);
   if (response.status === HttpStatusCode.CREATED) {
-    revalidateTag(SERVICE.QUESTION);
+    revalidateTag(DOMAIN.QUESTION);
   }
 
   return response;
@@ -150,15 +154,15 @@ export async function updateQuestion(
 ) {
   const response = await api({
     method: HTTP_METHODS.PUT,
-    service: service,
-    path: id,
+    domain: domain,
+    path: `${resourceQuestion}/${id}`,
     body: question,
     tags: scope,
   });
 
   logger.debug(response, `[updateQuestion]`);
   if (response.status === HttpStatusCode.NO_CONTENT) {
-    revalidateTag(SERVICE.QUESTION);
+    revalidateTag(DOMAIN.QUESTION);
   }
 
   return response;
@@ -172,14 +176,14 @@ export async function updateQuestion(
 export async function deleteQuestion(id: string) {
   const response = await api({
     method: HTTP_METHODS.DELETE,
-    service: service,
-    path: id,
+    domain: domain,
+    path: `${resourceQuestion}/${id}`,
     tags: scope,
   });
 
   logger.debug(response, `[deleteQuestion]`);
   if (response.status === HttpStatusCode.NO_CONTENT) {
-    revalidateTag(SERVICE.QUESTION);
+    revalidateTag(DOMAIN.QUESTION);
   }
 
   return response;

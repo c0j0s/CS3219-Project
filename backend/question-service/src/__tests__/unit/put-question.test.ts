@@ -1,13 +1,15 @@
 import supertest from "supertest";
-import createServer from "../utils/server";
+import createUnitTestServer from "../utils/server";
 import * as TestPayload from "../utils/payloads";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import db from "../../models/db";
 
-const app = createServer();
+const app = createUnitTestServer();
 const dbMock = db as jest.Mocked<typeof db>;
 
-describe("PUT /api/questions/:questionId", () => {
+const API_PREFIX = `question/api`;
+
+describe("PUT /${API_PREFIX}/questions/:questionId", () => {
   describe("Given a valid request body", () => {
     it("should return 204 with no content", async () => {
       // Arrange
@@ -25,7 +27,7 @@ describe("PUT /api/questions/:questionId", () => {
 
       // Act
       const { statusCode } = await supertest(app)
-        .put(`/api/questions/${questionId}`)
+        .put(`/${API_PREFIX}/questions/${questionId}`)
         .send(updateQuestionRequestBody);
 
       // Assert
@@ -43,7 +45,7 @@ describe("PUT /api/questions/:questionId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .put(`/api/questions/${questionId}`)
+        .put(`/${API_PREFIX}/questions/${questionId}`)
         .send(updateQuestionRequestBody);
 
       // Assert
@@ -68,7 +70,7 @@ describe("PUT /api/questions/:questionId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .put(`/api/questions/${questionId}`)
+        .put(`/${API_PREFIX}/questions/${questionId}`)
         .send(updateQuestionRequestBody);
 
       // Assert
@@ -93,7 +95,7 @@ describe("PUT /api/questions/:questionId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .put(`/api/questions/${questionId}`)
+        .put(`/${API_PREFIX}/questions/${questionId}`)
         .send(updateQuestionRequestBody);
 
       // Assert
@@ -117,7 +119,7 @@ describe("PUT /api/questions/:questionId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .put(`/api/questions/${questionId}`)
+        .put(`/${API_PREFIX}/questions/${questionId}`)
         .send(updateQuestionRequestBody);
 
       // Assert
@@ -135,7 +137,7 @@ describe("PUT /api/questions/:questionId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).put(
-        `/api/questions/${questionId}`
+        `/${API_PREFIX}/questions/${questionId}`
       );
 
       // Assert

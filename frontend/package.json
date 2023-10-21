@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "build": "next build",
+    "start": "next start",
     "dev": "next dev | pino-pretty",
     "dev:frontend": "npm run dev | pino-pretty",
     "dev:user-service": "cd ../backend/user-service && npm run dev",
@@ -14,11 +16,10 @@
     "setup:frontend": "npm i",
     "setup:user-service": "cd ../backend/user-service && npm i",
     "setup:question-service": "cd ../backend/question-service && npm i",
+    "setup:auth-service": "cd ../backend/auth-service && npm i",
     "setup:collaboration-service": "cd ../backend/collaboration-service && npm i",
     "setup:matching-service": "cd ../backend/matching-service && npm i",
-    "setup-all": "concurrently \"npm run setup:frontend\" \"npm run setup:user-service\" \"npm run setup:question-service\" \"npm run setup:matching-service\" \"npm run setup:collaboration-service\"",
-    "build": "next build",
-    "start": "next start",
+    "setup-all": "concurrently \"npm run setup:user-service\" \"npm run setup:question-service\" \"npm run setup:auth-service\" \"npm run setup:matching-service\" \"npm run setup:collaboration-service\"",
     "lint": "next lint",
     "checkstyle": "prettier . --check",
     "pretty": "prettier . --write"
@@ -28,6 +29,7 @@
     "@nextui-org/react": "^2.1.10",
     "@types/bcrypt": "^5.0.0",
     "@types/bcryptjs": "^2.4.4",
+    "@types/d3": "^7.4.2",
     "@types/node": "20.5.7",
     "@types/react": "18.2.21",
     "@types/react-dom": "18.2.7",
@@ -47,6 +49,7 @@
     "next": "^13.5.2",
     "npm": "^10.2.0",
     "pino": "^8.15.0",
+    "pino-pretty": "^10.2.0",
     "postcss": "8.4.29",
     "quill-image-compress": "^1.2.30",
     "react": "^18.2.0",
@@ -63,11 +66,12 @@
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.0",
-    "@types/d3": "^7.4.0",
     "@types/uuid": "^9.0.4",
+    "css-loader": "^6.8.1",
     "concurrently": "^8.2.2",
-    "eslint-config-prettier": "^9.0.0",
     "pino-pretty": "^10.2.0",
-    "prettier": "3.0.3"
+    "eslint-config-prettier": "^9.0.0",
+    "prettier": "3.0.3",
+    "style-loader": "^3.3.3"
   }
 }

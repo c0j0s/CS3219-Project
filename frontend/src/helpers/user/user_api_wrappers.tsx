@@ -1,6 +1,6 @@
 import api from "@/helpers/endpoint";
 import { getLogger } from "@/helpers/logger";
-import { HTTP_METHODS, SERVICE } from "@/types/enums";
+import { HTTP_METHODS, DOMAIN } from "@/types/enums";
 import User from "../../types/user";
 import HttpStatusCode from "@/types/HttpStatusCode";
 import { getError, throwAndLogError } from "@/utils/errorUtils";
@@ -8,8 +8,9 @@ import Preference from "@/types/preference";
 
 const logger = getLogger("user_api_wrappers");
 
-const service = SERVICE.USER;
-const scope = [SERVICE.USER];
+const domain = DOMAIN.USER;
+const scope = [DOMAIN.USER];
+const resourceUser = 'users'
 
 const getUserByEmail = async (
   email: string,
@@ -17,8 +18,8 @@ const getUserByEmail = async (
 ): Promise<User | undefined> => {
   const response = await api({
     method: HTTP_METHODS.GET,
-    service: service,
-    path: `email?email=${email}`,
+    domain: domain,
+    path: `${resourceUser}/email?email=${email}`,
     tags: scope,
     cache: cache,
   });
@@ -40,11 +41,11 @@ const getUserById = async (
   id: string,
   cache: RequestCache = "no-cache"
 ): Promise<User> => {
-  // call GET /api/users/:id from user service
+  // call GET /api/users/:id from user domain
   const response = await api({
     method: HTTP_METHODS.GET,
-    service: service,
-    path: id,
+    domain: domain,
+    path: `${resourceUser}/${id}`,
     tags: scope,
     cache: cache,
   });
@@ -64,11 +65,12 @@ const getUserById = async (
 };
 
 const createUser = async (user: User, cache: RequestCache = "no-cache") => {
-  // call POST /api/users from user service
+  // call POST /api/users from user domain
   console.log(user);
   const response = await api({
     method: HTTP_METHODS.POST,
-    service: service,
+    domain: domain,
+    path: resourceUser,
     tags: scope,
     body: user,
     cache: cache,
@@ -90,11 +92,11 @@ const createUser = async (user: User, cache: RequestCache = "no-cache") => {
 };
 
 const updateUser = async (id: string, user: User) => {
-  // call PUT /api/users/:id from user service
+  // call PUT /api/users/:id from user domain
   const response = await api({
     method: HTTP_METHODS.PUT,
-    service: service,
-    path: id,
+    domain: domain,
+    path: `${resourceUser}/${id}`,
     body: user,
     tags: scope,
   });
@@ -111,11 +113,11 @@ const updateUser = async (id: string, user: User) => {
 };
 
 const deleteUser = async (id: string) => {
-  // call DELETE /api/users/:id from user service
+  // call DELETE /api/users/:id from user domain
   const response = await api({
     method: HTTP_METHODS.DELETE,
-    service: service,
-    path: id,
+    domain: domain,
+    path: `${resourceUser}/${id}`,
     tags: scope,
   });
 
@@ -132,11 +134,11 @@ const deleteUser = async (id: string) => {
 };
 
 const getUserPreferenceById = async (id: string) => {
-  // call GET /api/users/:id/preferences from user service
+  // call GET /api/users/:id/preferences from user domain
   const response = await api({
     method: HTTP_METHODS.GET,
-    service: service,
-    path: `${id}/preferences`,
+    domain: domain,
+    path: `${resourceUser}/${id}/preferences`,
     tags: scope,
   });
 
@@ -160,11 +162,11 @@ const updateUserPreference = async (
   cache: RequestCache = "no-cache"
 ) => {
   console.log(userPreference);
-  // call PUT /api/users/:id/preferences from user service
+  // call PUT /api/users/:id/preferences from user domain
   const response = await api({
     method: HTTP_METHODS.PUT,
-    service: service,
-    path: `${id}/preferences`,
+    domain: domain,
+    path: `${resourceUser}/${id}/preferences`,
     body: userPreference,
     tags: scope,
     cache: cache,
@@ -172,7 +174,7 @@ const updateUserPreference = async (
 
   // successful response should return 204
   if (response.status === HttpStatusCode.NO_CONTENT) {
-    // revalidateTag(SERVICE.USER);
+    // revalidateTag(DOMAIN.USER);
     return true;
   }
 

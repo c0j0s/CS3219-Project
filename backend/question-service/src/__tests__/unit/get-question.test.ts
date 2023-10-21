@@ -1,12 +1,13 @@
 import supertest from "supertest";
-import createServer from "../utils/server";
+import createUnitTestServer from "../utils/server";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import * as TestPayload from "../utils/payloads";
 import Topic from "../../lib/enums/Topic";
 import db from "../../models/db";
 
-const app = createServer();
+const app = createUnitTestServer();
 const dbMock = db as jest.Mocked<typeof db>;
+const API_PREFIX = `question/api`;
 
 describe("GET /questions", () => {
   describe("Given an authorized API call", () => {
@@ -17,7 +18,9 @@ describe("GET /questions", () => {
       dbMock.question.findMany = jest.fn().mockResolvedValue(questions);
 
       // Act
-      const { body, statusCode } = await supertest(app).get("/api/questions");
+      const { body, statusCode } = await supertest(app).get(
+        `/${API_PREFIX}/questions`
+      );
 
       // Assert
       expect(statusCode).toEqual(HttpStatusCode.OK);
@@ -29,7 +32,7 @@ describe("GET /questions", () => {
     it("should return 400 with zod error message", async () => {
       // Act
       const { body, statusCode } = await supertest(app)
-        .get("/api/questions")
+        .get(`/${API_PREFIX}/questions`)
         .query({ topic: "invalidtopic" });
 
       // Assert
@@ -50,7 +53,7 @@ describe("GET /questions/:questionId", () => {
 
       // Act
       const { body, statusCode } = await supertest(app).get(
-        `/api/questions/${questionId}`
+        `/${API_PREFIX}/questions/${questionId}`
       );
 
       // Assert
@@ -65,7 +68,7 @@ describe("GET /questions/:questionId", () => {
       dbMock.question.findUnique = jest.fn().mockResolvedValue(null);
 
       const { body, statusCode } = await supertest(app).get(
-        `/api/questions/${questionId}`
+        `/${API_PREFIX}/questions/${questionId}`
       );
 
       expect(statusCode).toEqual(HttpStatusCode.NOT_FOUND);
@@ -84,7 +87,7 @@ describe("GET /questions/:questionId", () => {
         .mockRejectedValue(new Error("Unexpected error"));
 
       const { body, statusCode } = await supertest(app).get(
-        `/api/questions/${questionId}`
+        `/${API_PREFIX}/questions/${questionId}`
       );
 
       expect(statusCode).toEqual(HttpStatusCode.INTERNAL_SERVER_ERROR);
@@ -102,7 +105,9 @@ describe("GET /topics", () => {
     const topics = Object.values(Topic);
 
     // Act
-    const { body, statusCode } = await supertest(app).get("/api/topics");
+    const { body, statusCode } = await supertest(app).get(
+      `/${API_PREFIX}/topics`
+    );
 
     // Assert
     expect(statusCode).toEqual(HttpStatusCode.OK);

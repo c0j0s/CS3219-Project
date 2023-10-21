@@ -9,15 +9,15 @@ interface TimerProps {
   timeDifference: number;
 };
 
-const Timer: React.FC<TimerProps> = ({ setSessionEnded, timeDifference }) => {
-
+const Timer = ({ setSessionEnded, timeDifference } : TimerProps) => {
+  const [error, setError] = useState(false);
   const { socketService } = useCollabContext();
-
-  if (!socketService) return null;
-
   const [showTimer, setShowTimer] = useState<boolean>(true);
   const [time, setTime] = useState<number>(timeDifference); 
   
+
+  if (!socketService) setError(true);
+
   const formatTime = (): string => {
     if (time <= 0) {
       return "00:00:00";
@@ -52,6 +52,10 @@ const Timer: React.FC<TimerProps> = ({ setSessionEnded, timeDifference }) => {
     return () => clearInterval(timer);
   }, []);
 
+  if (error) {
+    return <></>
+  }
+
   return (
     <div>
       {showTimer ? (
@@ -71,4 +75,5 @@ const Timer: React.FC<TimerProps> = ({ setSessionEnded, timeDifference }) => {
     </div>
   );
 };
+
 export default Timer;

@@ -7,7 +7,7 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
-export default function createServer() {
+export default function createUnitTestServer() {
   const app = express();
 
   // implement cors for CORS protection
@@ -17,7 +17,8 @@ export default function createServer() {
   app.use(bodyParser.json());
 
   // implement routes for API endpoints
-  app.use("/api", router);
+  
+  app.use(`/question/api`, router);
 
   return app;
 }

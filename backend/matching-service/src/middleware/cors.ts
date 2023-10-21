@@ -1,7 +1,9 @@
 import cors from "cors";
 
-// TODO: Add production site to allowed origins
-const allowedOrigins = ["http://localhost:3000"];
+const allowedOrigins =
+  process.env.CORS_ALLOWED_ORIGINS
+    ? process.env.CORS_ALLOWED_ORIGINS.split(",")
+    : ["http://localhost:3000"];
 
 const verifyOrigin = (origin: string | undefined, callback: any) => {
   //  when the call is made from the same origin
@@ -16,8 +18,14 @@ const verifyOrigin = (origin: string | undefined, callback: any) => {
   }
 };
 
+/**
+ * CORS will be handled by AWS Api Gateway instead, 
+ * since instances are in a private VPC,
+ *  cors here does not matter anymore.
+ */
 export const corsOptions = {
   // credentials: true, // We need to allow this when we have the authentication functionality
+  // origin: "*",
   origin: verifyOrigin,
   methods: ["GET", "POST", "PUT", "DELETE"],
 };

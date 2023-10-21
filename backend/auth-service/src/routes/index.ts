@@ -16,16 +16,16 @@ import { UserProfile } from "../common/types";
 
 const router: Router = Router();
 
-router.route("/auth/health").get(getHealth);
-router.route("/auth/registerByEmail").post(registerByEmail);
-router.route("/auth/loginByEmail").post(logInByEmail);
+router.route("/health").get(getHealth);
+router.route("/registerByEmail").post(registerByEmail);
+router.route("/loginByEmail").post(logInByEmail);
 router
-  .route("/auth/validate")
+  .route("/validate")
   .post(passport.authenticate("jwt", { session: false }), (req, res, next) => {
     res.status(HttpStatusCode.OK).json(req.user);
   });
 router
-  .route("/auth/validateAdmin")
+  .route("/validateAdmin")
   .post(passport.authenticate("jwt", { session: false }), (req, res, next) => {
     const user = req.user as UserProfile;
     if (user.role !== "ADMIN") {
@@ -37,9 +37,9 @@ router
     }
     res.status(HttpStatusCode.OK).json(req.user);
   });
-router.route("/auth/logout").post(logOut);
-router.route("/auth/verifyEmail/:email/:token").put(verifyUserEmail);
-router.route("/auth/sendPasswordResetEmail/:email").put(sendPasswordResetEmail);
-router.route("/auth/changePassword/:id").put(changePassword);
+router.route("/logout").post(logOut);
+router.route("/verifyEmail/:email/:token").put(verifyUserEmail);
+router.route("/sendPasswordResetEmail/:email").put(sendPasswordResetEmail);
+router.route("/changePassword/:id").put(changePassword);
 
 export default router;

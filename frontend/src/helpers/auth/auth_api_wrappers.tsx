@@ -1,6 +1,6 @@
 import HttpStatusCode from "@/types/HttpStatusCode";
 import { getLogger } from "@/helpers/logger";
-import { HTTP_METHODS, SERVICE } from "@/types/enums";
+import { HTTP_METHODS, DOMAIN } from "@/types/enums";
 import { throwAndLogError } from "@/utils/errorUtils";
 import api from "../endpoint";
 import { PeerPrepErrors } from "@/types/PeerPrepErrors";
@@ -8,18 +8,18 @@ import User from "@/types/user";
 
 const logger = getLogger("auth_api_wrappers");
 
-const service = SERVICE.AUTH;
-const scope = [SERVICE.AUTH];
+const domain = DOMAIN.AUTH;
+const scope = [DOMAIN.AUTH];
 
 const logInByEmail = async (
   email: string,
   password: string,
   cache: RequestCache = "default"
 ): Promise<User | undefined> => {
-  // call POST /api/auth/loginByEmail from auth service
+  // call POST /api/auth/loginByEmail from auth domain
   const response = await api({
     method: HTTP_METHODS.POST,
-    service: service,
+    domain: domain,
     path: "loginByEmail",
     body: { email, password },
     tags: scope,
@@ -41,11 +41,11 @@ const logInByEmail = async (
 };
 
 const registerByEmail = async (user: User, cache: RequestCache = "default") => {
-  // call POST /api/auth/registerbyEmail from auth service
+  // call POST /api/auth/registerbyEmail from auth domain
   console.log(user);
   const response = await api({
     method: HTTP_METHODS.POST,
-    service: service,
+    domain: domain,
     path: "registerByEmail",
     body: user,
     tags: scope,
@@ -67,10 +67,10 @@ const registerByEmail = async (user: User, cache: RequestCache = "default") => {
 };
 
 const validateUser = async (cache: RequestCache = "no-cache") => {
-  // call POST /api/auth/validate from auth service
+  // call POST /api/auth/validate from auth domain
   const response = await api({
     method: HTTP_METHODS.POST,
-    service: service,
+    domain: domain,
     path: "validate",
     tags: scope,
     cache: cache,
@@ -89,10 +89,10 @@ const validateUser = async (cache: RequestCache = "no-cache") => {
 };
 
 const logOut = async () => {
-  // call POST /api/auth/logout from auth service, which will also handle the routing
+  // call POST /api/auth/logout from auth domain, which will also handle the routing
   const response = await api({
     method: HTTP_METHODS.POST,
-    service: service,
+    domain: domain,
     path: "logout",
     tags: scope,
     deleteJWTCookie: true,
@@ -101,10 +101,10 @@ const logOut = async () => {
 };
 
 const verifyEmail = async (email: string, token: string) => {
-  // call PUT /api/auth/verifyEmail/:email/:token from auth service
+  // call PUT /api/auth/verifyEmail/:email/:token from auth domain
   const response = await api({
     method: HTTP_METHODS.PUT,
-    service: service,
+    domain: domain,
     path: `verifyEmail/${email}/${token}`,
     tags: scope,
   });
@@ -121,10 +121,10 @@ const verifyEmail = async (email: string, token: string) => {
 };
 
 const sendPasswordResetEmail = async (email: string) => {
-  // call PUT /api/auth/sendPasswordResetEmail from auth service
+  // call PUT /api/auth/sendPasswordResetEmail from auth domain
   const response = await api({
     method: HTTP_METHODS.PUT,
-    service: service,
+    domain: domain,
     path: `sendPasswordResetEmail/${email}`,
     tags: scope,
   });
@@ -144,10 +144,10 @@ const changePassword = async (
   token: string,
   hashedPassword: string
 ) => {
-  // call PUT /api/auth/changePassword/:id from auth service
+  // call PUT /api/auth/changePassword/:id from auth domain
   const response = await api({
     method: HTTP_METHODS.PUT,
-    service: service,
+    domain: domain,
     path: `changePassword/${id}`,
     body: { token: token, hashedPassword: hashedPassword },
     tags: scope,

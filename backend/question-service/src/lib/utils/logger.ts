@@ -10,5 +10,5 @@ export function createLogger(prefix: string) {
     });
 }
 
-const logger = createLogger('matching-service');
+const logger = createLogger('question-service');
 export default logger

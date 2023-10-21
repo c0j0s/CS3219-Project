@@ -1,13 +1,14 @@
 import supertest from "supertest";
-import createServer from "../utils/server";
+import createUnitTestServer from "../utils/server";
 import * as TestPayload from "../utils/payloads";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import db from "../../models/db";
 
-const app = createServer();
+const app = createUnitTestServer();
 const dbMock = db as jest.Mocked<typeof db>;
+const API_PREFIX = `question/api`;
 
-describe("DELETE /api/questions/:questionId", () => {
+describe("DELETE /${API_PREFIX}/questions/:questionId", () => {
   describe("Given an existing question id", () => {
     it("should return 204 with no content", async () => {
       const questionId = "existingquestionid123";
@@ -17,7 +18,7 @@ describe("DELETE /api/questions/:questionId", () => {
       dbMock.question.delete = jest.fn().mockResolvedValue(null);
 
       const { statusCode } = await supertest(app).delete(
-        `/api/questions/${questionId}`
+        `/${API_PREFIX}/questions/${questionId}`
       );
 
       expect(statusCode).toEqual(HttpStatusCode.NO_CONTENT);
@@ -30,7 +31,7 @@ describe("DELETE /api/questions/:questionId", () => {
       dbMock.question.findFirst = jest.fn().mockResolvedValue(null);
 
       const { body, statusCode } = await supertest(app).delete(
-        `/api/questions/${questionId}`
+        `/${API_PREFIX}/questions/${questionId}`
       );
 
       expect(statusCode).toEqual(HttpStatusCode.NOT_FOUND);
@@ -52,7 +53,7 @@ describe("DELETE /api/questions/:questionId", () => {
         .mockRejectedValue(new Error("Unexpected error"));
 
       const { body, statusCode } = await supertest(app).delete(
-        `/api/questions/${questionId}`
+        `/${API_PREFIX}/questions/${questionId}`
       );
 
       expect(statusCode).toEqual(HttpStatusCode.INTERNAL_SERVER_ERROR);

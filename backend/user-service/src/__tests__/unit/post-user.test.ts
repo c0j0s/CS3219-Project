@@ -1,11 +1,13 @@
 import supertest from "supertest";
 import db from "../../lib/db";
 import * as testPayloads from "../utils/payloads";
-import createServer from "../utils/server";
+import createUnitTestServer from "../utils/server";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 
-const app = createServer();
-const dbMock = db;
+const app = createUnitTestServer();
+const dbMock = db as jest.Mocked<typeof db>;
+
+const API_PREFIX = `user/api`;
 
 describe("POST /api/users", () => {
   describe("Given the request body payload is valid", () => {
@@ -22,7 +24,7 @@ describe("POST /api/users", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/users")
+        .post(`/${API_PREFIX}/users`)
         .send(requestBody);
 
       // Assert
@@ -43,7 +45,7 @@ describe("POST /api/users", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/users")
+        .post(`/${API_PREFIX}/users`)
         .send(requestBody);
 
       // Assert
@@ -61,7 +63,7 @@ describe("POST /api/users", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/users")
+        .post(`/${API_PREFIX}/users`)
         .send(requestBody);
 
       // Assert
@@ -77,7 +79,7 @@ describe("POST /api/users", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/users")
+        .post(`/${API_PREFIX}/users`)
         .send(requestBody);
 
       // Assert
@@ -99,7 +101,7 @@ describe("POST /api/users", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/users")
+        .post(`/${API_PREFIX}/users`)
         .send(requestBody);
 
       // Assert

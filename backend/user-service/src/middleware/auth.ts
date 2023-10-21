@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from "express";
 import HttpStatusCode from "../lib/enums/HttpStatusCode";
+import dotenv from "dotenv";
 
+dotenv.config();
 export const authMiddleware = async (
   req: Request,
   res: Response,
@@ -36,11 +38,12 @@ export const authMiddleware = async (
     return;
   }
 
+  const GATEWAY = process.env.GATEWAY || "http://localhost:5050"
   //If there is JWT, validate it through the auth endpoint
   const authEndpoint =
-    process.env.AUTH_ENDPOINT || "http://localhost:5050/api/auth/validate";
+    process.env.AUTH_ENDPOINT || `auth/api/validate`;
 
-  const authRes = await fetch(authEndpoint, {
+  const authRes = await fetch(`${GATEWAY}/${authEndpoint}`, {
     method: "POST",
     headers: {
       Cookie: `jwt=${jwtCookieString}`,

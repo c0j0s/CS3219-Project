@@ -1,12 +1,13 @@
 import * as TestPayload from "../utils/payloads";
-import createServer from "../utils/server";
+import createUnitTestServer from "../utils/server";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import supertest from "supertest";
 import db from "../../models/db";
 
-const app = createServer();
-
+const app = createUnitTestServer();
 const dbMock = db as jest.Mocked<typeof db>;
+const NODE_ENV = process.env.NODE_ENV || "test";
+const API_PREFIX = `question/api`;
 
 describe("POST /questions", () => {
   describe("Given a valid question payload", () => {
@@ -20,7 +21,7 @@ describe("POST /questions", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/questions")
+        .post(`/${API_PREFIX}/questions`)
         .send(questionPayload);
 
       // Assert
@@ -42,7 +43,7 @@ describe("POST /questions", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/questions")
+        .post(`/${API_PREFIX}/questions`)
         .send(questionPayload);
 
       // Assert
@@ -57,7 +58,9 @@ describe("POST /questions", () => {
   describe("Given an empty request body", () => {
     it("should return 400 with an empty request body alert message", async () => {
       // Act
-      const { body, statusCode } = await supertest(app).post("/api/questions");
+      const { body, statusCode } = await supertest(app).post(
+        `/${API_PREFIX}/questions`
+      );
 
       // Assert
       expect(statusCode).toEqual(HttpStatusCode.BAD_REQUEST);
@@ -76,7 +79,7 @@ describe("POST /questions", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/questions")
+        .post(`/${API_PREFIX}/questions`)
         .send(questionPayload);
 
       // Assert
@@ -96,7 +99,7 @@ describe("POST /questions", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/questions")
+        .post(`/${API_PREFIX}/questions`)
         .send(createQuestionRequestBody);
 
       // Assert
@@ -122,7 +125,7 @@ describe("POST /questions", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/questions")
+        .post(`/${API_PREFIX}/questions`)
         .send(actualRequestBody);
 
       // Assert
@@ -143,7 +146,7 @@ describe("POST /questions", () => {
 
       // Act
       const { body, statusCode } = await supertest(app)
-        .post("/api/questions")
+        .post(`/${API_PREFIX}/questions`)
         .send(actualRequestBody);
 
       // Assert
