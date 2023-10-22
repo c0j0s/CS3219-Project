@@ -1,0 +1,45 @@
+version: '0.1.1'
+
+services:
+  event-bus:
+    build: ./database/event-bus
+    ports:
+      - "6380:6379"
+    container_name: event-bus
+    networks:
+      - peerprep
+
+  collaboration-cache:
+    build: ./database/collaboration-cache
+    ports:
+      - "6379:6379"
+    container_name: collaboration-cache
+    networks:
+      - peerprep
+
+  matching-service:
+    build: 
+      context: ./backend/matching-service
+      dockerfile: Dockerfile
+      args:
+        EVENT_BUS_CONTAINER_NAME: event-bus # Ensure this is aligned with the container name of the event bus redis instance
+    ports:
+      - "5200:5200"
+    container_name: matching-service
+    networks:
+      - peerprep
+
+  # collaboration-service:
+  #   build: 
+  #     context: ./backend/collaboration-service
+  #     dockerfile: Dockerfile
+  #     args:
+  #       COLLABORATION_CACHE_CONTAINER_NAME: "collaboration-cache"
+  #       EVENT_BUS_CONTAINER_NAME: "event-bus"
+  #   ports:
+  #     - "5300:5300"
+  #   container_name: collaboration-service
+
+networks:
+  peerprep:
+    driver: bridge

@@ -28,10 +28,10 @@ ENV PORT=$PORT
 # now, it is redis://<container_name>:6380/
 
 # Defing service specific arguments
-ARG REDIS_EVENT_BUS=redis://peerprep-eventbus:6380/
+ARG REDIS_EVENT_BUS=redis://${EVENT_BUS_CONTAINER_NAME}/
 ENV REDIS_EVENT_BUS=$REDIS_EVENT_BUS
 
-ARG REDIS_URL=redis://peerprep-database:6379/
+ARG REDIS_URL=redis://${COLLABORATION_CACHE_CONTAINER_NAME}/
 ENV REDIS_URL=$REDIS_URL
 
 # Copy only the production artifacts from the build stage
@@ -42,3 +42,5 @@ RUN npm install --omit=dev
 
 # Expose the application's port
 EXPOSE $PORT
+
+CMD ["node", "dist/app.js"]

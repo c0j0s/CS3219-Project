@@ -1,0 +1,17 @@
+services:
+  collaboration-service:
+    build: ./collaboration-service
+    ports:
+      - "5300:5300"
+    networks:
+      - peerprep
+  matching-service:
+    build: ./matching-service
+    ports:
+      - "5200:5200"
+    networks:
+      - peerprep
+
+networks:
+  peerprep:
+    driver: bridge
