@@ -1,9 +1,7 @@
 import { Redis } from 'ioredis';
 import dotenv from 'dotenv';
-import { create } from 'domain';
 
 dotenv.config();
-
 
 function createEventBusClient() {
 
