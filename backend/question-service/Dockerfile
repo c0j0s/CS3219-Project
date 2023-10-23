@@ -1,5 +1,5 @@
 # Stage 1: Build environment
-FROM node:20 AS build
+FROM node:alpine AS build
 WORKDIR /app
 
 # Copy the source code and install dependencies
@@ -9,7 +9,7 @@ COPY . .
 RUN npm run build 
 
 # Stage 2: Production environment
-FROM node:20
+FROM node:alpine
 WORKDIR /app
 
 # Define service arguments

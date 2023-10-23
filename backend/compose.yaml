@@ -1,4 +1,16 @@
 services:
+  event-bus:
+    build: ./event-bus
+    ports:
+      - "6380:6380"
+    networks:
+      - peerprep
+  collaboration-cache:
+    build: ./collaboration-cache
+    ports:
+      - "6379:6379"
+    networks:
+      - peerprep
   collaboration-service:
     build: ./collaboration-service
     ports:
