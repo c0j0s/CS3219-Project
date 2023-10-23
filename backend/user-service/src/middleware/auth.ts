@@ -38,12 +38,12 @@ export const authMiddleware = async (
     return;
   }
 
-  const GATEWAY = process.env.GATEWAY || "http://localhost:5050"
+  const AUTH_GATEWAY = process.env.AUTH_GATEWAY || "http://localhost:5050"
   //If there is JWT, validate it through the auth endpoint
   const authEndpoint =
     process.env.AUTH_ENDPOINT || `auth/api/validate`;
 
-  const authRes = await fetch(`${GATEWAY}/${authEndpoint}`, {
+  const authRes = await fetch(`${AUTH_GATEWAY}/${authEndpoint}`, {
     method: "POST",
     headers: {
       Cookie: `jwt=${jwtCookieString}`,

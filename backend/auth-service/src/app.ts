@@ -33,5 +33,5 @@ app.all("*", (req: Request, res: Response) => {
 });
 
 app.listen(process.env.SERVICE_PORT, () => {
-  console.log(`Server listens on port ${process.env.SERVICE_PORT} build[${NODE_ENV}] gateway[${process.env.GATEWAY}]`);
+  console.log(`Server listens on port ${process.env.SERVICE_PORT} build[${NODE_ENV}] user_gateway[${process.env.USER_GATEWAY}]`);
 });
