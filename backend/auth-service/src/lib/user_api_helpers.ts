@@ -9,7 +9,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const getUserServiceEndpoint = (): string => {
-  return process.env.GATEWAY || `http://localhost:5005`;
+  return process.env.USER_GATEWAY || `http://localhost:5005`;
 };
 
 const createUser = async (user: UserProfile) => {
