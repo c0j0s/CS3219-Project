@@ -127,83 +127,83 @@ jobs:
           push: true
           tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.EVENT_BUS_CONTAINER_NAME }}
 
-  deploy:
-    name: Deploy
-    runs-on: ubuntu-latest
-    environment: development
-    needs: build
-    strategy:
-      matrix:
-        service: [
-          {
-            name: question-service,
-            ecs_service:  peerprep-development-ServiceQuestion,
-            ecs_task_def: peerprep-development-TaskDefinitionQuestion
-          },
-          {
-            name: matching-service,
-            ecs_service:  peerprep-development-ServiceMatching,
-            ecs_task_def: peerprep-development-TaskDefinitionMatching
-          },
-          {
-            name: user-service,
-            ecs_service:  peerprep-development-ServiceUser,
-            ecs_task_def: peerprep-development-TaskDefinitionUser
-          },
-          {
-            name: auth-service,
-            ecs_service:  peerprep-development-ServiceAuth,
-            ecs_task_def: peerprep-development-TaskDefinitionAuth
-          },
-          {
-            name: collaboration-service,
-            ecs_service:  peerprep-development-ServiceCollaboration,
-            ecs_task_def: peerprep-development-TaskDefinitionCollaboration
-          },
-          {
-            name: event-bus,
-            ecs_service:  peerprep-development-ServiceEventBus,
-            ecs_task_def: peerprep-development-TaskDefinitionEventBus
-          },
-          # {
-          #   name: history-service,
-          #   ecs_service:  peerprep-development-ServiceHistory,
-          #   ecs_task_def: peerprep-development-TaskDefinitionHistory
-          # },
-        ]
+  # deploy:
+  #   name: Deploy
+  #   runs-on: ubuntu-latest
+  #   environment: development
+  #   needs: build
+  #   strategy:
+  #     matrix:
+  #       service: [
+  #         {
+  #           name: question-service,
+  #           ecs_service:  peerprep-development-ServiceQuestion,
+  #           ecs_task_def: peerprep-development-TaskDefinitionQuestion
+  #         },
+  #         {
+  #           name: matching-service,
+  #           ecs_service:  peerprep-development-ServiceMatching,
+  #           ecs_task_def: peerprep-development-TaskDefinitionMatching
+  #         },
+  #         {
+  #           name: user-service,
+  #           ecs_service:  peerprep-development-ServiceUser,
+  #           ecs_task_def: peerprep-development-TaskDefinitionUser
+  #         },
+  #         {
+  #           name: auth-service,
+  #           ecs_service:  peerprep-development-ServiceAuth,
+  #           ecs_task_def: peerprep-development-TaskDefinitionAuth
+  #         },
+  #         {
+  #           name: collaboration-service,
+  #           ecs_service:  peerprep-development-ServiceCollaboration,
+  #           ecs_task_def: peerprep-development-TaskDefinitionCollaboration
+  #         },
+  #         {
+  #           name: event-bus,
+  #           ecs_service:  peerprep-development-ServiceEventBus,
+  #           ecs_task_def: peerprep-development-TaskDefinitionEventBus
+  #         },
+  #         # {
+  #         #   name: history-service,
+  #         #   ecs_service:  peerprep-development-ServiceHistory,
+  #         #   ecs_task_def: peerprep-development-TaskDefinitionHistory
+  #         # },
+  #       ]
 
-    steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+  #   steps:
+  #     - name: Configure AWS credentials
+  #       uses: aws-actions/configure-aws-credentials@v1
+  #       with:
+  #         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  #         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  #         aws-region: ${{ env.AWS_REGION }}
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+  #     - name: Login to Amazon ECR
+  #       id: login-ecr
+  #       uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Download ${{ matrix.service.name }} task definition
-        id: download-task-def
-        env:
-          FAMILY: ${{ matrix.service.ecs_task_def }}
-        run: |
-          aws ecs describe-task-definition --task-definition $FAMILY --query taskDefinition > $FAMILY.json
-          echo "file=$FAMILY.json" >> "$GITHUB_OUTPUT"
+  #     - name: Download ${{ matrix.service.name }} task definition
+  #       id: download-task-def
+  #       env:
+  #         FAMILY: ${{ matrix.service.ecs_task_def }}
+  #       run: |
+  #         aws ecs describe-task-definition --task-definition $FAMILY --query taskDefinition > $FAMILY.json
+  #         echo "file=$FAMILY.json" >> "$GITHUB_OUTPUT"
 
-      - name: Fill in the ${{ matrix.service.name }} image ID in the Amazon ECS task definition
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ${{ steps.download-task-def.outputs.file }}
-          container-name: ${{ matrix.service.name }}
-          image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ matrix.service.name }}
+  #     - name: Fill in the ${{ matrix.service.name }} image ID in the Amazon ECS task definition
+  #       id: task-def
+  #       uses: aws-actions/amazon-ecs-render-task-definition@v1
+  #       with:
+  #         task-definition: ${{ steps.download-task-def.outputs.file }}
+  #         container-name: ${{ matrix.service.name }}
+  #         image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ matrix.service.name }}
 
-      - name: Deploy Amazon ECS ${{ matrix.service.name }} task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: ${{ matrix.service.ecs_service }}
-          cluster: ${{ env.ECS_CLUSTER }}
-          wait-for-service-stability: true
+  #     - name: Deploy Amazon ECS ${{ matrix.service.name }} task definition
+  #       uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+  #       with:
+  #         task-definition: ${{ steps.task-def.outputs.task-definition }}
+  #         service: ${{ matrix.service.ecs_service }}
+  #         cluster: ${{ env.ECS_CLUSTER }}
+  #         wait-for-service-stability: true
