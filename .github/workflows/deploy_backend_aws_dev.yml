@@ -140,11 +140,11 @@ jobs:
           #   ecs_service:  peerprep-development-ServiceQuestion,
           #   ecs_task_def: peerprep-development-TaskDefinitionQuestion
           # },
-          # {
-          #   name: matching-service,
-          #   ecs_service:  peerprep-development-ServiceMatching,
-          #   ecs_task_def: peerprep-development-TaskDefinitionMatching
-          # },
+          {
+            name: matching-service,
+            ecs_service:  peerprep-development-ServiceMatching,
+            ecs_task_def: peerprep-development-TaskDefinitionMatching
+          },
           # {
           #   name: user-service,
           #   ecs_service:  peerprep-development-ServiceUser,
