@@ -32,14 +32,14 @@ export const authMiddleware = async (
   }
   
   // Only allow GET requests to /development/user/questions to pass through with just user rights
-  const GATEWAY = process.env.GATEWAY || "http://localhost:5050"
+  const AUTH_GATEWAY = process.env.AUTH_GATEWAY || "http://localhost:5050"
   const authEndpoint =
     req.method === "GET"
       ? process.env.AUTH_ENDPOINT || `auth/api/validate`
       : process.env.AUTH_ADMIN_ENDPOINT ||
       `auth/api/validateAdmin`;
 
-  const authRes = await fetch(`${GATEWAY}/${authEndpoint}`, {
+  const authRes = await fetch(`${AUTH_GATEWAY}/${authEndpoint}`, {
     method: "POST",
     headers: {
       Cookie: `jwt=${jwtCookieString}`,
