@@ -10,37 +10,12 @@ import { SocketHandler } from "./controllers";
 import logger from './lib/utils/logger';
 import SocketEvent from "./lib/enums/SocketEvent";
 import PinoHttp from "pino-http";
-import { eventBus } from "./models/event_bus/event_bus";
 
 dotenv.config();
 
 const app = express();
 const expressLogger = PinoHttp({ logger });
 
-// Establish connection to event bus
-const redisEventBus = eventBus;
-
-redisEventBus.on("error", (error: Error) => {
-
-  if ('code' in error && error.code === "ECONNREFUSED") {
-    logger.error("Redis connection refused, retrying...");
-  } else if ('code' in error && error.code === "ECONNRESET") {
-    logger.error("Redis connection timed out. Retrying...");
-  } else {
-    logger.error(error, "Redis error")
-  }
-});
-
-redisEventBus.on('reconnecting', (error: Error) => {
-  if (redisEventBus.status === 'reconnecting')
-    console.log('Reconnecting to Redis Event Bus...');
-  else console.log('Error reconnecting to Redis Event Bus.');
-});
-
-// Listen to the 'connect' event to Redis
-redisEventBus.on('connect', (error: Error) => {
-  if (!error) console.log('Connected to Redis Event Bus!');
-});
 
 // Use the logger middleware
 app.use(expressLogger);

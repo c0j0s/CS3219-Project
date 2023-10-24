@@ -7,7 +7,7 @@ import Room from '../../models/types/room';
 import { generateRoomId } from '../../lib/utils/encoder';
 import SocketEvent from '../../lib/enums/SocketEvent';
 import logger from '../../lib/utils/logger';
-import { eventBus } from '../../models/event_bus/event_bus';
+import eventBus from '../../models/event_bus/event_bus';
 import dotenv from "dotenv";
 
 dotenv.config();
