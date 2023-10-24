@@ -13,6 +13,7 @@ function createDatabaseClient() {
   }
 
   if (process.env.REDIS_URL) {
+    logger.info(`Found database url: ${process.env.REDIS_URL}`)
     return new Redis(process.env.REDIS_URL);
   }
 
