@@ -145,21 +145,21 @@ jobs:
             ecs_service:  peerprep-development-ServiceMatching,
             ecs_task_def: peerprep-development-TaskDefinitionMatching
           },
-          {
-            name: user-service,
-            ecs_service:  peerprep-development-ServiceUser,
-            ecs_task_def: peerprep-development-TaskDefinitionUser
-          },
+          # {
+          #   name: user-service,
+          #   ecs_service:  peerprep-development-ServiceUser,
+          #   ecs_task_def: peerprep-development-TaskDefinitionUser
+          # },
           # {
           #   name: auth-service,
           #   ecs_service:  peerprep-development-ServiceAuth,
           #   ecs_task_def: peerprep-development-TaskDefinitionAuth
           # },
-          # {
-          #   name: collaboration-service,
-          #   ecs_service:  peerprep-development-ServiceCollaboration,
-          #   ecs_task_def: peerprep-development-TaskDefinitionCollaboration
-          # },
+          {
+            name: collaboration-service,
+            ecs_service:  peerprep-development-ServiceCollaboration,
+            ecs_task_def: peerprep-development-TaskDefinitionCollaboration
+          },
           # {
           #   name: event-bus,
           #   ecs_service:  peerprep-development-ServiceEventBus,
