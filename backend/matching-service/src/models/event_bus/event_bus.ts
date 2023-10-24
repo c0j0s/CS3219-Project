@@ -12,5 +12,5 @@ function getLocalUrl(){
 }
 
 export const eventBus = process.env.EVENT_BUS_CONTAINER_NAME 
-                        ? new Redis({ host: process.env.EVENT_BUS_CONTAINER_NAME, tls: { servername: process.env.EVENT_BUS_CONTAINER_NAME } })
+                        ? new Redis({ host: process.env.EVENT_BUS_CONTAINER_NAME })
                         : new Redis(getLocalUrl());
