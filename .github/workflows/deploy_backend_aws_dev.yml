@@ -2,18 +2,15 @@ name: Build and deploy image to AWS ECS (Dev)
 
 on:
   push:
-    branches: [ "master", "development" ]
+    branches: [ 
+      "master", 
+      # "development" 
+    ]
 
 env:
   AWS_REGION:     ap-southeast-1
   ECR_REPOSITORY: peerprep-development-ecr-repo
   ECS_CLUSTER:    peerprep-development-ECSCluster
-
-  NAMESPACE:      peerprep-development-ServiceDiscoveryPeerprep
-
-  EVENT_BUS_SERVICE_NAME:             peerprep-development-ServiceEventBus
-
-  EVENT_BUS_DICOVERY_NAME:            peerprep-development-serviceeventbus	
   
   QUESTION_CONTAINER_NAME:            question-service
   MATCHING_CONTAINER_NAME:            matching-service
@@ -110,22 +107,22 @@ jobs:
             NODE_ENV=${{ vars.BUILD_ENV }}
             LOG_LEVEL=${{ vars.LOG_LEVEL }}
             CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}
-            REDIS_URL=redis://localhost:6379
+            REDIS_URL=${{ secrets.COLLABORATION_CACHE_URL }}
             EVENT_BUS_CONTAINER_NAME=${{ env.EVENT_BUS_CONTAINER_NAME }}
 
-      # - name: Build, tag, and push ${{ env.COLLABORATION_CACHE_CONTAINER_NAME }} image to Amazon ECR
-      #   uses: docker/build-push-action@v5
-      #   with: 
-      #     context: database/${{ env.COLLABORATION_CACHE_CONTAINER_NAME }}
-      #     push: true
-      #     tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.COLLABORATION_CACHE_CONTAINER_NAME }}
+      - name: Build, tag, and push ${{ env.COLLABORATION_CACHE_CONTAINER_NAME }} image to Amazon ECR
+        uses: docker/build-push-action@v5
+        with: 
+          context: database/${{ env.COLLABORATION_CACHE_CONTAINER_NAME }}
+          push: true
+          tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.COLLABORATION_CACHE_CONTAINER_NAME }}
 
-      # - name: Build, tag, and push ${{ env.EVENT_BUS_CONTAINER_NAME }} image to Amazon ECR
-      #   uses: docker/build-push-action@v5
-      #   with: 
-      #     context: database/${{ env.EVENT_BUS_CONTAINER_NAME }}
-      #     push: true
-      #     tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.EVENT_BUS_CONTAINER_NAME }}
+      - name: Build, tag, and push ${{ env.EVENT_BUS_CONTAINER_NAME }} image to Amazon ECR
+        uses: docker/build-push-action@v5
+        with: 
+          context: database/${{ env.EVENT_BUS_CONTAINER_NAME }}
+          push: true
+          tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.EVENT_BUS_CONTAINER_NAME }}
 
   deploy:
     name: Deploy
@@ -160,11 +157,11 @@ jobs:
             ecs_service:  peerprep-development-ServiceCollaboration,
             ecs_task_def: peerprep-development-TaskDefinitionCollaboration
           },
-          # {
-          #   name: event-bus,
-          #   ecs_service:  peerprep-development-ServiceEventBus,
-          #   ecs_task_def: peerprep-development-TaskDefinitionEventBus
-          # },
+          {
+            name: event-bus,
+            ecs_service:  peerprep-development-ServiceEventBus,
+            ecs_task_def: peerprep-development-TaskDefinitionEventBus
+          },
           # {
           #   name: history-service,
           #   ecs_service:  peerprep-development-ServiceHistory,

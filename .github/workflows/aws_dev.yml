@@ -1,0 +1,40 @@
+name: Build and deploy images to AWS ECS (Dev)
+
+on:
+  push:
+    branches:
+      - "development"
+
+env:
+  ENVIRONMENT: development
+  AWS_REGION: ap-southeast-1
+  ECR_REPOSITORY: peerprep-development-ecr-repo
+  ECS_CLUSTER: peerprep-development-ECSCluster
+  QUESTION_CONTAINER_NAME: question-service
+  MATCHING_CONTAINER_NAME: matching-service
+  AUTH_CONTAINER_NAME: auth-service
+  USER_CONTAINER_NAME: user-service
+  COLLABORATION_CONTAINER_NAME: collaboration-service
+  HISTORY_CONTAINER_NAME: history-service
+  COLLABORATION_CACHE_CONTAINER_NAME: collaboration-cache
+  EVENT_BUS_CONTAINER_NAME: event-bus
+
+permissions:
+  contents: read
+
+jobs:
+  build_and_deploy_user_service:
+    name: Build and Deploy ${{ env.USER_CONTAINER_NAME }}
+    uses: ./.github/workflows/deploy-user-service.yml
+    with:
+      service_name: ${{ env.USER_CONTAINER_NAME }}
+    env:
+      AWS_REGION: ${{ env.AWS_REGION }}
+      ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+      ECS_CLUSTER: ${{ env.ECS_CLUSTER }}
+      USER_CONTAINER_NAME: ${{ env.USER_CONTAINER_NAME }}
+
+  # - name: Build and Deploy ${{ env.QUESTION_CONTAINER_NAME }}
+  #   uses: ./.github/workflows/deploy-question-service.yml
+  #   with:
+  #     service_name: ${{ env.QUESTION_CONTAINER_NAME }}
