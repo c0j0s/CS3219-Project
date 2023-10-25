@@ -23,11 +23,11 @@ const channel = 'matching-collaboration'
 
 eventBus.subscribe(channel, (err) => {
   if (err) {
-    logger.error(`Error subscribing to ${channel}: ${err}`)
+    console.log(`Error subscribing to ${channel}: ${err}`)
     // Should exit because the service will not work properly
     process.exit(1);
   }
-  logger.info(`Subscribed to ${channel} channel successfully.`)
+  console.log(`Subscribed to ${channel} channel successfully.`)
 })
 
 eventBus.on("message", (channel, message) => {

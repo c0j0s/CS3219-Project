@@ -3,7 +3,7 @@ services:
   event-bus:
     build: ./event-bus
     ports:
-      - "6380:6380"
+      - "6380:6379"
     networks:
       - peerprep
   collaboration-cache:
