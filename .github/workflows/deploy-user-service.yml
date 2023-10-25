@@ -1,5 +1,44 @@
 name: Build and deploy image to AWS ECS (Dev)
 
+on:
+    workflow_call:
+        inputs:
+            USER_CONTAINER_NAME:
+                description: 'Name of the user-service container'
+                type: string
+                required: true
+            AWS_REGION:
+                description: 'AWS region'
+                type: string
+                required: true
+            ECR_REPOSITORY:
+                description: 'ECR repository'
+                type: string
+                required: true
+            ECS_CLUSTER:
+                description: 'ECS cluster'
+                type: string
+                required: true
+            BUILD_ENV:
+                description: 'Build environment'
+                type: string
+                required: true
+            LOG_LEVEL:
+                description: 'Log level'
+                type: string
+                required: true
+            CORS_ALLOWED_ORIGINS:
+                description: 'CORS allowed origins'
+                type: string
+                required: true
+        secrets:
+            DATABASE_URL:
+                description: 'Database URL'
+                required: true
+            EMAIL_VERIFICATION_SECRET:
+                description: 'Email verification secret'
+                required: true
+
 permissions:
     contents: read
 
@@ -9,64 +48,61 @@ jobs:
         runs-on: ubuntu-latest
         environment: development
         steps:
-        - name: Checkout
+        -   name: Checkout
             uses: actions/checkout@v3
 
-        - name: Check for Changes in user-service directory
+        -   name: Check for Changes in user-service directory
             id: check-user-service-changes
             run: |
-            if git diff --quiet HEAD^ -- backend/${{ inputs.USER_CONTAINER_NAME }}; then
-                echo "No changes in user-service directory"
-                echo "::set-output name=changes::false"
-            else
-                echo "Changes detected in user-service directory"
-                echo "::set-output name=changes::true"
-            fi
-            shell: bash
+                if git diff --quiet HEAD^ -- backend/${{ inputs.USER_CONTAINER_NAME }}; then
+                    echo "No changes in user-service directory"
+                    echo "::set-output name=changes::false"
+                else
+                    echo "Changes detected in user-service directory"
+                    echo "::set-output name=changes::true"
+                fi
+                shell: bash
 
-        - name: Configure AWS credentials
-            run: echo Configured AWS Credentials ${{ env.ECS_CLUSTER }} AWS_REGION ${{ env.AWS_REGION }}
-            ECS_CLUSTER: ${{ env.ECS_CLUSTER }}
-            # uses: aws-actions/configure-aws-credentials@v1
-            # with:
-            #   aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            #   aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            #   aws-region: ${{ inputs.AWS_REGION }}
+        -   name: Configure AWS credentials
+            uses: aws-actions/configure-aws-credentials@v1
+            with:
+                aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                aws-region: ${{ inputs.AWS_REGION }}
 
-        - name: Login to Amazon ECR
-            run: Login to Amazon ECR
-            # id: login-ecr
-            # uses: aws-actions/amazon-ecr-login@v1  
+        -   name: Login to Amazon ECR
+            id: login-ecr
+            uses: aws-actions/amazon-ecr-login@v1  
 
-    #   - name: Build, tag, and push ${{ env.USER_CONTAINER_NAME }} image to Amazon ECR
-    #     if: steps.check-user-service-changes.outputs.changes == 'true'  
-    #     uses: docker/build-push-action@v5
-    #     with:
-    #       context: backend/${{ env.USER_CONTAINER_NAME }}
-    #       push: true
-    #       tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.USER_CONTAINER_NAME }}
-    #       build-args: |
-    #         NODE_ENV=${{ vars.BUILD_ENV }}
-    #         LOG_LEVEL=${{ vars.LOG_LEVEL }}
-    #         CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}
-    #         DATABASE_URL=${{ secrets.DATABASE_URL }}
-    #         EMAIL_VERIFICATION_SECRET=${{ secrets.EMAIL_VERIFICATION_SECRET }}
+        -   name: Build, tag, and push ${{ inputs.USER_CONTAINER_NAME }} image to Amazon ECR
+            if: steps.check-user-service-changes.outputs.changes == 'true'  
+            uses: docker/build-push-action@v5
+            with:
+                context: backend/${{ inputs.USER_CONTAINER_NAME }}
+                push: true
+                tags: ${{ steps.login-ecr.outputs.registry }}/${{ inputs.ECR_REPOSITORY }}:${{ inputs.USER_CONTAINER_NAME }}
+                build-args: |
+                    NODE_ENV=${{ vars.BUILD_ENV }}
+                    LOG_LEVEL=${{ vars.LOG_LEVEL }}
+                    CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}
+                    DATABASE_URL=${{ secrets.DATABASE_URL }}
+                    EMAIL_VERIFICATION_SECRET=${{ secrets.EMAIL_VERIFICATION_SECRET }}
 
-    #   - name: Download user-service task definition
-    #     id: download-user-service-task-def
-    #     env:
-    #       FAMILY: ${{ env.USER_CONTAINER_NAME }}
-    #     run: |
-    #       aws ecs describe-task-definition --task-definition $FAMILY --query taskDefinition > $FAMILY.json
-    #       echo "file=$FAMILY.json" >> "$GITHUB_OUTPUT"
+        -   name: Download user-service task definition
+            id: download-user-service-task-def
+            env:
+                FAMILY: peerprep-development-TaskDefinitionEventBus
+            run: |
+                aws ecs describe-task-definition --task-definition $FAMILY --query taskDefinition > $FAMILY.json
+                echo "file=$FAMILY.json" >> "$GITHUB_OUTPUT"
 
-    #   - name: Fill in the user-service image ID in the Amazon ECS task definition
-    #     id: user-service-task-def
-    #     uses: aws-actions/amazon-ecs-render-task-definition@v1
-    #     with:
-    #       task-definition: ${{ steps.download-user-service-task-def.outputs.file }}
-    #       container-name: ${{ env.USER_CONTAINER_NAME }}
-    #       image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.USER_CONTAINER_NAME }}
+        -   name: Fill in the user-service image ID in the Amazon ECS task definition
+            id: user-service-task-def
+            uses: aws-actions/amazon-ecs-render-task-definition@v1
+            with:
+                task-definition: ${{ steps.download-user-service-task-def.outputs.file }}
+                container-name: ${{ inputs.USER_CONTAINER_NAME }}
+                image: ${{ steps.login-ecr.outputs.registry }}/${{ inputs.ECR_REPOSITORY }}:${{ inputs.USER_CONTAINER_NAME }}
 
     #   - name: Deploy Amazon ECS user-service task definition
     #     if: steps.check-user-service-changes.outputs.changes == 'true' 
