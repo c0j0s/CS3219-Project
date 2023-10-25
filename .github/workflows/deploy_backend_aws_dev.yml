@@ -5,7 +5,7 @@ on:
     branches: [ 
       "master", 
       "development",
-      "test-git--workflow"
+      "test-git-workflow"
     ]
 
 env:
