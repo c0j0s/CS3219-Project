@@ -8,7 +8,7 @@ export const authMiddleware = async (
   res: Response,
   next: NextFunction
 ) => {
-  console.debug(`[${req.url}][${req.method}] ${req.params}\n${req.body}`);
+  console.debug(`[${req.url}][${req.method}] ${JSON.stringify(req.params)}\n${JSON.stringify(req.body)}`);
   if (req.headers.bypass) {
     const serviceSecret = process.env.SERVICE_SECRET || "secret";
     // bypass auth for calls from auth service
