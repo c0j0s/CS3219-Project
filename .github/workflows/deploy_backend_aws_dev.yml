@@ -4,7 +4,7 @@ on:
   push:
     branches: [ 
       "master", 
-      "development" 
+      "development",
     ]
 
 env:
@@ -48,14 +48,14 @@ jobs:
       - name: Check for Changes in question-service directory
         id: check-question-service-changes
         run: |
-            if git diff --quiet HEAD^ -- backend/${{ env.QUESTION_CONTAINER_NAME }}; then
+            if git diff --quiet HEAD~1 -- backend/${{ env.QUESTION_CONTAINER_NAME }}; then
                 echo "No changes in question-service directory"
-                echo "::set-output name=changes::false"
+                echo "changes=false" >> "$GITHUB_OUTPUT"
             else
                 echo "Changes detected in question-service directory"
-                echo "::set-output name=changes::true"
+                echo "changes=true" >> "$GITHUB_OUTPUT"
             fi
-            shell: bash
+        shell: bash
 
       - name: Build, tag, and push ${{ env.QUESTION_CONTAINER_NAME }} image to Amazon ECR
         if: steps.check-question-service-changes.outputs.changes == 'true'
@@ -73,14 +73,14 @@ jobs:
       - name: Check for Changes in matching-service directory
         id: check-matching-service-changes
         run: |
-            if git diff --quiet HEAD^ -- backend/${{ env.MATCHING_CONTAINER_NAME }}; then
+            if git diff --quiet HEAD~1 -- backend/${{ env.MATCHING_CONTAINER_NAME }}; then
                 echo "No changes in matching-service directory"
-                echo "::set-output name=changes::false"
+                echo "changes=false" >> "$GITHUB_OUTPUT"
             else
                 echo "Changes detected in matching-service directory"
-                echo "::set-output name=changes::true"
+                echo "changes=true" >> "$GITHUB_OUTPUT"
             fi
-            shell: bash            
+        shell: bash            
           
       - name: Build, tag, and push ${{ env.MATCHING_CONTAINER_NAME }} image to Amazon ECR
         if: steps.check-matching-service-changes.outputs.changes == 'true'
@@ -99,14 +99,14 @@ jobs:
       - name: Check for Changes in auth-service directory
         id: check-auth-service-changes
         run: |
-            if git diff --quiet HEAD^ -- backend/${{ env.AUTH_CONTAINER_NAME }}; then
+            if git diff --quiet HEAD~1 -- backend/${{ env.AUTH_CONTAINER_NAME }}; then
                 echo "No changes in auth-service directory"
-                echo "::set-output name=changes::false"
+                echo "changes=false" >> "$GITHUB_OUTPUT"
             else
                 echo "Changes detected in auth-service directory"
-                echo "::set-output name=changes::true"
+                echo "changes=true" >> "$GITHUB_OUTPUT"
             fi
-            shell: bash      
+        shell: bash      
 
       - name: Build, tag, and push ${{ env.AUTH_CONTAINER_NAME }} image to Amazon ECR
         if: steps.check-auth-service-changes.outputs.changes == 'true'
@@ -127,14 +127,14 @@ jobs:
       - name: Check for Changes in user-service directory
         id: check-user-service-changes
         run: |
-            if git diff --quiet HEAD^ -- backend/${{ env.USER_CONTAINER_NAME }}; then
+            if git diff --quiet HEAD~1 -- backend/${{ env.USER_CONTAINER_NAME }}; then
                 echo "No changes in user-service directory"
-                echo "::set-output name=changes::false"
+                echo "changes=false" >> "$GITHUB_OUTPUT"
             else
                 echo "Changes detected in user-service directory"
-                echo "::set-output name=changes::true"
+                echo "changes=true" >> "$GITHUB_OUTPUT"
             fi
-            shell: bash
+        shell: bash
 
       - name: Build, tag, and push ${{ env.USER_CONTAINER_NAME }} image to Amazon ECR
         if: steps.check-user-service-changes.outputs.changes == 'true'
@@ -153,14 +153,14 @@ jobs:
       - name: Check for Changes in collaboration-service directory
         id: check-collaboration-service-changes
         run: |
-            if git diff --quiet HEAD^ -- backend/${{ env.COLLABORATION_CONTAINER_NAME }}; then
+            if git diff --quiet HEAD~1 -- backend/${{ env.COLLABORATION_CONTAINER_NAME }}; then
                 echo "No changes in collaboration-service directory"
-                echo "::set-output name=changes::false"
+                echo "changes=false" >> "$GITHUB_OUTPUT"
             else
                 echo "Changes detected in collaboration-service directory"
-                echo "::set-output name=changes::true"
+                echo "changes=true" >> "$GITHUB_OUTPUT"
             fi
-            shell: bash      
+        shell: bash      
 
       - name: Build, tag, and push ${{ env.COLLABORATION_CONTAINER_NAME }} image to Amazon ECR
         if: steps.check-collaboration-service-changes == 'true'
@@ -179,14 +179,14 @@ jobs:
       - name: Check for Changes in collaboration-cache directory
         id: check-collaboration-cache-changes
         run: |
-            if git diff --quiet HEAD^ -- database/${{ env.COLLABORATION_CACHE_CONTAINER_NAME }}; then
+            if git diff --quiet HEAD~1 -- database/${{ env.COLLABORATION_CACHE_CONTAINER_NAME }}; then
                 echo "No changes in collaboration-cache directory"
-                echo "::set-output name=changes::false"
+                echo "changes=false" >> "$GITHUB_OUTPUT"
             else
                 echo "Changes detected in collaboration-cache directory"
-                echo "::set-output name=changes::true"
+                echo "changes=true" >> "$GITHUB_OUTPUT"
             fi
-            shell: bash   
+        shell: bash   
 
       - name: Build, tag, and push ${{ env.COLLABORATION_CACHE_CONTAINER_NAME }} image to Amazon ECR
         if: steps.check-collaboration-cache-changes == 'true'
@@ -200,14 +200,14 @@ jobs:
       - name: Check for Changes in event-bus directory
         id: check-event-bus-changes
         run: |
-            if git diff --quiet HEAD^ -- database/${{ env.EVENT_BUS_CONTAINER_NAME }}; then
+            if git diff --quiet HEAD~1 -- database/${{ env.EVENT_BUS_CONTAINER_NAME }}; then
                 echo "No changes in event-bus directory"
-                echo "::set-output name=changes::false"
+                echo "changes=false" >> "$GITHUB_OUTPUT"
             else
                 echo "Changes detected in event-bus directory"
-                echo "::set-output name=changes::true"
+                echo "changes=true" >> "$GITHUB_OUTPUT"
             fi
-            shell: bash  
+        shell: bash  
 
       - name: Build, tag, and push ${{ env.EVENT_BUS_CONTAINER_NAME }} image to Amazon ECR
         if: steps.check-event-bus-changes == 'true'
