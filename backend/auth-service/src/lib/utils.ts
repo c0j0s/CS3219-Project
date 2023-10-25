@@ -21,10 +21,9 @@ const issueJWT = (user: UserProfile) => {
   const payload = {
     sub: user.id,
     iat: Date.now(),
-    role: user.role,
   };
 
-  const signedToken = jwt.sign(payload, getJWTSecret(), );
+  const signedToken = jwt.sign(payload, getJWTSecret());
 
   return signedToken;
 };

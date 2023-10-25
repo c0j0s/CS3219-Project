@@ -114,9 +114,9 @@ export default function ChangePassword({
               onClick={toggleOldPasswordVisibility}
             >
               {isOldPasswordVisible ? (
-                <Image src="/assets/eye-hide.svg" />
+                <Image src="/assets/eye-hide.svg" alt="" />
               ) : (
-                <Image src="/assets/eye-show.svg" />
+                <Image src="/assets/eye-show.svg" alt="" />
               )}
             </Button>
           }
@@ -137,9 +137,9 @@ export default function ChangePassword({
               onClick={togglePasswordVisibility}
             >
               {isPasswordVisible ? (
-                <Image src="/assets/eye-hide.svg" />
+                <Image src="/assets/eye-hide.svg" alt="" />
               ) : (
-                <Image src="/assets/eye-show.svg" />
+                <Image src="/assets/eye-show.svg" alt="" />
               )}
             </Button>
           }
@@ -160,9 +160,9 @@ export default function ChangePassword({
               onClick={toggleCheckPasswordVisibility}
             >
               {isCheckPasswordVisible ? (
-                <Image src="/assets/eye-hide.svg" />
+                <Image src="/assets/eye-hide.svg" alt="" />
               ) : (
-                <Image src="/assets/eye-show.svg" />
+                <Image src="/assets/eye-show.svg" alt="" />
               )}
             </Button>
           }

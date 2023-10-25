@@ -2,7 +2,7 @@ import "@/styles/globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Poppins } from "next/font/google";
-import { Providers } from "./providers";
+import { Providers } from "../contexts/providers";
 import NavBar from "@/components/common/NavBar";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";

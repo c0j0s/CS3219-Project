@@ -63,7 +63,7 @@ const updateVerfication = async(email:string, token:string) => {
   
   console.debug(`[updateVerfication][${res.status}] fetch ${getUserServiceEndpoint()}/user/api/users/updateVerification/${email}`);
   return res;
-}
+};
 
 const updatePasswordResetToken = async(email:string, updateBody: {}) => {
   const res = await fetch(`${getUserServiceEndpoint()}/user/api/users/updatePasswordResetToken/${email}`, {
@@ -76,7 +76,7 @@ const updatePasswordResetToken = async(email:string, updateBody: {}) => {
   });
   console.debug(`[updatePasswordResetToken][${res.status}] fetch ${getUserServiceEndpoint()}/user/api/users/updatePasswordResetToken/${email}`);
   return res;
-}
+};
 
 const updatePassword = async (id: string, updateBody: {}) => {
   const res = await fetch(`${getUserServiceEndpoint()}/user/api/users/${id}`, {
@@ -91,5 +91,12 @@ const updatePassword = async (id: string, updateBody: {}) => {
   return res;
 };
 
-
-export { createUser, getUserServiceEndpoint, getUserById, getUserByEmail, updateVerfication, updatePasswordResetToken, updatePassword };
+export {
+  createUser,
+  getUserServiceEndpoint,
+  getUserById,
+  getUserByEmail,
+  updateVerfication,
+  updatePasswordResetToken,
+  updatePassword,
+};

@@ -79,9 +79,11 @@ export async function getQuestionByPreference(
 ) {
   let questions = [];
 
-  const complexityFilter = preference?.difficulties.map(d => `complexity=${d}`).join(`&`);
-  const topicFilter = preference?.topics.map(d => `topic=${d}`).join(`&`);
-  const queryPath = `?${topicFilter}&${complexityFilter}`
+  const complexityFilter = preference?.difficulties
+    .map((d) => `complexity=${d}`)
+    .join(`&`);
+  const topicFilter = preference?.topics.map((d) => `topic=${d}`).join(`&`);
+  const queryPath = `?${topicFilter}&${complexityFilter}`;
 
   const response = await api({
     method: HTTP_METHODS.GET,
@@ -110,7 +112,7 @@ export async function getTopics() {
   });
   
   if (response.status === HttpStatusCode.OK) {
-    const topics = response.data['topics'] as string[]
+    const topics = response.data["topics"] as string[];
     logger.info(`[getTopics] Got ${topics.length} items.`);
     return topics;
   }
@@ -123,9 +125,7 @@ export async function getTopics() {
  * Posts a new question to the API.
  * @param {Question} question - The question object to post.
  */
-export async function postQuestion(
-  question: Question
-) {
+export async function postQuestion(question: Question) {
   const response = await api({
     method: HTTP_METHODS.POST,
     domain: domain,
@@ -148,10 +148,7 @@ export async function postQuestion(
  * @param {string} id - The ID of the question to update.
  * @param {Question} question - The updated question object.
  */
-export async function updateQuestion(
-  id: string,
-  question: Question
-) {
+export async function updateQuestion(id: string, question: Question) {
   const response = await api({
     method: HTTP_METHODS.PUT,
     domain: domain,

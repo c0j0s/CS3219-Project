@@ -25,7 +25,6 @@ permissions:
   contents: read
 
 jobs:
-
   build:
     name: Build service images
     runs-on: ubuntu-latest

@@ -76,7 +76,7 @@ export default function MatchingLobbySuccessView({
     }, 1000)
 
     return () => clearTimeout(clock)
-}, [userReady, partnerReady, isOwner, timer])
+}, [userReady, partnerReady, isOwner, timer, onStart])
 
 
   return (

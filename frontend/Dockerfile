@@ -18,7 +18,6 @@ RUN npm run build
 COPY . .
 
 ARG port=3000
-
 EXPOSE $port
 
 CMD [ "npm", "run", "start" ]

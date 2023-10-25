@@ -59,6 +59,15 @@
   border-color: 1px solid #27272a;
 }
 
-.quill > .ql-container > .ql-editor.ql-blank::before{
+.quill > .ql-container > .ql-editor.ql-blank::before {
   color: rgba(255, 255, 255, 0.315);
+}
+
+.ch-domain-bg {
+  background-color: #27272a !important;
+  fill: #1e1e21 !important;
+}
+
+.bg-cal-heatmap {
+  background-color: #1e1e21 !important;
 }

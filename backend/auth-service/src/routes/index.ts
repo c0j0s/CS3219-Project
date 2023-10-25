@@ -22,11 +22,27 @@ router.route("/loginByEmail").post(logInByEmail);
 router
   .route("/validate")
   .post(passport.authenticate("jwt", { session: false }), (req, res, next) => {
+    // If user service is down, req.user will be an empty object
+    if (req.user && Object.keys(req.user).length === 0) {
+      res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+        error: "INTERNAL SERVER ERROR",
+        message: "User service is down.",
+      });
+      return;
+    }
     res.status(HttpStatusCode.OK).json(req.user);
   });
 router
   .route("/validateAdmin")
   .post(passport.authenticate("jwt", { session: false }), (req, res, next) => {
+    // If user service is down, req.user will be an empty object
+    if (req.user && Object.keys(req.user).length === 0) {
+      res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+        error: "INTERNAL SERVER ERROR",
+        message: "User service is down.",
+      });
+      return;
+    }
     const user = req.user as UserProfile;
     if (user.role !== "ADMIN") {
       res.status(HttpStatusCode.FORBIDDEN).json({

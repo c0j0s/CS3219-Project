@@ -5,16 +5,13 @@ import {
   Spacer,
   Button,
   Input,
-  Checkbox,
   Link,
-  Divider,
   CardHeader,
   Image,
 } from "@nextui-org/react";
 import PeerPrepLogo from "@/components/common/PeerPrepLogo";
-import { UserService } from "@/helpers/user/user_api_wrappers";
 import { CLIENT_ROUTES } from "@/common/constants";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { PeerPrepErrors } from "@/types/PeerPrepErrors";
 import User from "@/types/user";
 import { Role } from "@/types/enums";
@@ -23,6 +20,7 @@ import { ToastType } from "@/types/enums";
 import bcrypt from "bcryptjs-react";
 import { AuthService } from "@/helpers/auth/auth_api_wrappers";
 import { useAuthContext } from "@/contexts/auth";
+import z from "zod";
 
 export function LoginComponent() {
   const { logIn } = useAuthContext();
@@ -33,7 +31,6 @@ export function LoginComponent() {
   const [password, setPassword] = useState("");
   const [checkPassword, setCheckPassword] = useState("");
   const [name, setName] = useState("");
-  const [isRemembered, setIsRemembered] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
   // Flags
@@ -52,12 +49,29 @@ export function LoginComponent() {
 
   // Validation
 
+  const validateEmail = (value: string) => {
+    try {
+      z.string().email().min(3).max(254).parse(value);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  const isEmailInvalid = React.useMemo(() => {
+    if (email === "") return false;
+
+    return validateEmail(email) ? false : true;
+  }, [email]);
+
   useEffect(() => {
     setArePasswordsEqual(
       !(password !== checkPassword && password !== "" && checkPassword !== "")
     );
 
-    if (password !== "" && checkPassword !== "" && password.length < 8) {
+    if (isEmailInvalid) {
+      setErrorMsg("Please enter a valid email address.");
+    } else if (password !== "" && checkPassword !== "" && password.length < 8) {
       setErrorMsg("Password should contain 8 characters or more.");
     } else if (!arePasswordsEqual) {
       setErrorMsg("Passwords do not match. Please try again.");
@@ -75,6 +89,7 @@ export function LoginComponent() {
     setPassword,
     setCheckPassword,
     arePasswordsEqual,
+    email,
   ]);
 
   async function submitNewUser(e: FormEvent<HTMLFormElement>) {
@@ -125,6 +140,11 @@ export function LoginComponent() {
 
   async function getUser(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (isEmailInvalid) {
+      displayToast("Please enter a valid email address.", ToastType.ERROR);
+      return;
+    }
+
     try {
       setIsSubmitted(true);
       await logIn(email, password);
@@ -132,12 +152,17 @@ export function LoginComponent() {
       router.push(CLIENT_ROUTES.HOME);
     } catch (error) {
       if (error instanceof PeerPrepErrors.NotFoundError) {
+        // User not found
         displayToast(
-          "User not found, please sign up instead.",
+          "Incorrect email/password. Please try again.",
           ToastType.ERROR
         );
       } else if (error instanceof PeerPrepErrors.UnauthorisedError) {
-        displayToast("Incorrect password. Please try again.", ToastType.ERROR);
+        // Incorrect password
+        displayToast(
+          "Incorrect email/password. Please try again.",
+          ToastType.ERROR
+        );
       } else if (error instanceof PeerPrepErrors.ForbiddenError) {
         displayToast(
           "Please verify your email before logging in.",
@@ -264,7 +289,10 @@ export function LoginComponent() {
             </div>
           ) : (
             <>
-              <Spacer y={3} />
+              <Spacer y={2} />
+              <div className="text-red-500 text-center text-xs font-bold">
+                {errorMsg}
+              </div>
               <div className="flex flex-col items-center pt-2">
                 <Button
                   className="w-1/2"

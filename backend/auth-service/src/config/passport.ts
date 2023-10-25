@@ -40,11 +40,12 @@ const authenticateWithJWT = async (
 const jwtStrategy = new JwtStrategy(options, async (jwt_payload, done) => {
   // if code is here, JWT is authenticated and valid
   // now, check if user exists
-  const result = await authenticateWithJWT(jwt_payload);
-  if (!result) {
-    return done(null, false);
+  let result: object | UserProfile | undefined = {};
+  try {
+    result = await authenticateWithJWT(jwt_payload);
+  } catch (error) {
+    console.log("Fetch failed, User service is down.");
   }
-
   return done(null, result);
 });
 

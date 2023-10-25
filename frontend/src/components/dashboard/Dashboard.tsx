@@ -1,12 +1,25 @@
+"use client";
+
+import React, { useEffect } from "react";
 import ProfileDashboardCard from "./ProfileDashboardCard";
 import HeatmapCard from "./HeatmapCard";
 import MatchingCard from "../matching/MatchingCard";
 import StatisticsCard from "./StatisticsCard";
 import QuestionStatisticsCard from "./QuestionStatisticsCard";
+import { useHistoryContext } from "@/contexts/history";
+import { useTopicContext } from "@/contexts/topic";
 
 const Dashboard = () => {
+  const { handleRetrieveHistory } = useHistoryContext();
+  const { fetchTopics } = useTopicContext();
+
+  useEffect(() => {
+    handleRetrieveHistory();
+    fetchTopics();
+  }, []);
+
   return (
-    <div className="grid md:grid-rows-2 md:grid-cols-4 gap-4 p-[30px] h-[92vh] sm:grid-row-3 sm:grid-cols-2 container mx-auto">
+    <div className="grid md:grid-rows-2 md:grid-cols-4 gap-4 p-[30px] pt-[15px] h-[99vh] sm:grid-row-3 sm:grid-cols-2 container mx-auto">
       <div className="row-start-1 col-start-1">
         <ProfileDashboardCard />
       </div>

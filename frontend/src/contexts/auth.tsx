@@ -1,6 +1,7 @@
 "use client";
 import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
 import { AuthService } from "@/helpers/auth/auth_api_wrappers";
+import { getTopics } from "@/helpers/question/question_api_wrappers";
 import { Role } from "@/types/enums";
 import User from "@/types/user";
 import { StringUtils } from "@/utils/stringUtils";
@@ -43,6 +44,7 @@ interface IAuthProvider {
 const AuthProvider = ({ children }: IAuthProvider) => {
   const [user, setUser] = useState<User>(defaultUser);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
   const router = useRouter();
 
   useEffect(() => {

@@ -64,7 +64,7 @@ export default function MatchingLobbyPrepCollabView({
 
         }
         initializeSocket();
-    }, [])
+    }, [onError, user.user.preferences])
 
     return (
         <>

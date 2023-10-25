@@ -73,7 +73,10 @@ export default function QuestionTable({
       case "title":
         return (
           <>
-            <Link href={`${CLIENT_ROUTES.QUESTIONS}/${item.id}`}>
+            <Link
+              href={`${CLIENT_ROUTES.QUESTIONS}/${item.id}`}
+              color="foreground"
+            >
               {cellValue as string}
             </Link>
           </>

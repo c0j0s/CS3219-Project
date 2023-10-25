@@ -50,6 +50,7 @@ export const authMiddleware = async (
       Cookie: `jwt=${jwtCookieString}`,
     },
   });
+  
   console.debug(`[authMiddle][${authRes.status}] fetch ${AUTH_GATEWAY}/${authEndpoint}`);
   if (authRes.status !== HttpStatusCode.OK) {
     const message = await authRes.text();

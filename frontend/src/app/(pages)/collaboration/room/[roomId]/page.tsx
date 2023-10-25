@@ -43,12 +43,10 @@ export default function RoomPage({ params }: RoomPageProps) {
     }
 
     return () => {
-      
       console.log("Running handleDisconnectFromRoom");
       if (socketService) {
         handleDisconnectFromRoom();
       }
-
     };
   }, [socketService, roomNotFound]);
 

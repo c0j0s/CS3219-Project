@@ -1,14 +1,12 @@
 import { useMemo } from "react";
 import * as d3 from "d3";
-
-type DataItem = {
-  name: string;
-  value: number;
-};
+import { DataItem } from "@/types/history";
+import { Tooltip } from "@nextui-org/react";
+import { cn } from "@/utils/classNameUtils";
 
 const MARGIN = 30;
 
-const colors = ["#112F45", "#EC8B33", "#4D9CB9"];
+const colors = ["#112F45", "#EC8B33", "#4D9CB9", "#F7B750"];
 
 interface DonutChartProps {
   width?: number;
@@ -16,7 +14,11 @@ interface DonutChartProps {
   data: DataItem[];
 }
 
-const DonutChart = ({ width = 160, height = 160, data }: DonutChartProps) => {
+const LanguageDonutChart = ({
+  width = 160,
+  height = 160,
+  data,
+}: DonutChartProps) => {
   const radius = Math.min(width, height) / 2 - MARGIN;
 
   const pie = useMemo(() => {
@@ -43,7 +45,11 @@ const DonutChart = ({ width = 160, height = 160, data }: DonutChartProps) => {
         <svg width={width} height={height} style={{ display: "inline-block" }}>
           <g transform={`translate(${width / 2}, ${height / 2})`}>
             {arcs.map((arc, i) => {
-              return <path key={i} d={arc as string} fill={colors[i]} />;
+              return (
+                <Tooltip content={data[i].value} placement="bottom" key={i}>
+                  <path d={arc as string} fill={colors[i]} />
+                </Tooltip>
+              );
             })}
           </g>
         </svg>
@@ -52,21 +58,24 @@ const DonutChart = ({ width = 160, height = 160, data }: DonutChartProps) => {
         </span>
       </div>
       <div className="flex flex-col justify-center gap-2 text-[10px]">
-        <div className="flex flex-row items-center gap-3">
-          <div className="w-8 h-3 rounded-lg bg-dark-blue" />
-          <p>Easy</p>
-        </div>
-        <div className="flex flex-row items-center gap-3">
-          <div className="w-8 h-3 rounded-lg bg-orange" />
-          <p>Medium</p>
-        </div>
-        <div className="flex flex-row items-center gap-3">
-          <div className="w-8 h-3 rounded-lg bg-blue" />
-          <p>Difficult</p>
-        </div>
+        {data.map((item, index) => {
+          return (
+            <div className="flex flex-row items-center gap-3" key={index}>
+              <div
+                className={cn("w-8 h-3 rounded-lg", {
+                  "bg-dark-blue": index === 0,
+                  "bg-orange": index === 1,
+                  "bg-blue": index === 2,
+                  "bg-yellow": index === 3,
+                })}
+              ></div>
+              <p className="capitalize">{item.name}</p>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 };
 
-export default DonutChart;
+export default LanguageDonutChart;
