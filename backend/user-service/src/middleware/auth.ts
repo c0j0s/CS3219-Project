@@ -8,6 +8,7 @@ export const authMiddleware = async (
   res: Response,
   next: NextFunction
 ) => {
+  console.debug(`[${req.url}][${req.method}] ${req.params}\n${req.body}`);
   if (req.headers.bypass) {
     const serviceSecret = process.env.SERVICE_SECRET || "secret";
     // bypass auth for calls from auth service
@@ -49,7 +50,7 @@ export const authMiddleware = async (
       Cookie: `jwt=${jwtCookieString}`,
     },
   });
-
+  console.debug(`[authMiddle][${authRes.status}] fetch ${AUTH_GATEWAY}/${authEndpoint}`);
   if (authRes.status !== HttpStatusCode.OK) {
     const message = await authRes.text();
     res.status(authRes.status).json({

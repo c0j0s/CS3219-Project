@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import HttpStatusCode from "../lib/enums/HttpStatusCode";
 import dotenv from "dotenv";
+import logger from "../lib/utils/logger";
 
 dotenv.config();
 
@@ -13,8 +14,8 @@ export const authMiddleware = async (
     next();
     return;
   }
-
-  // Only allow GET requests to /development/question/questions to pass through with just user rights
+  logger.debug(req.body, `[${req.url}][${req.method}] ${req.params}`);
+  // Only allow GET requests to /question/questions to pass through with just user rights
   const cookies = req.headers.cookie;
   
   const jwtCookieString = cookies

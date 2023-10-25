@@ -40,7 +40,7 @@ export const getUserById = async (request: Request, response: Response) => {
         },
       },
     });
-
+    
     if (!user) {
       response.status(HttpStatusCode.NOT_FOUND).json({
         error: "NOT FOUND",
