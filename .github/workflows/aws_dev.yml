@@ -25,7 +25,7 @@ permissions:
 jobs:
   build_and_deploy_user_service:
     name: Build and Deploy ${{ env.USER_CONTAINER_NAME }}
-    uses: ./.github/workflows/deploy_backend_aws/deploy-user-service.yml
+    uses: ./.github/workflows/deploy-user-service.yml
     with:
       service_name: ${{ env.USER_CONTAINER_NAME }}
     env:
