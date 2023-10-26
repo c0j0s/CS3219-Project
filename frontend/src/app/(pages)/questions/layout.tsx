@@ -11,7 +11,7 @@ export default function QuestionLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="h-screen bg-background" suppressHydrationWarning={true}>
+        <div className="container mx-auto p-[30px] pt-[15px]" suppressHydrationWarning={true}>
             {children}
         </div>
     );
