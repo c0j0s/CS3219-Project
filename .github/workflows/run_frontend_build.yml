@@ -23,6 +23,7 @@ jobs:
         run: |
           cd frontend/  
           npm ci --omit=dev
+          npm install @type/d3 --save
 
       - name: Build
         run: |
