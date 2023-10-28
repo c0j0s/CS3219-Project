@@ -11,7 +11,6 @@ export async function POST(request: NextRequest) {
     const file: File | null = requestFormData.get("file") as unknown as File;
 
     if (!file || file === undefined) {
-      console.log("file is undefined");
       return NextResponse.json(
         { error: "File is undefined" },
         { status: HttpStatusCode.BAD_REQUEST }

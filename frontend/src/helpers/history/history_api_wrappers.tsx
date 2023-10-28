@@ -6,164 +6,126 @@ import { DOMAIN, HTTP_METHODS } from "@/types/enums";
 import api from "../endpoint";
 import { getLogger } from "../logger";
 import HttpStatusCode from "@/types/HttpStatusCode";
-import History, { DataItem } from "@/types/history";
+import History, { DataItem, QuestionHistory } from "@/types/history";
 import { getError, throwAndLogError } from "@/utils/errorUtils";
-import ComplexityChip from "@/components/question/ComplexityChip";
-import { formatDistanceToNow } from "date-fns";
 import { StringUtils } from "../../utils/stringUtils";
-import { Chip, Link, Tooltip } from "@nextui-org/react";
-import { CLIENT_ROUTES } from "@/common/constants";
 
 const logger = getLogger("history_api_wrappers");
 
-const historyService = DOMAIN.HISTORY;
+const historyDomain = DOMAIN.HISTORY;
+
+const baseRoute = "history";
 
 const getAttemptedQuestionsHistory = async (userId: string) => {
-  // temporary hardcode solution
-  const history: History[] = [
-    {
-      id: "historyCuId1",
-      userId: "currentUserId",
-      questionId: "clnbayqw500007kzkd75u50ad",
-      title: "Question 1",
-      topics: [
-        "DEPTH-FIRST SEARCH",
-        "BINARY SEARCH",
-        "BREADTH-FIRST SEARCH",
-        "HASH TABLE",
-        "BIT MANIPULATION",
-        "SLIDING WINDOW",
-        "DIVIDE AND CONQUER",
-        "TWO POINTERS",
-        "STACK",
-        "STRING",
-        "GREEDY",
-      ],
-      language: "Python",
-      complexity: "Easy",
-      createdAt: "2023-08-01T00:00:00.000Z",
-      updatedAt: "2023-08-01T00:00:00.000Z",
-    },
-    {
-      id: "historyCuId2",
-      userId: "currentUserId",
-      questionId: "clnbazbu400037kzkh3ghgxi3",
-      title: "Question 2",
-      topics: ["Dynammic Programming", "Hash tabe", "Memoization"],
-      language: "C++",
-      complexity: "Medium",
-      createdAt: "2023-10-01T00:00:00.000Z",
-      updatedAt: "2023-10-01T00:00:00.000Z",
-    },
-    {
-      id: "historyCuId3",
-      userId: "currentUserId",
-      questionId: "clnbazw2a000b7kzk53ql7xbw",
-      title: "Question 3",
-      topics: ["Graph"],
-      language: "Java",
-      complexity: "Hard",
-      createdAt: "2023-09-01T00:00:00.000Z",
-      updatedAt: "2023-09-01T00:00:00.000Z",
-    },
-    {
-      id: "historyCuId4",
-      userId: "currentUserId",
-      questionId: "clnbbl2py000z7kzkfw4e3sem",
-      title: "Question 4",
-      topics: ["Graph"],
-      language: "Javascript",
-      complexity: "Hard",
-      createdAt: "2023-09-24T00:00:00.000Z",
-      updatedAt: "2023-09-24T00:00:00.000Z",
-    },
-    {
-      id: "historyCuId5",
-      userId: "currentUserId",
-      questionId: "clniza3lj00057k6weh0fmjgw",
-      title: "A very long long long long long long long name Question 5",
-      topics: ["Graph", "String"],
-      language: "Javascript",
-      complexity: "Hard",
-      createdAt: "2023-07-24T23:40:11.289Z",
-      updatedAt: "2023-07-24T23:40:11.289Z",
-    },
-  ];
-
-  const promise = new Promise<History[]>((resolve) => {
-    setTimeout(() => {
-      resolve(history);
-    }, 1000);
+  const queryParam = `?userId=${userId}`;
+  const response = await api({
+    method: HTTP_METHODS.GET,
+    domain: historyDomain,
+    path: baseRoute + queryParam,
   });
 
-  const historyData = await promise;
+  if (response.status === HttpStatusCode.OK) {
+    const history = response.data;
 
-  return historyData;
+    const data: QuestionHistory[] = [];
 
-  // const queryParam = `?userId=${userId}`;
-  // const response = await api({
-  //   method: HTTP_METHODS.GET,
-  //   service: historyService,
-  //   path: queryParam,
-  // });
+    if (Array.isArray(history.data)) {
+      history.data.map((record: History) => {
+        const languages = record.languages;
+        languages.forEach((language) => {
+          data.push({
+            id: record.id,
+            questionId: record.questionId,
+            title: record.question.title,
+            complexity: record.question.complexity,
+            topics: record.question.topics,
+            language: language,
+            createdAt: record.createdAt,
+            updatedAt: record.updatedAt,
+          });
+        });
+      });
 
-  // if (response.status === HttpStatusCode.OK) {
-  //   const data = response.data as History[];
-  //   return data;
-  // }
+      return data;
+    }
+  }
 
-  // return throwAndLogError(
-  //   "getAttemptedQuestions",
-  //   response.message,
-  //   getError(response.status)
-  // );
+  return throwAndLogError(
+    "getAttemptedQuestions",
+    response.message,
+    getError(response.status)
+  );
 };
 
 const getNumberOfAttemptedQuestionsByComplexity = (
-  history: History[]
+  history: QuestionHistory[],
+  requireSorting: boolean = true
 ): DataItem[] => {
-  const data: DataItem[] = [
-    { name: "Easy", value: 0 },
-    { name: "Medium", value: 0 },
-    { name: "Hard", value: 0 },
-  ];
+  if (!history || history.length === 0) {
+    return [];
+  }
 
-  history.forEach((question) => {
-    switch (question.complexity.toUpperCase()) {
-      case "EASY":
-        data[0].value++;
-        break;
-      case "MEDIUM":
-        data[1].value++;
-        break;
-      case "HARD":
-        data[2].value++;
-        break;
-      default:
-        throw new Error("Invalid complexity");
+  const complexityCountMap = new Map<string, number>();
+  const questionSet = new Set<string>();
+
+  history.forEach((record) => {
+    const complexity = StringUtils.convertStringToTitleCase(record.complexity);
+
+    if (!questionSet.has(record.questionId)) {
+      if (complexityCountMap.has(complexity)) {
+        const count = complexityCountMap.get(complexity)!;
+        complexityCountMap.set(complexity, count + 1);
+      } else {
+        complexityCountMap.set(complexity, 1);
+      }
+      questionSet.add(record.questionId);
     }
   });
+
+  const data: DataItem[] = [];
+
+  complexityCountMap.forEach((value, key) => {
+    data.push({ name: key, value: value });
+  });
+
+  if (requireSorting) {
+    data.sort((a, b) => {
+      return b.value - a.value;
+    });
+  }
 
   return data;
 };
 
-const getSortedNumberOfAttemptedQuestionsByTopic = (
-  history: History[]
+const getNumberOfAttemptedQuestionsByTopic = (
+  history: QuestionHistory[],
+  requireSorting: boolean = true
 ): DataItem[] => {
+  if (!history || history.length === 0) {
+    return [];
+  }
+
   const topicCountMap = new Map<string, number>();
 
-  history.forEach((question) => {
-    const topics = question.topics.map((topic) =>
-      StringUtils.convertStringToTitleCase(topic)
-    );
-    topics.forEach((topic) => {
-      if (topicCountMap.has(topic)) {
-        const count = topicCountMap.get(topic)!;
-        topicCountMap.set(topic, count + 1);
-      } else {
-        topicCountMap.set(topic, 1);
-      }
-    });
+  const questionSet = new Set<string>();
+
+  history.forEach((record) => {
+    if (!questionSet.has(record.questionId)) {
+      questionSet.add(record.questionId);
+
+      const topics = record.topics.map((topic) =>
+        StringUtils.convertStringToTitleCase(topic)
+      );
+
+      topics.forEach((topic) => {
+        if (topicCountMap.has(topic)) {
+          const count = topicCountMap.get(topic)!;
+          topicCountMap.set(topic, count + 1);
+        } else {
+          topicCountMap.set(topic, 1);
+        }
+      });
+    }
   });
 
   const data: DataItem[] = [];
@@ -171,36 +133,54 @@ const getSortedNumberOfAttemptedQuestionsByTopic = (
     data.push({ name: key, value: value });
   });
 
-  data.sort((a, b) => {
-    return b.value - a.value;
-  });
+  if (requireSorting) {
+    data.sort((a, b) => {
+      return b.value - a.value;
+    });
+  }
 
   return data;
 };
 
 const getNumberOfAttemptedQuestionsByLanguage = (
-  history: History[]
+  history: QuestionHistory[],
+  requireSorting: boolean = true
 ): DataItem[] => {
+  if (!history || history.length === 0) {
+    return [];
+  }
+
   const languageCountMap = new Map<string, number>();
 
-  history.forEach((question) => {
-    const language = question.language;
-    if (languageCountMap.has(language)) {
-      const count = languageCountMap.get(language)!;
-      languageCountMap.set(language, count + 1);
+  history.forEach((record) => {
+    if (languageCountMap.has(record.language)) {
+      const count = languageCountMap.get(record.language)!;
+      languageCountMap.set(record.language, count + 1);
     } else {
-      languageCountMap.set(language, 1);
+      languageCountMap.set(record.language, 1);
     }
   });
 
   const data: DataItem[] = [];
+
   languageCountMap.forEach((value, key) => {
     data.push({ name: key, value: value });
   });
+
+  if (requireSorting) {
+    data.sort((a, b) => {
+      return b.value - a.value;
+    });
+  }
+
   return data;
 };
 
-const getNumberOfAttemptedQuestionsByDate = (history: History[]) => {
+const getNumberOfAttemptedQuestionsByDate = (history: QuestionHistory[]) => {
+  if (!history || history.length === 0) {
+    return [];
+  }
+
   const dateCountMap = new Map<number, number>();
 
   history.forEach((question) => {
@@ -226,44 +206,61 @@ const getQuestionCodeSubmission = async (
   questionId: string,
   language: string
 ) => {
-  const temporaryCodeData = `class Solution:
-    def twoSum(self, nums: List[int], target: int) -> List[int]:
-        for i in range(len(nums)):
-            for j in range(i+1, len(nums)):
-                if nums[i]+nums[j] == target:
-                    return [i, j]
-        return [-1, -1]`;
-  const promise = new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({ language: language, code: temporaryCodeData });
-    }, 1500);
+  const response = await api({
+    method: HTTP_METHODS.GET,
+    domain: historyDomain,
+    path:
+      baseRoute +
+      `/user/${userId}/question/${questionId}/code?language=${encodeURIComponent(
+        language
+      )}`,
   });
-  return promise;
-  // const response = await api({
-  //   method: HTTP_METHODS.GET,
-  //   service: historyService,
-  //   path: `/user/${userId}/questionId/${questionId}/code?language=${encodeURIComponent(language)}`,
-  // });
 
-  // if (response.status === HttpStatusCode.OK) {
-  //   const data = response.data as { language: string, code: string };
-  //   return data;
-  // }
+  if (response.status === HttpStatusCode.OK) {
+    const data = response.data as { language: string; code: string };
+    return data;
+  }
 
-  // return throwAndLogError(
-  //   "getQuestionCodeSubmission",
-  //   response.message,
-  //   getError(response.status)
-  // );
+  return throwAndLogError(
+    "getQuestionCodeSubmission",
+    response.message,
+    getError(response.status)
+  );
 };
 
-const createHistory = async (userId: string | string[], questionId: string) => {
+const createHistory = async (
+  userId: string | string[],
+  questionId: string,
+  language: string,
+  code: string
+) => {
+  // convert language to API format
+  switch (language.toLowerCase()) {
+    case "cpp":
+      language = "C++";
+      break;
+    case "python":
+      language = "PYTHON";
+      break;
+    case "java":
+      language = "JAVA";
+      break;
+    case "javascript":
+      language = "JAVASCRIPT";
+      break;
+    default:
+      break;
+  }
+
   const response = await api({
     method: HTTP_METHODS.POST,
-    domain: historyService,
+    domain: historyDomain,
+    path: baseRoute,
     body: {
       userId: userId,
       questionId: questionId,
+      language: language,
+      code: code,
     },
   });
 
@@ -282,8 +279,8 @@ const createHistory = async (userId: string | string[], questionId: string) => {
 const deleteHistory = async (userId: string, questionId: string) => {
   const response = await api({
     method: HTTP_METHODS.DELETE,
-    domain: historyService,
-    path: `/user/${userId}/questionId/${questionId}`,
+    domain: historyDomain,
+    path: baseRoute + `/user/${userId}/questionId/${questionId}`,
   });
 
   if (response.status === HttpStatusCode.NO_CONTENT) {
@@ -300,8 +297,7 @@ const deleteHistory = async (userId: string, questionId: string) => {
 export const HistoryService = {
   getAttemptedQuestionsHistory,
   getNumberOfAttemptedQuestionsByComplexity,
-  getNumberOfAttemptedQuestionsByTopic:
-    getSortedNumberOfAttemptedQuestionsByTopic,
+  getNumberOfAttemptedQuestionsByTopic: getNumberOfAttemptedQuestionsByTopic,
   getNumberOfAttemptedQuestionsByLanguage,
   getNumberOfAttemptedQuestionsByDate,
   getQuestionCodeSubmission,

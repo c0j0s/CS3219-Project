@@ -28,7 +28,6 @@ const logInByEmail = async (
 
   if (response.status === HttpStatusCode.OK) {
     const user = (await response.data.user) as User;
-    console.log(user);
 
     return user;
   }
@@ -42,7 +41,6 @@ const logInByEmail = async (
 
 const registerByEmail = async (user: User, cache: RequestCache = "default") => {
   // call POST /api/auth/registerbyEmail from auth domain
-  console.log(user);
   const response = await api({
     method: HTTP_METHODS.POST,
     domain: domain,
@@ -55,7 +53,6 @@ const registerByEmail = async (user: User, cache: RequestCache = "default") => {
   // successful response should return 201 and userid
   if (response.status === HttpStatusCode.CREATED) {
     const res = response.data as { id: string; message: string };
-    logger.info(`[registerByEmail] ${res}`);
     return res;
   }
 

@@ -19,7 +19,6 @@ export async function middleware(request: NextRequest) {
   const reRouteContent = ["/login", "/", "/verify", "/error"];
 
   const jwtCookieString = request.cookies.get("jwt")?.value as string;
-  console.log(authValidateEndpoint);
 
   let isAuthenticated = false;
 

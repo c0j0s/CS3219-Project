@@ -11,9 +11,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
-const expressLogger = PinoHttp({ logger });
-
-app.use(expressLogger);
 
 // implement cors for CORS protection
 app.use(cors);

@@ -93,7 +93,7 @@ export default function ProfileCard({ user, setImageUrl }: ProfileCardProps) {
                 }}
               >
                 <ProfilePictureAvatar
-                  size={"12"}
+                  isProfileAvatar
                   profileUrl={
                     currImage
                       ? currImage

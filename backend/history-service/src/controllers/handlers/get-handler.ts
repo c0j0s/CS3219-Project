@@ -56,7 +56,7 @@ export async function getHistory(request: Request, response: Response) {
         ...(questionList && { questionId: { in: questionList } }),
       },
       select: {
-        id: false,
+        id: true,
         userId: true,
         questionId: true,
         question: {

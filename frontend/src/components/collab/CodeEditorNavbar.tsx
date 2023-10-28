@@ -65,7 +65,7 @@ const CodeEditorNavbar = ({
   useEffect(() => {
     if (socketService) {
       socketService.receivePartnerConnection(setIsPartnerConnected);
-      socketService.receiveHasPartnerLeft(setHasPartnerLeft); 
+      socketService.receiveHasPartnerLeft(setHasPartnerLeft);
     }
   }, [socketService]);
 
@@ -96,17 +96,19 @@ const CodeEditorNavbar = ({
     if (!isReady) return;
 
     if (hasPartnerLeft) {
-      displayToast("Your partner has terminated his session. The session will remain active until you are done.", ToastType.INFO);
+      displayToast(
+        "Your partner has terminated his session. The session will remain active until you are done.",
+        ToastType.INFO
+      );
       return;
-    } 
-    
+    }
+
     if (isPartnerConnected) {
       displayToast("Your partner has connected.", ToastType.SUCCESS);
     } else {
       displayToast("Your partner has disconnected.", ToastType.WARNING);
     }
-
-  }, [isPartnerConnected])
+  }, [isPartnerConnected]);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -167,7 +169,10 @@ const CodeEditorNavbar = ({
           >
             <div>
               {isPartnerConnected ? (
-                <ProfilePictureAvatar profileUrl={partner.image!} size="8" />
+                <ProfilePictureAvatar
+                  profileUrl={partner.image!}
+                  isChatAvatar
+                />
               ) : (
                 <Icons.FaUserSlash />
               )}

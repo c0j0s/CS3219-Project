@@ -101,7 +101,6 @@ export default function Information({
 
   const handleGenderChange = (value: string) => {
     setGender(value);
-    console.log("User info: " + JSON.stringify(user));
   };
 
   useEffect(() => {

@@ -10,7 +10,7 @@ const logger = getLogger("user_api_wrappers");
 
 const domain = DOMAIN.USER;
 const scope = [DOMAIN.USER];
-const resourceUser = 'users'
+const resourceUser = "users";
 
 const getUserByEmail = async (
   email: string,
@@ -26,7 +26,6 @@ const getUserByEmail = async (
 
   if (response.status === HttpStatusCode.OK) {
     const user = response.data as User;
-    logger.info(`[getUserByEmail(${email})] ${user}`);
     return user;
   }
 
@@ -53,7 +52,6 @@ const getUserById = async (
   // successful response should return 200 with the user data
   if (response.status === HttpStatusCode.OK) {
     const user = response.data as User;
-    logger.info(`[getUserById(${id})] ${user}`);
     return user;
   }
 
@@ -80,7 +78,6 @@ const createUser = async (user: User, cache: RequestCache = "no-cache") => {
   if (response.status === HttpStatusCode.CREATED) {
     // res contains { id: string, message: "User created"}
     const res = response.data as { id: string; message: string };
-    logger.info(`[createUser] ${res}`);
     return res;
   }
 
@@ -145,7 +142,6 @@ const getUserPreferenceById = async (id: string) => {
   // successful response should return 200 with the user preference data
   if (response.status === HttpStatusCode.OK) {
     const userPreference = response.data as Preference;
-    logger.info(`[getUserPreferenceById(${id})] ${userPreference}`);
     return userPreference;
   }
 

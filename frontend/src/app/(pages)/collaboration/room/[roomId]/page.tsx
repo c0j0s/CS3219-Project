@@ -32,18 +32,15 @@ export default function RoomPage({ params }: RoomPageProps) {
   useEffect(() => {
     if (!socketService) {
       handleConnectToRoom(roomId, questionId, partnerId, language);
-      console.log(roomId, questionId, partnerId, language);
     }
 
     if (socketService) socketService?.receiveRoomNotFound(setRoomNotFound);
 
     if (isNotFoundError || roomNotFound) {
-      console.log("EROR");
       return notFound();
     }
 
     return () => {
-      console.log("Running handleDisconnectFromRoom");
       if (socketService) {
         handleDisconnectFromRoom();
       }

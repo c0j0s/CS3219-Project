@@ -1,7 +1,7 @@
 import { CLIENT_ROUTES } from "@/common/constants";
 import ComplexityChip from "@/components/question/ComplexityChip";
 import { useHistoryContext } from "@/contexts/history";
-import History from "@/types/history";
+import History, { QuestionHistory } from "@/types/history";
 import { cn } from "@/utils/classNameUtils";
 import { StringUtils } from "@/utils/stringUtils";
 import {
@@ -19,7 +19,7 @@ import {
   getKeyValue,
 } from "@nextui-org/react";
 import { formatDistanceToNow } from "date-fns";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface AttemptedQuestionTableProps {
   isFullPage?: boolean;
@@ -28,6 +28,8 @@ interface AttemptedQuestionTableProps {
 const AttemptedQuestionTable = ({
   isFullPage = false,
 }: AttemptedQuestionTableProps) => {
+  const { history } = useHistoryContext();
+
   let rowsPerPage = 4;
   let showTopics = false;
 
@@ -47,6 +49,10 @@ const AttemptedQuestionTable = ({
       key: "complexity",
       label: "Complexity",
     },
+    {
+      key: "language",
+      label: "Language",
+    },
     ...(showTopics
       ? [
           {
@@ -61,7 +67,11 @@ const AttemptedQuestionTable = ({
     },
   ];
 
-  const renderCell = useCallback((record: History, columnKey: any) => {
+  const renderCell = useCallback((record: QuestionHistory, columnKey: any) => {
+    if (!record) {
+      return null;
+    }
+
     switch (columnKey) {
       case "title":
         const completedAt = new Date(record.updatedAt).getTime();
@@ -74,13 +84,19 @@ const AttemptedQuestionTable = ({
             )}&completedAt=${encodeURIComponent(completedAt)}`}
             color="foreground"
             size="sm"
-            className="font-semibold"
+            className="font-normal hover:font-semibold hover:underline text-sm"
           >
             {record.title}
           </Link>
         );
       case "complexity":
         return <ComplexityChip complexity={record.complexity} size="sm" />;
+      case "language":
+        return (
+          <Chip size="sm" variant="bordered" className="text-sm">
+            {record.language}
+          </Chip>
+        );
       case "topics":
         return (
           <div className="flex flex-wrap gap-1 overflow-hidden ">
@@ -105,8 +121,6 @@ const AttemptedQuestionTable = ({
     }
   }, []);
 
-  const { history } = useHistoryContext();
-
   // for table pagination
   const [page, setPage] = useState(1);
 
@@ -127,6 +141,10 @@ const AttemptedQuestionTable = ({
 
   const sortedHistoryItems = useMemo(() => {
     const { column, direction } = sortDescriptor;
+
+    if (!historyItems || historyItems.length === 0) {
+      return [];
+    }
 
     if (!column) {
       return historyItems;
@@ -175,6 +193,8 @@ const AttemptedQuestionTable = ({
         }
         break;
     }
+
+    return [];
   }, [historyItems, sortDescriptor]);
 
   return (
@@ -204,7 +224,7 @@ const AttemptedQuestionTable = ({
           <TableColumn
             key={column.key}
             className={cn({
-              "w-2/3": column.key === "title" && !showTopics,
+              "w-3/5": column.key === "title" && !showTopics,
               "w-2/5": showTopics && column.key === "title",
               "w-1/8": showTopics && column.key === "complexity",
               "w-3/10": showTopics && column.key === "topics",
@@ -215,21 +235,25 @@ const AttemptedQuestionTable = ({
           </TableColumn>
         )}
       </TableHeader>
-      {history.length === 0 ? (
-        <TableBody emptyContent="No rows to display">{[]}</TableBody>
-      ) : (
-        <TableBody items={sortedHistoryItems}>
-          {(item) => {
-            return (
-              <TableRow key={item.id}>
-                {(columnKey) => {
-                  return <TableCell>{renderCell(item, columnKey)}</TableCell>;
-                }}
-              </TableRow>
-            );
-          }}
-        </TableBody>
-      )}
+
+      <TableBody
+        emptyContent={"No questions attempted yet, try matching with one!"}
+      >
+        {/* Must do array.map as NextUI table does not support rendering async dynamic state values */}
+        {sortedHistoryItems.map((item) => {
+          return (
+            <TableRow key={item.id + item.language}>
+              {tableColumns.map((column) => {
+                return (
+                  <TableCell key={column.key}>
+                    {renderCell(item, column.key)}
+                  </TableCell>
+                );
+              })}
+            </TableRow>
+          );
+        })}
+      </TableBody>
     </Table>
   );
 };

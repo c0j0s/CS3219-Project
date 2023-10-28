@@ -203,7 +203,6 @@ export function LoginComponent() {
           <Input
             type={isPasswordVisible ? "text" : "password"}
             placeholder="Password"
-            isClearable
             isRequired
             fullWidth
             onInput={(e) => {
@@ -231,7 +230,6 @@ export function LoginComponent() {
               <Input
                 type={isCheckPasswordVisible ? "text" : "password"}
                 placeholder="Re-enter password"
-                isClearable
                 isRequired
                 fullWidth
                 onInput={(e) => {

@@ -16,9 +16,16 @@ interface IChatSpaceProps {
   onClose: () => void;
 }
 
-const ChatSpace = ({ toggleLeft, setToggleLeft, unreadMessages, onClose, setUnreadMessages, isOpen }: IChatSpaceProps) => {
+const ChatSpace = ({
+  toggleLeft,
+  setToggleLeft,
+  unreadMessages,
+  onClose,
+  setUnreadMessages,
+  isOpen,
+}: IChatSpaceProps) => {
   const { partner, user, socketService } = useCollabContext();
-  const [ error, setError ] = useState(false);
+  const [error, setError] = useState(false);
 
   if (!socketService || !partner || !user) setError(true);
 
@@ -39,15 +46,15 @@ const ChatSpace = ({ toggleLeft, setToggleLeft, unreadMessages, onClose, setUnre
 
   useLayoutEffect(() => {
     if (!isOpen) {
-      setUnreadMessages(unreadMessages+1);
+      setUnreadMessages(unreadMessages + 1);
     }
-  }, [newMessage])
+  }, [newMessage]);
 
   useEffect(() => {
     if (isOpen) {
       setUnreadMessages(0);
     }
-  }, [isOpen])
+  }, [isOpen]);
 
   useEffect(() => {
     socketService?.updateChatMessages(setNewMessages);
@@ -63,7 +70,6 @@ const ChatSpace = ({ toggleLeft, setToggleLeft, unreadMessages, onClose, setUnre
   }, [newMessage]);
 
   const handleSubmitMessage = (e: React.FormEvent<HTMLFormElement>) => {
-
     if (!isPartnerConnected) return;
 
     e.preventDefault();
@@ -87,20 +93,24 @@ const ChatSpace = ({ toggleLeft, setToggleLeft, unreadMessages, onClose, setUnre
 
   const handleToggleLeft = () => {
     setToggleLeft(!toggleLeft);
-  }
+  };
 
   return (
     <div className={`bg-black rounded-xl w-[400px] p-2`}>
       <div className="flex w-full justify-between mb-2">
         <div className="flex items-center gap-2">
-          <ProfilePictureAvatar profileUrl={partner!.image!} size="8" />
+          <ProfilePictureAvatar profileUrl={partner!.image!} isChatAvatar />
 
           <span className="font-semibold text-sm"> {partner!.name} </span>
         </div>
         <div>
-          <Tooltip content={toggleLeft ? "Move chat to the right" : "Move chat to the left"}>
+          <Tooltip
+            content={
+              toggleLeft ? "Move chat to the right" : "Move chat to the left"
+            }
+          >
             <Button isIconOnly variant="light" onPress={handleToggleLeft}>
-                <Icons.HiSwitchHorizontal/>
+              <Icons.HiSwitchHorizontal />
             </Button>
           </Tooltip>
           <Button isIconOnly variant="light" onPress={onClose}>
@@ -139,10 +149,11 @@ const ChatSpace = ({ toggleLeft, setToggleLeft, unreadMessages, onClose, setUnre
           autoComplete="off"
           className="px-2 py-2  rounded-md flex-1 font-light text-sm focus:outline-none focus:bg-zinc-800"
         />
-        <button 
-          className={ isPartnerConnected 
-            ? "bg-yellow px-2.5 rounded-md text-black hover:bg-amber-200  active:bg-white" 
-            : "bg-yellow px-2.5 rounded-md text-black text-opacity-30 cursor-not-allowed" 
+        <button
+          className={
+            isPartnerConnected
+              ? "bg-yellow px-2.5 rounded-md text-black hover:bg-amber-200  active:bg-white"
+              : "bg-yellow px-2.5 rounded-md text-black text-opacity-30 cursor-not-allowed"
           }
           disabled={!isPartnerConnected}
         >

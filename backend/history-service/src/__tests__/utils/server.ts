@@ -12,9 +12,8 @@ export default function createUnitTestServer() {
   // implement body-parser for parsing request body
   app.use(bodyParser.json());
 
-  const NODE_ENV = process.env.NODE_ENV || "test";
   // implement routes for API endpoints
-  app.use(`/${NODE_ENV}/history/api`, router);
+  app.use(`/history/api`, router);
 
   return app;
 }
