@@ -26,6 +26,7 @@ ARG PORT=5400
 ENV PORT=$PORT
 
 # Define service specific arguments
+ENV AUTH_GATEWAY="http://localhost:5050"
 ENV AUTH_ENDPOINT="auth/api/validate"
 
 ARG DATABASE_URL
