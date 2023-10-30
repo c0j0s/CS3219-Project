@@ -14,7 +14,6 @@ export const authMiddleware = async (
     next();
     return;
   }
-  logger.debug(req.body, `[${req.url}][${req.method}] ${req.params}`);
   // Only allow GET requests to /question/questions to pass through with just user rights
   const cookies = req.headers.cookie;
   
@@ -41,7 +40,6 @@ export const authMiddleware = async (
       `auth/api/validateAdmin`;
 
   try {
-
     const authRes = await fetch(`${AUTH_GATEWAY}/${authEndpoint}`, {
       method: "POST",
       headers: {

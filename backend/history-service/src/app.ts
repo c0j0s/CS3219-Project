@@ -26,10 +26,11 @@ app.all("*", (_: Request, res: Response) => {
   });
 });
 
+const PORT = process.env.SERVICE_PORT || 5400;
 const NODE_ENV = process.env.NODE_ENV || "development";
 
-app.listen(process.env.SERVICE_PORT, () => {
+app.listen(PORT, () => {
   console.log(
-    `History server listens on port ${process.env.SERVICE_PORT} running in ${NODE_ENV} environment`
+    `History server listens on port ${PORT} running in ${NODE_ENV} environment`
   );
 });
