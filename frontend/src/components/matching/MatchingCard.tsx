@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   CardBody,
+  CardFooter,
   CardHeader,
   Select,
   SelectItem,
@@ -100,89 +101,92 @@ const MatchingCard = () => {
           <SpinnerLoadingComponent />
         </CardBody>
       ) : (
-        <CardBody className="flex flex-col  gap-4 p-2">
-          <Select
-            isRequired
-            size="sm"
-            name="languages"
-            label="Programming languages"
-            selectionMode="multiple"
-            placeholder="Select a language"
-            classNames={{
-              value: "capitalize",
-            }}
-            selectedKeys={preferences.languages}
-            onChange={handleOnSelectionChange}
-            errorMessage={
-              preferences.languages.length == 0 && (
-                <span>Language is required</span>
-              )
-            }
-          >
-            {optionsLanguages.map((value) => (
-              <SelectItem className="capitalize" key={value} value={value}>
-                {value.toLowerCase()}
-              </SelectItem>
-            ))}
-          </Select>
+        <>
+          <CardBody className="flex flex-col gap-4 p-2">
+            <Select
+              isRequired
+              size="sm"
+              name="languages"
+              label="Programming languages"
+              selectionMode="multiple"
+              placeholder="Select a language"
+              classNames={{
+                value: "capitalize",
+              }}
+              selectedKeys={preferences.languages}
+              onChange={handleOnSelectionChange}
+              errorMessage={
+                preferences.languages.length == 0 && (
+                  <span>Language is required</span>
+                )
+              }
+            >
+              {optionsLanguages.map((value) => (
+                <SelectItem className="capitalize" key={value} value={value}>
+                  {value.toLowerCase()}
+                </SelectItem>
+              ))}
+            </Select>
 
-          <Select
-            isRequired
-            size="sm"
-            name="difficulties"
-            label="Complexity"
-            selectionMode="multiple"
-            placeholder="Select a complexity level"
-            classNames={{
-              value: "capitalize",
-            }}
-            selectedKeys={preferences.difficulties}
-            onChange={handleOnSelectionChange}
-            errorMessage={
-              preferences.difficulties.length == 0 && (
-                <span>Difficulty is required</span>
-              )
-            }
-          >
-            {optionsDifficulties.map((value) => (
-              <SelectItem className="capitalize" key={value} value={value}>
-                {value.toLowerCase()}
-              </SelectItem>
-            ))}
-          </Select>
+            <Select
+              isRequired
+              size="sm"
+              name="difficulties"
+              label="Complexity"
+              selectionMode="multiple"
+              placeholder="Select a complexity level"
+              classNames={{
+                value: "capitalize",
+              }}
+              selectedKeys={preferences.difficulties}
+              onChange={handleOnSelectionChange}
+              errorMessage={
+                preferences.difficulties.length == 0 && (
+                  <span>Difficulty is required</span>
+                )
+              }
+            >
+              {optionsDifficulties.map((value) => (
+                <SelectItem className="capitalize" key={value} value={value}>
+                  {value.toLowerCase()}
+                </SelectItem>
+              ))}
+            </Select>
 
-          <Select
-            isRequired
-            size="sm"
-            name="topics"
-            label="Topics"
-            selectionMode="multiple"
-            placeholder="Select a topic"
-            classNames={{
-              value: "capitalize",
-            }}
-            selectedKeys={preferences.topics}
-            onChange={handleOnSelectionChange}
-            errorMessage={
-              preferences.topics.length == 0 && <span>Topics is required</span>
-            }
-          >
-            {optionsTopics.map((value) => (
-              <SelectItem className="capitalize" key={value} value={value}>
-                {value.toLowerCase()}
-              </SelectItem>
-            ))}
-          </Select>
-
-          <Button className="bg-yellow text-black" onPress={handleGetMatched}>
-            Get Matched
-          </Button>
-          <MatchingLobby
-            isOpen={isOpen}
-            onClose={onClose}
-            options={preferences}
-          ></MatchingLobby>
-        </CardBody>
+            <Select
+              isRequired
+              size="sm"
+              name="topics"
+              label="Topics"
+              selectionMode="multiple"
+              placeholder="Select a topic"
+              classNames={{
+                value: "capitalize",
+              }}
+              selectedKeys={preferences.topics}
+              onChange={handleOnSelectionChange}
+              errorMessage={
+                preferences.topics.length == 0 && <span>Topics is required</span>
+              }
+            >
+              {optionsTopics.map((value) => (
+                <SelectItem className="capitalize" key={value} value={value}>
+                  {value.toLowerCase()}
+                </SelectItem>
+              ))}
+            </Select>
+          </CardBody>
+          <CardFooter>
+            <Button className="bg-yellow text-black w-full" onPress={handleGetMatched}>
+              Get Matched
+            </Button>
+            <MatchingLobby
+              isOpen={isOpen}
+              onClose={onClose}
+              options={preferences}
+            ></MatchingLobby>
+          </CardFooter>
+        </>
       )}
     </Card>
   );
