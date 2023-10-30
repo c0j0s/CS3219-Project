@@ -194,8 +194,32 @@ jobs:
           context: database/${{ env.COLLABORATION_CACHE_CONTAINER_NAME }}
           push: true
           tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.COLLABORATION_CACHE_CONTAINER_NAME }}
+                    
+      # - name: Check for Changes in history directory
+      #   id: check-history-changes
+      #   run: |
+      #       if git diff --quiet HEAD~1 -- backend/${{ env.HISTORY_CONTAINER_NAME }}; then
+      #           echo "No changes in history directory"
+      #           echo "changes=false" >> "$GITHUB_OUTPUT"
+      #       else
+      #           echo "Changes detected in history directory"
+      #           echo "changes=true" >> "$GITHUB_OUTPUT"
+      #       fi
+      #   shell: bash
 
-
+      - name: Build, tag, and push ${{ env.HISTORY_CONTAINER_NAME }} image to Amazon ECR
+        # if: steps.check-event-bus-changes == 'true'
+        uses: docker/build-push-action@v5
+        with: 
+          context: backend/${{ env.HISTORY_CONTAINER_NAME }}
+          push: true
+          tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.HISTORY_CONTAINER_NAME }}
+          build-args: |
+            NODE_ENV=${{ vars.BUILD_ENV }}
+            LOG_LEVEL=${{ vars.LOG_LEVEL }}
+            CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+  
       # - name: Check for Changes in event-bus directory
       #   id: check-event-bus-changes
       #   run: |
@@ -216,13 +240,6 @@ jobs:
           push: true
           tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.EVENT_BUS_CONTAINER_NAME }}
 
-      - name: Build, tag, and push ${{ env.HISTORY_CONTAINER_NAME }} image to Amazon ECR
-        # if: steps.check-event-bus-changes == 'true'
-        uses: docker/build-push-action@v5
-        with: 
-          context: backend/${{ env.HISTORY_CONTAINER_NAME }}
-          push: true
-          tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.HISTORY_CONTAINER_NAME }}
 
   deploy:
     name: Deploy
