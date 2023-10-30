@@ -1,4 +1,5 @@
 "use server";
+
 import { HTTP_METHODS, DOMAIN } from "@/types/enums";
 import { getLogger } from "./logger";
 import { cookies } from "next/headers";
@@ -165,10 +166,15 @@ function getServicePorts(domain: DOMAIN) {
       case DOMAIN.COLLABORATION:
         servicePort += process.env.ENDPOINT_COLLABORATION_PORT || "";
         break;
+      case DOMAIN.HISTORY:
+        servicePort += process.env.ENDPOINT_HISTORY_PORT || "";
+        break;
       default:
-        servicePort = "";
+        servicePort += "";
         break;
     }
+
     return servicePort;
   }
+  return "";
 }

@@ -9,7 +9,7 @@ import HttpStatusCode from "@/types/HttpStatusCode";
 
 const logger = getLogger("wrapper");
 const domain = DOMAIN.QUESTION;
-const resourceQuestion = 'questions'
+const resourceQuestion = "questions";
 const scope = [DOMAIN.QUESTION];
 
 type MongoQuestionList = {
@@ -29,13 +29,12 @@ export async function getQuestionList(): Promise<Question[]> {
     method: HTTP_METHODS.GET,
     domain: domain,
     path: resourceQuestion,
-    tags: scope
+    tags: scope,
   });
 
   if (response.status === HttpStatusCode.OK) {
     let mongoRes = response.data as MongoQuestionList;
     questions = mongoRes.data;
-    logger.info(`[getQuestionList] Got question: ${mongoRes.count}`);
     return questions;
   }
 
@@ -62,7 +61,6 @@ export async function getQuestionById(
 
   if (response.status === HttpStatusCode.OK) {
     let question = response.data as Question;
-    logger.info(`[getQuestionById(${id})] Got question: ${question.title}`);
     return question;
   }
 
@@ -96,7 +94,6 @@ export async function getQuestionByPreference(
   if (response.status === HttpStatusCode.OK) {
     const mongoRes = response.data as MongoQuestionList;
     questions = mongoRes.data;
-    logger.info(`[getQuestionByPreference] Got ${mongoRes.count} items.`);
     return questions;
   }
 
@@ -110,10 +107,9 @@ export async function getTopics() {
     path: `topics`,
     tags: [`topics`],
   });
-  
+
   if (response.status === HttpStatusCode.OK) {
     const topics = response.data["topics"] as string[];
-    logger.info(`[getTopics] Got ${topics.length} items.`);
     return topics;
   }
 

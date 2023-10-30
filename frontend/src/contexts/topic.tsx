@@ -21,8 +21,11 @@ const TopicProvider = ({ children }: { children: React.ReactNode }) => {
 
   const fetchTopics = async () => {
     try {
-      const topics = await getTopics();
-      setTopics(topics);
+      if (topics.length > 0) {
+        return;
+      }
+      const rawTopics = await getTopics();
+      setTopics(rawTopics);
     } catch (error) {
       console.log(error);
       setTopics([]);

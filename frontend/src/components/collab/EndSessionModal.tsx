@@ -1,7 +1,9 @@
 "use client";
 
 import { CLIENT_ROUTES } from "@/common/constants";
+import { useAuthContext } from "@/contexts/auth";
 import { useCollabContext } from "@/contexts/collab";
+import { HistoryService } from "@/helpers/history/history_api_wrappers";
 import {
   Button,
   Divider,
@@ -27,18 +29,18 @@ export default function EndSessionModal({
 }: EndSessionModalProps) {
   const router = useRouter();
 
+  const { user } = useAuthContext();
+
   const { socketService } = useCollabContext();
-  
+
   const [isSaving, setIsSaving] = useState(false);
-  const [endSessionState, setEndSessionState] = useState(
-    { 
-      partnerId: "", 
-      questionId: "", 
-      matchedLanguage: "", 
-      code: "",
-      date: new Date(),
-    }
-  );
+  const [endSessionState, setEndSessionState] = useState({
+    partnerId: "",
+    questionId: "",
+    matchedLanguage: "",
+    code: "",
+    date: new Date(),
+  });
 
   useEffect(() => {
     if (socketService) {
@@ -49,15 +51,21 @@ export default function EndSessionModal({
       // Retrieve current state before ending session
       socketService.receiveEndSession(setEndSessionState);
     }
-  }, [isOpen, socketService])
+  }, [isOpen, socketService]);
 
   const postToHistoryService = async () => {
-    console.log("Posting endSessionState to history service: ", endSessionState);
+    // in case of error, show 500 page
+    await HistoryService.createHistory(
+      user.id!,
+      endSessionState.questionId,
+      endSessionState.matchedLanguage,
+      endSessionState.code
+    );
   };
 
   const handleTerminateSession = async () => {
     setIsSaving(true);
-    
+
     if (socketService) {
       socketService.sendConfirmEndSession();
     }
@@ -79,41 +87,43 @@ export default function EndSessionModal({
         <ModalContent>
           {(onClose) => (
             <>
-              { hasSessionTimerEnded ? 
-              <>
-                <ModalHeader>Session has expired</ModalHeader>
-                <Divider className="mb-1" />
-                <ModalBody>
-                  <p>
-                    Your session has ended. Thank you for using PeerPrep!
-                  </p>
-                </ModalBody>
-                <ModalFooter className="mt-2">
-                  <Button color="danger" onClick={handleTerminateSession}>
-                    Back to dashboard
-                  </Button>
-                </ModalFooter>
-              </>
-              : 
-              <>
-                <ModalHeader>Terminate current session</ModalHeader>
-                <Divider className="mb-1" />
-                <ModalBody>
-                  <p>
-                    Are you sure you want to exit the current sesion? This action
-                    is irreversible.
-                  </p>
-                </ModalBody>
-                <ModalFooter className="mt-2">
-                  <Button color="primary" onClick={onClose}>
-                    Cancel
-                  </Button>
-                  <Button isLoading={isSaving} color="danger" onClick={handleTerminateSession}>
-                    { isSaving ? <>Saving</> : <>Terminate</>}
-                  </Button>
-                </ModalFooter>
-              </>
-              }
+              {hasSessionTimerEnded ? (
+                <>
+                  <ModalHeader>Session has expired</ModalHeader>
+                  <Divider className="mb-1" />
+                  <ModalBody>
+                    <p>Your session has ended. Thank you for using PeerPrep!</p>
+                  </ModalBody>
+                  <ModalFooter className="mt-2">
+                    <Button color="danger" onClick={handleTerminateSession}>
+                      Back to dashboard
+                    </Button>
+                  </ModalFooter>
+                </>
+              ) : (
+                <>
+                  <ModalHeader>Terminate current session</ModalHeader>
+                  <Divider className="mb-1" />
+                  <ModalBody>
+                    <p>
+                      Are you sure you want to exit the current sesion? This
+                      action is irreversible.
+                    </p>
+                  </ModalBody>
+                  <ModalFooter className="mt-2">
+                    <Button color="primary" onClick={onClose}>
+                      Cancel
+                    </Button>
+                    <Button
+                      isLoading={isSaving}
+                      color="danger"
+                      onClick={handleTerminateSession}
+                    >
+                      {isSaving ? <>Saving</> : <>Terminate</>}
+                    </Button>
+                  </ModalFooter>
+                </>
+              )}
             </>
           )}
         </ModalContent>

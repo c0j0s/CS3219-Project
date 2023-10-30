@@ -122,7 +122,6 @@ const CollabProvider = ({ children }: ICollabProvider) => {
     partnerId: string,
     matchedLanguage: string
   ) => {
-    console.log("Running handleConnectToRoom");
     setIsLoading(true);
 
     try {
@@ -131,6 +130,8 @@ const CollabProvider = ({ children }: ICollabProvider) => {
         setIsNotFoundError(true);
         return;
       }
+
+      matchedLanguage = decodeURIComponent(matchedLanguage);
 
       // verify parameters integrity
       const isValidParams = verifyRoomParamsIntegrity(
@@ -146,7 +147,24 @@ const CollabProvider = ({ children }: ICollabProvider) => {
         return;
       }
 
-      setMatchedLanguage(matchedLanguage.toLowerCase());
+      switch (matchedLanguage.toLowerCase()) {
+        case "python":
+          matchedLanguage = "python";
+          break;
+        case "c++":
+          matchedLanguage = "cpp";
+          break;
+        case "java":
+          matchedLanguage = "java";
+          break;
+        case "javascript":
+          matchedLanguage = "javascript";
+          break;
+        default:
+          break;
+      }
+
+      setMatchedLanguage(matchedLanguage);
 
       const promises = [
         UserService.getUserById(partnerId),
@@ -181,12 +199,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
 
   const handleDisconnectFromRoom = () => {
     // Leave room
-    console.log(socketService);
     if (socketService) {
-      console.log("Clean up socket service");
-
-      // Delay 500
-
       socketService.leaveRoom();
       setSocketService(undefined);
     }

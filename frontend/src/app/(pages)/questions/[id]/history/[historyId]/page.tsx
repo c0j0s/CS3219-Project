@@ -27,7 +27,6 @@ const QuestionHistoryPage = ({ params }: pageProps) => {
   } = useHistoryContext();
 
   useEffect(() => {
-    console.log(language, question, code);
     if (!language) {
       return notFound();
     }
@@ -42,7 +41,6 @@ const QuestionHistoryPage = ({ params }: pageProps) => {
   }, [question, code, language, completedAt]);
 
   if (isNotFoundError) {
-    console.log("Error not found!");
     return notFound();
   }
 

@@ -2,6 +2,20 @@ type History = {
   id: string;
   userId: string;
   questionId: string;
+  question: {
+    title: string;
+    topics: string[];
+    complexity: string;
+  };
+
+  languages: string[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type QuestionHistory = {
+  id: string;
+  questionId: string;
   title: string;
   topics: string[];
   complexity: string;

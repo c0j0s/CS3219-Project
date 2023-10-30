@@ -22,6 +22,7 @@ export const getHistoryPayload = ({
   if (userId && questionId) {
     return [
       {
+        id: generateCUID(),
         userId: userId,
         questionId: questionId,
         title: "title",
@@ -34,6 +35,7 @@ export const getHistoryPayload = ({
   }
   return [
     {
+      id: generateCUID(),
       userId: userId ? userId : generateCUID(),
       questionId: questionId ? questionId : generateCUID(),
       title: "title 1",
@@ -43,6 +45,7 @@ export const getHistoryPayload = ({
       createdAt: new Date().toISOString(),
     },
     {
+      id: generateCUID(),
       userId: userId ? userId : generateCUID(),
       questionId: questionId ? questionId : generateCUID(),
       title: "title 2",
@@ -52,6 +55,7 @@ export const getHistoryPayload = ({
       createdAt: new Date().toISOString(),
     },
     {
+      id: generateCUID(),
       userId: userId ? userId : generateCUID(),
       questionId: questionId ? questionId : generateCUID(),
       title: "title 3",

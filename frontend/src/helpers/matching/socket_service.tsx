@@ -5,97 +5,95 @@ import Preference from "@/types/preference";
 import Partner from "@/types/partner";
 
 class SocketService {
-    private static instance: SocketService;
-    private socket: Socket;
-    private partner?: Partner;
-    private preferences?: Preference;
+  private static instance: SocketService;
+  private socket: Socket;
+  private partner?: Partner;
+  private preferences?: Preference;
 
-    constructor(endpoint: string, path: string) {
-        this.socket = io(endpoint, { path: path, transports: ["polling"] });
+  constructor(endpoint: string, path: string) {
+    this.socket = io(endpoint, { path: path, transports: ["polling"] });
+  }
+
+  public static async getInstance(): Promise<SocketService> {
+    if (!SocketService.instance) {
+      const config = await getMatchingSocketConfig();
+      SocketService.instance = new SocketService(config.endpoint, config.path);
     }
+    SocketService.instance.socket.connect();
+    return SocketService.instance;
+  }
 
-    public static async getInstance(): Promise<SocketService> {
-        if (!SocketService.instance) {
-            const config = await getMatchingSocketConfig();
-            SocketService.instance = new SocketService(config.endpoint, config.path);
-        }
-        SocketService.instance.socket.connect();
-        return SocketService.instance;
-    }
+  onConnect(listener: (...args: any[]) => void) {
+    this.socket.once(SocketEvent.CONNECT, listener);
+  }
 
+  onDisconnect(listener: (...args: any[]) => void) {
+    this.socket.once(SocketEvent.DISCONNECT, listener);
+  }
 
-    onConnect(listener: (...args: any[]) => void) {
-        this.socket.once(SocketEvent.CONNECT, listener);
-    }
+  onConnectError(listener: (...args: any[]) => void) {
+    this.socket.once(SocketEvent.CONNECT_ERROR, listener);
+  }
 
-    onDisconnect(listener: (...args: any[]) => void) {
-        this.socket.once(SocketEvent.DISCONNECT, listener);
-    }
+  onMatched(listener: (...args: any[]) => void) {
+    // Socket service holds room data globally.
+    this.socket.on(SocketEvent.MATCHING_MATCHED, (res) => {
+      this.partner = res.partner;
+      this.preferences = res.preferences;
+      listener(res.owner);
+    });
+  }
 
-    onConnectError(listener: (...args: any[]) => void) {
-        this.socket.once(SocketEvent.CONNECT_ERROR, listener);
-    }
+  onNoMatched(listener: (...args: any[]) => void) {
+    this.socket.on(SocketEvent.MATCHING_NO_MATCHED, listener);
+  }
 
-    onMatched(listener: (...args: any[]) => void) {
-        // Socket service holds room data globally.
-        this.socket.on(SocketEvent.MATCHING_MATCHED, res => {
-            this.partner = res.partner;
-            this.preferences = res.preferences;
-            listener(res.owner);
-        });
-    }
+  onRoomClosed(listener: (...args: any[]) => void) {
+    this.socket.on(SocketEvent.ROOM_CLOSED, listener);
+  }
 
-    onNoMatched(listener: (...args: any[]) => void) {
-        this.socket.on(SocketEvent.MATCHING_NO_MATCHED, listener);
-    }
+  onPartnerReadyChange(listener: (...args: any[]) => void) {
+    this.socket.on(SocketEvent.MATCHING_PARTNER_READY_CHANGE, listener);
+  }
 
-    onRoomClosed(listener: (...args: any[]) => void) {
-        this.socket.on(SocketEvent.ROOM_CLOSED, listener);
-    }
+  onRedirectCollaboration(listener: (...args: any[]) => void) {
+    this.socket.on(SocketEvent.MATCHING_REDIRECT_COLLABORATION, listener);
+  }
 
-    onPartnerReadyChange(listener: (...args: any[]) => void) {
-        this.socket.on(SocketEvent.MATCHING_PARTNER_READY_CHANGE, listener);
-    }
+  off(event: string) {
+    this.socket.removeAllListeners(event);
+  }
 
-    onRedirectCollaboration(listener: (...args: any[]) => void) {
-        this.socket.on(SocketEvent.MATCHING_REDIRECT_COLLABORATION, listener);
-    }
+  requestMatching(request: any) {
+    // Reset room info for new matching request.
+    this.partner = undefined;
+    this.preferences = undefined;
+    this.socket.emit(SocketEvent.MATCHING_REQUEST, request);
+  }
 
-    off(event: string) {
-        this.socket.removeAllListeners(event);
-    }
+  notifyUserReadyChange(ready: boolean) {
+    this.socket.emit(SocketEvent.MATCHING_USER_READY_CHANGE, ready);
+  }
 
-    requestMatching(request: any) {
-        // Reset room info for new matching request.
-        this.partner = undefined;
-        this.preferences = undefined;
-        this.socket.emit(SocketEvent.MATCHING_REQUEST, request);
-    }
+  requestStartCollaboration(questionId: string) {
+    this.socket.emit(SocketEvent.MATCHING_START_COLLABORATION, questionId);
+  }
 
-    notifyUserReadyChange(ready: boolean) {
-        this.socket.emit(SocketEvent.MATCHING_USER_READY_CHANGE, ready);
-    }
+  disconnect() {
+    this.socket.disconnect();
+  }
 
-    requestStartCollaboration(questionId: string) {
-        console.log("requestStartCollaboration");
-        this.socket.emit(SocketEvent.MATCHING_START_COLLABORATION, questionId);
-    }
+  id() {
+    return this.socket.id;
+  }
 
-    disconnect() {
-        this.socket.disconnect();
-    }
+  getRoomPartner() {
+    return this.partner ?? null;
+  }
 
-    id() {
-        return this.socket.id;
-    }
-
-    getRoomPartner() {
-        return this.partner ?? null;
-    }
-
-    getRoomPreference() {
-        return this.preferences ?? null;
-    }
+  getRoomPreference() {
+    return this.preferences ?? null;
+  }
 }
 
 export default SocketService;

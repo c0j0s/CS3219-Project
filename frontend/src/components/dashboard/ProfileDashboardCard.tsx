@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@nextui-org/react";
+
 import ProfilePictureAvatar from "@/components/common/ProfilePictureAvatar";
 import { useRouter } from "next/navigation";
 import { CLIENT_ROUTES } from "@/common/constants";
@@ -14,14 +14,19 @@ const ProfileDashboardCard = () => {
   };
 
   return (
-    <div className="flex flex-col h-full justify-center gap-4 items-center bg-black rounded-lg p-6 overflow-hidden">
-      <ProfilePictureAvatar profileUrl={user.image!} size="40" />
-      <p className="break-words w-full text-white text-3l font-semibold text-center">
-        {user.name}
-      </p>
-      <p className="break-words w-full text-white text-sm font-light text-center">
-        {user.bio}
-      </p>
+    <div className="flex flex-col h-full justify-center items-center bg-black rounded-lg p-6 overflow-hidden">
+      <div
+        onClick={handleEditProfileButtonPress}
+        className="hover:pointer gap-4 flex flex-col overflow-hidden justify-center items-center"
+      >
+        <ProfilePictureAvatar profileUrl={user.image!} isProfileDashboard />
+        <p className="break-words w-full text-white text-3l font-semibold text-center">
+          {user.name}
+        </p>
+        <p className="break-words w-full text-white text-sm font-light text-center">
+          {user.bio}
+        </p>
+      </div>
     </div>
   );
 };

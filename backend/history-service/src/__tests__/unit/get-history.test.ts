@@ -8,7 +8,7 @@ import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 const app = createUnitTestServer();
 const dbMock = db as jest.Mocked<typeof db>;
 const NODE_ENV = process.env.NODE_ENV || "test";
-const API_PREFIX = `${NODE_ENV}/history/api`;
+const API_PREFIX = `history/api`;
 
 describe("GET /api/history", () => {
   describe("Given a valid user id", () => {

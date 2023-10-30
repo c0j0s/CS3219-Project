@@ -22,6 +22,7 @@ jobs:
       - name: Install Dependencies
         run: |
           cd frontend/  
+          npm install
           npm ci --omit=dev
           npm install @types/d3 --save
 
