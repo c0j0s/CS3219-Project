@@ -66,6 +66,7 @@ export default function MatchingLobbyPrepCollabView({
             })
 
         }
+
         initializeSocket();
     }, [onError, user.user.preferences])
 
@@ -73,13 +74,15 @@ export default function MatchingLobbyPrepCollabView({
         if (questionOptions.length > 0) {
             setQuestion([questionOptions[0].id!])
         }
-        if (languageOptions.length > 0) {
+        if (languageOptions.length > 0) {     
             setLanguage([languageOptions[0]])
         }
+        
         if (questionOptions.length === 1 && languageOptions.length === 1) {
             setIsloading(true);
             socketService?.requestStartCollaboration(questionOptions[0].id!, languageOptions[0]);
         }
+        setIsloading(false);
     }, [questionOptions, languageOptions])    
 
     return (
