@@ -2,7 +2,7 @@ import SocketService from "@/helpers/matching/socket_service";
 import { getQuestionByPreference } from "@/helpers/question/question_api_wrappers";
 import { useAuthContext } from "@/contexts/auth";
 import Question from "@/types/question";
-import { Button, Chip, CircularProgress, ModalBody, Tooltip, ModalHeader, Select, SelectItem } from "@nextui-org/react";
+import { Button, Chip, CircularProgress, ModalBody, Tooltip, ModalHeader, Select, SelectItem, ModalFooter } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import { Icons } from "../common/Icons";
 import ComplexityChip from "../question/ComplexityChip";
@@ -19,7 +19,9 @@ export default function MatchingLobbyPrepCollabView({
     const user = useAuthContext();
     const [socketService, setSocketService] = useState<SocketService | null>(null);
     const [questionOptions, setQuestionOptions] = useState<Question[]>([]);
+    const [languageOptions, setLanguageOptions] = useState<string[]>([]);
     const [question, setQuestion] = useState<string[]>([]);
+    const [language, setLanguage] = useState<string[]>([]);
     const [isLoading, setIsloading] = useState(true);
     const [noQuestion, setNoQuestion] = useState(false);
 
@@ -30,7 +32,11 @@ export default function MatchingLobbyPrepCollabView({
                 displayToast("Please select a question.", ToastType.WARNING);
                 return;
             }
-            socketService?.requestStartCollaboration(Array.from(question)[0] || "");
+            if (language[0] === "") {
+                displayToast("Please select a language.", ToastType.WARNING);
+                return;
+            }
+            socketService?.requestStartCollaboration(Array.from(question)[0] || "", language[0]);
             setIsloading(true);
         } catch (error) {
             onError();
@@ -41,19 +47,16 @@ export default function MatchingLobbyPrepCollabView({
         async function initializeSocket() {
             await SocketService.getInstance().then(async socket => {
                 setSocketService(socket);
-                // contact question service
                 const preference = socket.getRoomPreference() ?? user.user.preferences;
+                if (preference?.languages) {
+                    setLanguageOptions(preference.languages)
+                }
+
                 await getQuestionByPreference(preference).then(questions => {
-                    if (questions.length > 1) {
-                        // let user choose if options available
+                    if (questions.length > 0) {
                         setQuestionOptions(questions);
-                        setIsloading(false);
-                    } else if (questions.length === 1) {
-                        // redirect if no selection available
-                        socket.requestStartCollaboration(questions[0].id!);
                     } else {
-                        setNoQuestion(true);
-                        setIsloading(false);
+                        setNoQuestion(true)
                     }
                 }).catch(err => {
                     onError()
@@ -66,6 +69,19 @@ export default function MatchingLobbyPrepCollabView({
         initializeSocket();
     }, [onError, user.user.preferences])
 
+    useEffect(() => {
+        if (questionOptions.length > 0) {
+            setQuestion([questionOptions[0].id!])
+        }
+        if (languageOptions.length > 0) {
+            setLanguage([languageOptions[0]])
+        }
+        if (questionOptions.length === 1 && languageOptions.length === 1) {
+            setIsloading(true);
+            socketService?.requestStartCollaboration(questionOptions[0].id!, languageOptions[0]);
+        }
+    }, [questionOptions, languageOptions])    
+
     return (
         <>
             <ModalHeader>
@@ -73,31 +89,49 @@ export default function MatchingLobbyPrepCollabView({
             </ModalHeader>
             <ModalBody className="p-4 px-6">
                 <div className="flex flex-col gap-2 items-center justify-center">
-                    {!isLoading && questionOptions.length > 0 &&
+                    {!isLoading &&
                         <div className="flex flex-row items-end gap-2 w-full">
-                            <Select
-                                label="Select a question for Peerprep"
-                                labelPlacement="outside"
-                                selectedKeys={question}
-                                onChange={e => setQuestion([e.target.value])}
-                            >
-                                {questionOptions.map(question => <SelectItem key={question.id || "-1"} textValue={question.title || "-1"}>
-                                    <div className="flex flex-col gap-1">
-                                        <div>
-                                            {question.title}
-                                        </div>
-                                        <Tooltip className="capitalize" content={question.topics.join(", ").toLowerCase()} isDisabled={question.topics.length < 3}>
-                                            <div className="flex flex-row gap-1 overflow-x-hidden text-sm">
-                                                <ComplexityChip complexity={question.complexity} size="sm"></ComplexityChip>
-                                                {question.topics.map(t => (
-                                                    <Chip key={t} className="capitalize" size="sm">{t.toLowerCase()}</Chip>
-                                                ))}
+                            {languageOptions.length > 1 && !noQuestion &&
+                                <Select
+                                    label="Language"
+                                    labelPlacement="outside"
+                                    placeholder="language"
+                                    selectedKeys={language}
+                                    classNames={{
+                                        value: "capitalize",
+                                    }}
+                                    className={questionOptions.length > 1 ? "basis-1/3" : "basis-3/3"}
+                                    onChange={e => setLanguage([e.target.value])}
+                                >
+                                    {languageOptions.map(lang => <SelectItem key={lang} value={lang} className="capitalize">{lang.toLowerCase()}</SelectItem>)}
+                                </Select>
+                            }
+                            {questionOptions.length > 1 &&
+                                <Select
+                                    label="Select a question for Peerprep"
+                                    labelPlacement="outside"
+                                    placeholder="question"
+                                    selectedKeys={question}
+                                    className={languageOptions.length > 1 ? "basis-2/3" : "basis-3/3"}
+                                    onChange={e => setQuestion([e.target.value])}
+                                >
+                                    {questionOptions.map(question => <SelectItem key={question.id || "-1"} textValue={question.title || "-1"}>
+                                        <div className="flex flex-col gap-1">
+                                            <div>
+                                                {question.title}
                                             </div>
-                                        </Tooltip>
-                                    </div>
-                                </SelectItem>)}
-                            </Select>
-                            <Button onPress={handleStart} color="primary" startContent={<Icons.FiPlay />}>Confirm</Button>
+                                            <Tooltip className="capitalize" content={question.topics.join(", ").toLowerCase()} isDisabled={question.topics.length < 3}>
+                                                <div className="flex flex-row gap-1 overflow-x-hidden text-sm">
+                                                    <ComplexityChip complexity={question.complexity} size="sm"></ComplexityChip>
+                                                    {question.topics.map(t => (
+                                                        <Chip key={t} className="capitalize" size="sm">{t.toLowerCase()}</Chip>
+                                                    ))}
+                                                </div>
+                                            </Tooltip>
+                                        </div>
+                                    </SelectItem>)}
+                                </Select>
+                            }
                         </div>
                     }
                     {isLoading &&
@@ -117,6 +151,11 @@ export default function MatchingLobbyPrepCollabView({
                     }
                 </div>
             </ModalBody>
+            {!isLoading && (questionOptions.length > 0 || languageOptions.length > 0) && !noQuestion &&
+                <ModalFooter className="px-6">
+                    <Button onPress={handleStart} color="primary" startContent={<Icons.FiPlay />}>Confirm</Button>
+                </ModalFooter>
+            }
         </>
     )
 }

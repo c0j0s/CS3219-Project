@@ -48,7 +48,7 @@ const handleMatched = (socket: Socket, room: Room, requester: Partner) => {
     return;
   }
 
-  logger.debug(`[${socket.id}][handleMatched] Matched room(${room.id}), socket(${socket.id}) joined`);
+  logger.debug(room, `[${socket.id}][handleMatched] Matched room(${room.id}), socket(${socket.id}) joined`);
   socket.join(room.id)
 
   // inform owner 
@@ -97,29 +97,32 @@ const handleReady = (socket: Socket, ready: boolean) => {
   }
 };
 
-const handleStart = (socket: Socket, problemId: string) => {
+const handleStart = (socket: Socket, data: {
+  questionId: string, 
+  language:   string
+}) => {
   logger.debug(
-    `[${socket.id}][notifyStart]: Generating room id for collab session`
+    data,
+    `[${socket.id}][notifyStart]: Preparing collab`
   );
 
   socket.rooms.forEach(r => {
     if (r !== socket.id) {
       const room = rm.getRoomById(r);
       if (room) {
-        const lang = rm.chooseRandomItem(room.preferences.languages) as string;
         const roomId = generateRoomId(
           room.owner.id,
           room.partner.id,
-          problemId,
-          lang.toLowerCase()
+          data.questionId,
+          data.language
         );
 
         const roomConfig = {
           id: roomId,
           owner: room.owner.id,
           partner: room.partner.id,
-          questionId: problemId,
-          language: lang,
+          questionId: data.questionId,
+          language: data.language,
         };
 
         // Emit to collaboration service to create the room
@@ -169,7 +172,7 @@ export const SocketHandler = (socket: Socket) => {
   socket.on(SocketEvent.USER_UPDATE_READY, (ready: boolean) => handleReady(socket, ready));
 
   // Notify matching server that clients should already start collab
-  socket.on(SocketEvent.START_COLLABORATION, (problemId: string) => handleStart(socket, problemId));
+  socket.on(SocketEvent.START_COLLABORATION, (data) => handleStart(socket, data));
 
   socket.on(SocketEvent.DISCONNECTING, (data: any) => handleCancel(socket));
   socket.on(SocketEvent.DISCONNECT, () => {
