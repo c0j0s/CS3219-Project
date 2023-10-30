@@ -42,6 +42,24 @@ export const SocketHandler = (socket: Socket) => {
     }
   );
 
+  socket.on(SocketEvent.SEND_HIGHLIGHT_CHANGE, (highlightDict: { roomId: string; highlightPosition: string }) => {
+    socket.to(highlightDict.roomId).emit(SocketEvent.HIGHLIGHT_CHANGE, highlightDict.highlightPosition);
+  })
+
+  socket.on(
+    SocketEvent.SEND_CODE_EVENT,
+    (codeDict: { roomId: string; event: string; }) => {
+      console.log(codeDict);
+      socket.to(codeDict.roomId).emit(SocketEvent.CODE_EVENT, codeDict.event);
+    }
+  )
+  
+  socket.on(
+    SocketEvent.SEND_CURSOR_CHANGE,
+    (cursorDict: { roomId: string; cursorPosition: string }) => {
+      socket.to(cursorDict.roomId).emit(SocketEvent.CURSOR_CHANGE, cursorDict.cursorPosition);
+  })
+
   socket.on(SocketEvent.END_SESSION, (roomID) => {
     handleEndSession(socket, roomID);
     logger.debug(`[SocketHandler]: ${socket.id} ended session`)
@@ -133,7 +151,7 @@ export async function handleJoinRoom(socket: Socket, joinDict: { userId: string,
  * @param editorDict 
  */
 export function handleCodeChange(socket: Socket, editorDict: { roomId: string; content: string; }) {
-  socket.to(editorDict.roomId).emit(SocketEvent.CODE_UPDATE, editorDict.content);
+  // socket.to(editorDict.roomId).emit(SocketEvent.CODE_UPDATE, editorDict.content);
   // Set new code change within cache
   RedisHandler.setCodeChange(editorDict.roomId, editorDict.content);
 }

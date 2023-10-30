@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, FC } from "react";
 import CodeEditorNavbar from "./CodeEditorNavbar";
 import { Divider } from "@nextui-org/react";
 import CodeEditor from "./CodeEditor";
@@ -6,17 +6,10 @@ import { getCodeTemplate } from "@/utils/defaultCodeUtils";
 import { useCollabContext } from "@/contexts/collab";
 import { notFound } from "next/navigation";
 
-const CodeEditorPanel = ({}) => {
-  const [error, setError] = useState(false);
+const CodeEditorPanel: FC = ({}) => {
   const { matchedLanguage, question, socketService } = useCollabContext();
 
-  if (!socketService) setError(true);
-
-  const questionTitle = question?.title || setError(true);
-  const editorRef = useRef(null);
-  const [hasSessionTimerEnded, setHasSessionTimerEnded] =
-    useState<boolean>(false);
-
+  const questionTitle = question?.title;
   const [currentCode, setCurrentCode] = useState<string>(
     getCodeTemplate(matchedLanguage, questionTitle!)
   );
@@ -34,13 +27,8 @@ const CodeEditorPanel = ({}) => {
   }, [isUserNotValid]);
 
   const handleEditorChange = (currentContent: string | undefined) => {
-    if (!currentContent) setError(true);
     setCurrentCode(currentContent!);
-    socketService!.sendCodeChange(currentContent!);
-  };
-
-  const handleEditorDidMount = async (editor: any, monaco: any) => {
-    editorRef.current = editor;
+    socketService?.sendCodeChange(currentContent!);
   };
 
   const handleResetToDefaultCode = () => {
@@ -50,10 +38,6 @@ const CodeEditorPanel = ({}) => {
     );
   };
 
-  if (error) {
-    return <></>;
-  }
-
   return (
     <div className="h-[calc(100vh-60px)]">
       <CodeEditorNavbar handleResetToDefaultCode={handleResetToDefaultCode} />
@@ -61,7 +45,6 @@ const CodeEditorPanel = ({}) => {
       <CodeEditor
         currentCode={currentCode}
         handleEditorChange={handleEditorChange}
-        handleEditorDidMount={handleEditorDidMount}
       />
     </div>
   );

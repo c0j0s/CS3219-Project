@@ -71,3 +71,15 @@
 .bg-cal-heatmap {
   background-color: #1e1e21 !important;
 }
+
+.partner-cursor {
+  border: 0.5px solid rgb(2, 147, 84);
+  height: 1.1rem;
+  position: absolute;
+}
+
+.partner-highlight {
+  border: 0.5px solid rgb(2, 147, 84);
+  background-color: rgb(2, 147, 84);
+  opacity: 0.8;
+}
