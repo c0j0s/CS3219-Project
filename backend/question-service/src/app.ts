@@ -32,13 +32,13 @@ app.all("*", (req: Request, res: Response) => {
 const PORT = process.env.SERVICE_PORT || 5100;
 const LOG_LEVEL = process.env.LOG_LEVEL || "debug";
 const CORS_ALLOWED_ORIGINS = process.env.CORS_ALLOWED_ORIGINS || "default";
-const GATEWAY = process.env.GATEWAY || "gateway";
+const AUTH_GATEWAY = process.env.AUTH_GATEWAY || "gateway"
 const AUTH_ENDPOINT = process.env.AUTH_ENDPOINT || "default";
 const AUTH_ADMIN_ENDPOINT = process.env.AUTH_ADMIN_ENDPOINT || "default";
 const DATABASE_URL = process.env.DATABASE_URL || "default";
 
 app.listen(PORT, () => {
   logger.info(
-    `Question Server running at port[${PORT}] build[${NODE_ENV}] log[${LOG_LEVEL}] cors[${CORS_ALLOWED_ORIGINS}] db[${DATABASE_URL}] auth[${GATEWAY}/${AUTH_ENDPOINT}] authAdmin[${GATEWAY}/${AUTH_ADMIN_ENDPOINT}]`
+    `Server running at port[${PORT}] build[${NODE_ENV}] log[${LOG_LEVEL}] cors[${CORS_ALLOWED_ORIGINS}] db[${DATABASE_URL}] auth[${AUTH_GATEWAY}/${AUTH_ENDPOINT}] authAdmin[${AUTH_GATEWAY}/${AUTH_ADMIN_ENDPOINT}]`
   );
 });

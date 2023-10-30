@@ -1,3 +1,4 @@
+import logger from '../../lib/utils/logger';
 import { redis } from '../../models/db';
 
 const EXPIRY = 3610; // 1 hour 10 seconds
@@ -7,21 +8,44 @@ const EXPIRY = 3610; // 1 hour 10 seconds
  */
 
 async function getEditorContent(roomId: string) {
-    return await redis.get(`${roomId}_content`);
+    try {
+        let data = await redis.get(`${roomId}_content`);
+        return data;
+    } catch (error) {
+        logger.debug(`[getEditorContent]: ${error}`);
+        return "";
+    }
 }
 
 async function getSessionEndTime(roomId: string) {
-    return await redis.hget(`${roomId}`, 'sessionEndTime');
+    try {
+        let data = await redis.hget(`${roomId}`, `sessionEndTime`);
+        return data;
+    } catch (error) {
+        logger.debug(`[getSessionEndTime]: ${error}`);
+        return ""
+    }
 }
 
-async function getMessages(roomId: string) {    
-    // Retrieve the whole list
-    return await redis.lrange(`${roomId}_messages`, 0, -1);
+async function getMessages(roomId: string) {   
+    try { 
+        // Retrieve the whole list
+        let data = await redis.lrange(`${roomId}_messages`, 0, -1);
+        return data;
+    } catch (error) {
+        logger.debug(`[getMessages]: ${error}`);
+        return [];
+    }
 }
 
 async function getSessionDetails(roomId: string) {
     // Returns { sessionEndTime: string, users: string[] }
-    return await redis.hgetall(roomId); 
+    try {
+        return await redis.hgetall(roomId); 
+    } catch (error) {
+        logger.debug(`[getSessionDetails]: ${error}`);
+        return {};
+    }
 }
 
 async function getUserIds(roomId: string) {

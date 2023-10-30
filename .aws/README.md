@@ -4,7 +4,6 @@ Contains the build settings for amplify hosting.
 Useful commands:
 ```
 aws amplify update-branch --app-id <> --branch-name production --framework 'Next.js - SSR'
-aws amplify list-branches --app-id
 ```
 
 #### peerprep-stack.yaml

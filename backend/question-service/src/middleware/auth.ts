@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import HttpStatusCode from "../lib/enums/HttpStatusCode";
 import dotenv from "dotenv";
+import logger from "../lib/utils/logger";
 
 dotenv.config();
 
@@ -13,15 +14,15 @@ export const authMiddleware = async (
     next();
     return;
   }
-
-  // Only allow GET requests to /development/question/questions to pass through with just user rights
+  logger.debug(req.body, `[${req.url}][${req.method}] ${req.params}`);
+  // Only allow GET requests to /question/questions to pass through with just user rights
   const cookies = req.headers.cookie;
-
+  
   const jwtCookieString = cookies
-    ?.split(";")
-    .find((cookie) => cookie.split("=")[0].trim() == "jwt")
-    ?.split("=")[1];
-
+  ?.split(";")
+  .find((cookie) => cookie.split("=")[0].trim() == "jwt")
+  ?.split("=")[1];
+  
   //If there is no JWT, do not need to go through auth
   if (!jwtCookieString) {
     res.status(HttpStatusCode.UNAUTHORIZED).json({
@@ -30,16 +31,18 @@ export const authMiddleware = async (
     });
     return;
   }
-
+  
   // Only allow GET requests to /development/user/questions to pass through with just user rights
-  const GATEWAY = process.env.GATEWAY || "http://localhost:5050";
+  const AUTH_GATEWAY = process.env.AUTH_GATEWAY || "http://localhost:5050"
   const authEndpoint =
     req.method === "GET"
       ? process.env.AUTH_ENDPOINT || `auth/api/validate`
-      : process.env.AUTH_ADMIN_ENDPOINT || `auth/api/validateAdmin`;
+      : process.env.AUTH_ADMIN_ENDPOINT ||
+      `auth/api/validateAdmin`;
 
   try {
-    const authRes = await fetch(`${GATEWAY}/${authEndpoint}`, {
+
+    const authRes = await fetch(`${AUTH_GATEWAY}/${authEndpoint}`, {
       method: "POST",
       headers: {
         Cookie: `jwt=${jwtCookieString}`,

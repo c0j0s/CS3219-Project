@@ -25,9 +25,6 @@ const ChatSpace = ({
   isOpen,
 }: IChatSpaceProps) => {
   const { partner, user, socketService } = useCollabContext();
-  const [error, setError] = useState(false);
-
-  if (!socketService || !partner || !user) setError(true);
 
   const scrollTargetRef = useRef<HTMLDivElement>(null);
 

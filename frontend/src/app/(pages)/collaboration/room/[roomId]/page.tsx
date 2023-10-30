@@ -59,4 +59,4 @@ export default function RoomPage({ params }: RoomPageProps) {
       )}
     </div>
   );
-}
+};

@@ -1,4 +1,4 @@
-FROM node:20 AS build
+FROM node:alpine AS build
 WORKDIR /app
 
 # Copy the source code and install dependencies
@@ -8,7 +8,7 @@ COPY . .
 RUN npm run build 
 
 # Stage 2: Production environment
-FROM node:20
+FROM node:alpine
 WORKDIR /app
 
 # Defing service arguments
@@ -22,7 +22,7 @@ ARG CORS_ALLOWED_ORIGINS=http://localhost:3000
 ENV CORS_ALLOWED_ORIGINS=$CORS_ALLOWED_ORIGINS
 
 ARG PORT=5050
-EXPOSE $PORT
+ENV PORT=$PORT
 
 # Defing service specific arguments
 ARG JWT_SECRET

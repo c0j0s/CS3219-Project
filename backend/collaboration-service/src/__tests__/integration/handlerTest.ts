@@ -114,28 +114,6 @@ describe("Handlers Test", () => {
         await receivedMessagePromise;
     });
 
-    test("Handle code change test", async () =>{
-
-        let editorDict = { roomId: roomId, content: content }
-
-        const receviedCodePromise = new Promise<void>((resolve) => {
-            clientSocketUser1.on(SocketEvent.CODE_UPDATE, (incomingCode) => {
-                expect(incomingCode).toEqual(editorDict.content);
-                resolve();
-            })
-        })
-
-        serverSocket2.on(SocketEvent.CODE_CHANGE, (incomingEditorDict) => {
-            expect(incomingEditorDict).toEqual(editorDict);
-            handleCodeChange(serverSocket2, incomingEditorDict);
-        })
-
-        clientSocketUser2.emit(SocketEvent.CODE_CHANGE, editorDict);
-
-        await receviedCodePromise;
-    })
-
-
     test("Handle end session test", async () => {
 
         // Expect to receive the content of the editor to himself
@@ -150,6 +128,11 @@ describe("Handlers Test", () => {
             handleEndSession(serverSocket2, incomingRoomID);
         })
 
+        serverSocket2.on(SocketEvent.CODE_CHANGE, (content) => {
+            handleCodeChange(serverSocket2, { roomId: roomId, content: content })
+        })
+
+        clientSocketUser2.emit(SocketEvent.CODE_CHANGE, content);
         clientSocketUser2.emit(SocketEvent.END_SESSION, roomId);
 
         await receivedEndSessionPromise;

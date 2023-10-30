@@ -16,6 +16,7 @@ dotenv.config();
 const app = express();
 const expressLogger = PinoHttp({ logger });
 
+
 // Use the logger middleware
 app.use(expressLogger);
 

@@ -1,10 +1,11 @@
 "use strict";
 import ChatMessage from "@/types/chat_message";
 import { SocketEvent } from "@/types/enums";
-import { get } from "http";
 import { SetStateAction } from "react";
 import { Socket, io } from "socket.io-client";
 import { getCollaborationSocketConfig } from "./collaboration_api_wrappers";
+import { Position, Range } from "monaco-editor";
+import { notFound } from "next/navigation";
 
 class SocketService {
   static instance: SocketService;
@@ -90,6 +91,19 @@ class SocketService {
     });
   };
 
+  sendCodeEvent = (event: string) => {
+    this.socket.emit(SocketEvent.SEND_CODE_EVENT, {
+      roomId: this.roomId,
+      event: event,
+    });
+  }
+
+  receiveCodeEvent = (setEvents: React.Dispatch<React.SetStateAction<string[]>>) => {
+    this.socket.on(SocketEvent.CODE_EVENT, (event: string) => {
+      setEvents((events) => [...events, event]);
+    })
+  }
+
   receiveCodeUpdate = (
     setCurrentCode: React.Dispatch<React.SetStateAction<string>>
   ) => {
@@ -106,6 +120,7 @@ class SocketService {
     setSessionTimer: React.Dispatch<React.SetStateAction<Date>>
   ) => {
     this.socket.on(SocketEvent.SESSION_TIMER, (sessionEndTime: string) => {
+      if (sessionEndTime == "") notFound();
       let utcDate = new Date(sessionEndTime);
       setSessionTimer(utcDate);
     });
@@ -201,6 +216,27 @@ class SocketService {
       setPartnerLeft(true);
     });
   }
+
+  sendPartnerCursor(cursorPosition: { lineNumber: number, column: number }) {
+    this.socket.emit(SocketEvent.SEND_CURSOR_CHANGE, { roomId: this.roomId, cursorPosition: JSON.stringify(cursorPosition) })
+  }
+
+  receivePartnerCursor(setPartnerCursor: React.Dispatch<SetStateAction<Position>>) {
+    this.socket.on(SocketEvent.CURSOR_CHANGE, (cursorPosition: string) => {
+      setPartnerCursor(JSON.parse(cursorPosition));
+    })
+  }
+
+  sendPartnerHighlight(highlightPosition: Range) {
+    this.socket.emit(SocketEvent.SEND_HIGHLIGHT_CHANGE, { roomId: this.roomId, highlightPosition: JSON.stringify(highlightPosition) })
+  }
+
+  receivePartnerHighlight(setPartnerHighlight: React.Dispatch<SetStateAction<Range>>) {
+    this.socket.on(SocketEvent.HIGHLIGHT_CHANGE, (highlightPosition: string) => {
+      setPartnerHighlight(JSON.parse(highlightPosition));
+    })
+  }
+
 }
 
 export default SocketService;

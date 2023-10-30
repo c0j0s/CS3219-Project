@@ -8,6 +8,7 @@ export const authMiddleware = async (
   res: Response,
   next: NextFunction
 ) => {
+  console.debug(`[${req.url}][${req.method}] ${JSON.stringify(req.params)}\n${JSON.stringify(req.body)}`);
   if (req.headers.bypass) {
     const serviceSecret = process.env.SERVICE_SECRET || "secret";
     // bypass auth for calls from auth service
@@ -38,30 +39,24 @@ export const authMiddleware = async (
     return;
   }
 
-  const GATEWAY = process.env.GATEWAY || "http://localhost:5050";
+  const AUTH_GATEWAY = process.env.AUTH_GATEWAY || "http://localhost:5050"
   //If there is JWT, validate it through the auth endpoint
-  const authEndpoint = process.env.AUTH_ENDPOINT || `auth/api/validate`;
+  const authEndpoint =
+    process.env.AUTH_ENDPOINT || `auth/api/validate`;
 
-  try {
-    const authRes = await fetch(`${GATEWAY}/${authEndpoint}`, {
-      method: "POST",
-      headers: {
-        Cookie: `jwt=${jwtCookieString}`,
-      },
-    });
-
-    if (authRes.status !== HttpStatusCode.OK) {
-      const message = await authRes.text();
-      res.status(authRes.status).json({
-        error: message,
-        message,
-      });
-      return;
-    }
-  } catch (error) {
-    res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-      error: "INTERNAL SERVER ERROR",
-      message: "Authorization service is unreachable",
+  const authRes = await fetch(`${AUTH_GATEWAY}/${authEndpoint}`, {
+    method: "POST",
+    headers: {
+      Cookie: `jwt=${jwtCookieString}`,
+    },
+  });
+  
+  console.debug(`[authMiddle][${authRes.status}] fetch ${AUTH_GATEWAY}/${authEndpoint}`);
+  if (authRes.status !== HttpStatusCode.OK) {
+    const message = await authRes.text();
+    res.status(authRes.status).json({
+      error: message,
+      message,
     });
     return;
   }

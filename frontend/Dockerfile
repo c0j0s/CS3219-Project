@@ -1,6 +1,6 @@
-FROM node:20
+FROM node:alpine
 
-ENV NODE_ENV=development
+ENV BUILD_ENV=development
 
 # Create app directory
 WORKDIR /app

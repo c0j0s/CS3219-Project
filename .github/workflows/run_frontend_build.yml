@@ -1,10 +1,10 @@
 name: Frontend Build Check
 
 on:
-  pull_request:
-    branches: [master]
-  push:
-    branches: [production]
+    pull_request:
+        branches: [master]
+    push:
+        branches: [production]
 
 jobs:
   build:
