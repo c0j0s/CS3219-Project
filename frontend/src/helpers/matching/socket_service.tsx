@@ -75,8 +75,11 @@ class SocketService {
     this.socket.emit(SocketEvent.MATCHING_USER_READY_CHANGE, ready);
   }
 
-  requestStartCollaboration(questionId: string) {
-    this.socket.emit(SocketEvent.MATCHING_START_COLLABORATION, questionId);
+  requestStartCollaboration(questionId: string, language: string) {
+    this.socket.emit(SocketEvent.MATCHING_START_COLLABORATION, {
+      questionId: questionId,
+      language: language
+    });
   }
 
   disconnect() {
