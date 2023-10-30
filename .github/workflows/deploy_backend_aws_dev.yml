@@ -216,6 +216,14 @@ jobs:
           push: true
           tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.EVENT_BUS_CONTAINER_NAME }}
 
+      - name: Build, tag, and push ${{ env.HISTORY_CONTAINER_NAME }} image to Amazon ECR
+        # if: steps.check-event-bus-changes == 'true'
+        uses: docker/build-push-action@v5
+        with: 
+          context: database/${{ env.HISTORY_CONTAINER_NAME }}
+          push: true
+          tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.HISTORY_CONTAINER_NAME }}
+
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
@@ -254,11 +262,11 @@ jobs:
             ecs_service:  peerprep-development-ServiceEventBus,
             ecs_task_def: peerprep-development-TaskDefinitionEventBus
           },
-          # {
-          #   name: history-service,
-          #   ecs_service:  peerprep-development-ServiceHistory,
-          #   ecs_task_def: peerprep-development-TaskDefinitionHistory
-          # },
+          {
+            name: history-service,
+            ecs_service:  peerprep-development-ServiceHistory,
+            ecs_task_def: peerprep-development-TaskDefinitionHistory
+          },
         ]
 
     steps:
