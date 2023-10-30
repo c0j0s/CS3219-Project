@@ -10,14 +10,20 @@ const HistoryCodeSpace = ({}) => {
   const { question, completedAt, language } = useHistoryContext();
 
   if (!question) {
+    console.log("question not found");
+    console.log(question);
     return notFound();
   }
 
   if (!language) {
+    console.log("language not found");
+    console.log(language);
     return notFound();
   }
 
   if (!completedAt) {
+    console.log("completedAt not found");
+    console.log(completedAt);
     return notFound();
   }
 

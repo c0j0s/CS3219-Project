@@ -120,7 +120,11 @@ class SocketService {
     setSessionTimer: React.Dispatch<React.SetStateAction<Date>>
   ) => {
     this.socket.on(SocketEvent.SESSION_TIMER, (sessionEndTime: string) => {
-      if (sessionEndTime == "") notFound();
+      if (sessionEndTime == "") {
+        console.log("Session time not found");
+        
+        notFound();
+      }
       let utcDate = new Date(sessionEndTime);
       setSessionTimer(utcDate);
     });

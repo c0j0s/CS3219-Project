@@ -22,6 +22,8 @@ const CodeEditorPanel: FC = ({}) => {
 
   useEffect(() => {
     if (isUserNotValid) {
+      console.log("user not found");
+      console.log(isUserNotValid);
       notFound();
     }
   }, [isUserNotValid]);

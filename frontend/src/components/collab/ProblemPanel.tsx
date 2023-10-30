@@ -8,6 +8,8 @@ const ProblemPanel = () => {
   const { question } = useCollabContext();
 
   if (!question) {
+    console.log("question not found");
+    console.log(question);
     return notFound();
   }
 
