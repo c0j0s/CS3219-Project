@@ -242,45 +242,45 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
-    environment: development
+    environment: production
     needs: build
     strategy:
       matrix:
         service: [
           {
             name: question-service,
-            ecs_service:  peerprep-development-ServiceQuestion,
-            ecs_task_def: peerprep-development-TaskDefinitionQuestion
+            ecs_service:  peerprep-production-ServiceQuestion,
+            ecs_task_def: peerprep-production-TaskDefinitionQuestion
           },
           {
             name: matching-service,
-            ecs_service:  peerprep-development-ServiceMatching,
-            ecs_task_def: peerprep-development-TaskDefinitionMatching
+            ecs_service:  peerprep-production-ServiceMatching,
+            ecs_task_def: peerprep-production-TaskDefinitionMatching
           },
           {
             name: user-service,
-            ecs_service:  peerprep-development-ServiceUser,
-            ecs_task_def: peerprep-development-TaskDefinitionUser
+            ecs_service:  peerprep-production-ServiceUser,
+            ecs_task_def: peerprep-production-TaskDefinitionUser
           },
           {
             name: auth-service,
-            ecs_service:  peerprep-development-ServiceAuth,
-            ecs_task_def: peerprep-development-TaskDefinitionAuth
+            ecs_service:  peerprep-production-ServiceAuth,
+            ecs_task_def: peerprep-production-TaskDefinitionAuth
           },
           {
             name: collaboration-service,
-            ecs_service:  peerprep-development-ServiceCollaboration,
-            ecs_task_def: peerprep-development-TaskDefinitionCollaboration
+            ecs_service:  peerprep-production-ServiceCollaboration,
+            ecs_task_def: peerprep-production-TaskDefinitionCollaboration
           },
           {
             name: event-bus,
-            ecs_service:  peerprep-development-ServiceEventBus,
-            ecs_task_def: peerprep-development-TaskDefinitionEventBus
+            ecs_service:  peerprep-production-ServiceEventBus,
+            ecs_task_def: peerprep-production-TaskDefinitionEventBus
           },
           {
             name: history-service,
-            ecs_service:  peerprep-development-ServiceHistory,
-            ecs_task_def: peerprep-development-TaskDefinitionHistory
+            ecs_service:  peerprep-production-ServiceHistory,
+            ecs_task_def: peerprep-production-TaskDefinitionHistory
           },
         ]
 
