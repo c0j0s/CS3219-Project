@@ -147,7 +147,7 @@ export function getOverlappedPreferences(source: string, matching: string) {
 }
 
 export function generateRoomId(ownerId: string, partnerId: string, questionId: string, language: string): string {
-    const inputString = ownerId + partnerId + questionId + language;
+    const inputString = ownerId + partnerId + questionId + language.toLowerCase();
     const hash = crypto.createHash('sha256');
     hash.update(inputString);
     return hash.digest('hex').slice(0, 20);

@@ -154,7 +154,7 @@ export default function MatchingLobbyPrepCollabView({
                     }
                 </div>
             </ModalBody>
-            {!isLoading && (questionOptions.length > 0 || languageOptions.length > 0) && !noQuestion &&
+            {!isLoading && (questionOptions.length > 1 || languageOptions.length > 1) && !noQuestion &&
                 <ModalFooter className="px-6">
                     <Button onPress={handleStart} color="primary" startContent={<Icons.FiPlay />}>Confirm</Button>
                 </ModalFooter>
