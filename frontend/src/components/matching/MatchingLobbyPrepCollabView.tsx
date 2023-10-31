@@ -2,7 +2,7 @@ import SocketService from "@/helpers/matching/socket_service";
 import { getQuestionByPreference } from "@/helpers/question/question_api_wrappers";
 import { useAuthContext } from "@/contexts/auth";
 import Question from "@/types/question";
-import { Button, Chip, CircularProgress, ModalBody, Tooltip, ModalHeader, Select, SelectItem } from "@nextui-org/react";
+import { Button, Chip, CircularProgress, ModalBody, Tooltip, ModalHeader, Select, SelectItem, ModalFooter } from "@nextui-org/react";
 import { useEffect, useState } from "react";
 import { Icons } from "../common/Icons";
 import ComplexityChip from "../question/ComplexityChip";
@@ -97,7 +97,6 @@ export default function MatchingLobbyPrepCollabView({
                                     </div>
                                 </SelectItem>)}
                             </Select>
-                            <Button onPress={handleStart} color="primary" startContent={<Icons.FiPlay />}>Confirm</Button>
                         </div>
                     }
                     {isLoading &&
@@ -117,6 +116,11 @@ export default function MatchingLobbyPrepCollabView({
                     }
                 </div>
             </ModalBody>
+            {!isLoading && (questionOptions.length > 1 || languageOptions.length > 1) && !noQuestion &&
+                <ModalFooter className="px-6">
+                    <Button onPress={handleStart} color="primary" startContent={<Icons.FiPlay />}>Confirm</Button>
+                </ModalFooter>
+            }
         </>
     )
 }
