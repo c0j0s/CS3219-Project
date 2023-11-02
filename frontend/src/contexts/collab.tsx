@@ -7,6 +7,7 @@ import User from "@/types/user";
 import { createContext, useContext, useRef, useState } from "react";
 import { useAuthContext } from "./auth";
 import { verifyRoomParamsIntegrity } from "@/utils/hashUtils";
+import { getLogger } from "@/helpers/logger";
 
 interface ICollabContext {
   handleConnectToRoom: (
@@ -191,7 +192,7 @@ const CollabProvider = ({ children }: ICollabProvider) => {
       setPartner(partner);
       setQuestion(question);
     } catch (error) {
-      console.log(error);
+      getLogger().error(error);
     } finally {
       setIsLoading(false);
     }

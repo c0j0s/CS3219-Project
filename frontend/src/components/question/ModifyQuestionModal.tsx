@@ -25,6 +25,7 @@ import { FiCornerDownLeft } from "react-icons/fi";
 import displayToast from "../common/Toast";
 import { PeerPrepErrors } from "@/types/PeerPrepErrors";
 import HttpStatusCode from "@/types/HttpStatusCode";
+import { getLogger } from "@/helpers/logger";
 
 export default function ModifyQuestionModal({
   isOpen,
@@ -149,7 +150,7 @@ export default function ModifyQuestionModal({
         displayToast(response.message, ToastType.ERROR);
       }
     } catch (error) {
-      console.log(error);
+      getLogger().error(error);
     } finally {
       setIsLoading(false);
     }

@@ -6,11 +6,12 @@ import MatchingLobbyErrorView from "./MatchingLobbyErrorView";
 import MatchingLobbyMatchingView from "./MatchingLobbyMatchingView";
 import MatchingLobbyNoMatchView from "./MatchingLobbyNoMatchView";
 import MatchingLobbySuccessView from "./MatchingLobbySuccessView";
-import { MATCHING_STAGE } from "@/types/enums";
+import { MATCHING_STAGE, SocketEvent } from "@/types/enums";
 import SocketService from "@/helpers/matching/socket_service";
 import MatchingLobbyPrepCollabView from "./MatchingLobbyPrepCollabView";
 import { useRouter } from "next/navigation";
 import { CLIENT_ROUTES } from "@/common/constants";
+import MatchingLobbyInitialView from "./MatchingLobbyInitialView";
 
 export default function MatchingLobby({
   isOpen,
@@ -42,6 +43,9 @@ export default function MatchingLobby({
   /////////////////////////////////////////////
   const initializeSocket = async () => {
     try {
+      socketService?.off(SocketEvent.DISCONNECT);
+      socketService?.disconnect();
+
       await SocketService.getInstance().then((socket) => {
         setSocketService(socket);
         socket.onConnect(() => setStage(MATCHING_STAGE.MATCHING));
@@ -91,7 +95,10 @@ export default function MatchingLobby({
   const renderView = (stage: MATCHING_STAGE) => {
     switch (stage) {
       case MATCHING_STAGE.INITIAL:
-        return <></>;
+        return (<MatchingLobbyInitialView
+          onClose={handleClose}
+          onError={() => setStage(MATCHING_STAGE.ERROR)}
+        />);
       case MATCHING_STAGE.MATCHING:
         return (
           <MatchingLobbyMatchingView

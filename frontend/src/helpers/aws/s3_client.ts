@@ -2,6 +2,7 @@
 
 import { HTTP_METHODS } from "@/types/enums";
 import S3 from "aws-sdk/clients/s3";
+import { getLogger } from "@/helpers/logger";
 
 const s3Client = new S3({
   region: process.env.AMZ_REGION,
@@ -54,7 +55,7 @@ export const uploadImageToS3 = async (
 
     return imageUrl;
   } catch (error) {
-    console.log(error);
+    getLogger().error(error);
   }
 };
 

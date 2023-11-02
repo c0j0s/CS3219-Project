@@ -102,7 +102,6 @@ const handleStart = (socket: Socket, data: {
   language:   string
 }) => {
   logger.debug(
-    data,
     `[${socket.id}][notifyStart]: Preparing collab`
   );
 

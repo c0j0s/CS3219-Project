@@ -1,4 +1,4 @@
-import { ModalBody, ModalFooter, Button } from "@nextui-org/react";
+import { ModalBody, ModalFooter, Button, ModalHeader } from "@nextui-org/react";
 import { Icons } from "../common/Icons";
 
 export default function MatchingLobbyNoMatchView(
@@ -12,14 +12,16 @@ export default function MatchingLobbyNoMatchView(
 ) {
     return (
         <>
-            <ModalBody className="flex flex-col gap-2 p-4 h-full items-center justify-center my-10">
+            <ModalHeader>
+                Unable to find a Match
+            </ModalHeader>
+            <ModalBody className="flex flex-col gap-2 p-4 h-full items-center justify-center">
                 <Icons.FiUserX className="w-24 h-24  text-danger" />
-                <p>Unable to find a match.</p>
                 <p>Please try again later.</p>
             </ModalBody>
             <ModalFooter>
-                <Button onPress={onClose} startContent={<Icons.FiX/>}>Cancel</Button>
-                <Button onPress={onRetry} startContent={<Icons.RxReset/>} color="primary">Retry</Button>
+                <Button onPress={onClose} startContent={<Icons.FiX />}>Cancel</Button>
+                <Button onPress={onRetry} startContent={<Icons.RxReset />} color="primary">Retry</Button>
             </ModalFooter>
         </>
     )

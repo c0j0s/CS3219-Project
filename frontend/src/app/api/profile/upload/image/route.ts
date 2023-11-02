@@ -1,4 +1,5 @@
 import { uploadImageToS3 } from "@/helpers/aws/s3_client";
+import { getLogger } from "@/helpers/logger";
 import HttpStatusCode from "@/types/HttpStatusCode";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ imageUrl }, { status: HttpStatusCode.OK });
   } catch (error: any) {
-    console.log(error);
+    getLogger().error(error);
     return NextResponse.json(
       { error: error },
       { status: HttpStatusCode.INTERNAL_SERVER_ERROR }

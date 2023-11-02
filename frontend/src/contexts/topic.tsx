@@ -1,5 +1,6 @@
 import { getTopics } from "@/helpers/question/question_api_wrappers";
 import { createContext, useContext, useState } from "react";
+import { getLogger } from "@/helpers/logger";
 
 interface ITopicContext {
   topics: string[];
@@ -27,7 +28,7 @@ const TopicProvider = ({ children }: { children: React.ReactNode }) => {
       const rawTopics = await getTopics();
       setTopics(rawTopics);
     } catch (error) {
-      console.log(error);
+      getLogger().error(error);
       setTopics([]);
       setIsNotFoundError(true);
     }

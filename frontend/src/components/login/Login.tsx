@@ -21,6 +21,7 @@ import bcrypt from "bcryptjs-react";
 import { AuthService } from "@/helpers/auth/auth_api_wrappers";
 import { useAuthContext } from "@/contexts/auth";
 import z from "zod";
+import { getLogger } from "@/helpers/logger";
 
 export function LoginComponent() {
   const { logIn } = useAuthContext();
@@ -126,7 +127,7 @@ export function LoginComponent() {
           ToastType.ERROR
         );
       } else {
-        console.log(error);
+        getLogger().error(error);
         displayToast(
           "Something went wrong. Please refresh and try again.",
           ToastType.ERROR
