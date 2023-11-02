@@ -89,7 +89,6 @@ export default function Information({
       difficulties: difficultiesSelected ? difficultiesSelected : [],
       topics: topicsSelected ? topicsSelected : [],
     });
-    console.log(preferences);
   }, [languagesSelected, difficultiesSelected, topicsSelected]);
 
   const genders: { [key: string]: string } = {
