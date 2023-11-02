@@ -42,7 +42,20 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
+      - name: Check for Changes in question-service directory
+        id: check-question-service-changes
+        run: |
+            if git diff --quiet HEAD~1 -- backend/${{ env.QUESTION_CONTAINER_NAME }}; then
+                echo "No changes in question-service directory"
+                echo "changes=false" >> "$GITHUB_OUTPUT"
+            else
+                echo "Changes detected in question-service directory"
+                echo "changes=true" >> "$GITHUB_OUTPUT"
+            fi
+        shell: bash
+
       - name: Build, tag, and push ${{ env.QUESTION_CONTAINER_NAME }} image to Amazon ECR
+        if: steps.check-question-service-changes.outputs.changes == 'true'
         uses: docker/build-push-action@v5
         with: 
           context: backend/${{ env.QUESTION_CONTAINER_NAME }}
@@ -54,7 +67,20 @@ jobs:
             CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}
             DATABASE_URL=${{ secrets.DATABASE_URL }}
 
+      - name: Check for Changes in matching-service directory
+        id: check-matching-service-changes
+        run: |
+            if git diff --quiet HEAD~1 -- backend/${{ env.MATCHING_CONTAINER_NAME }}; then
+                echo "No changes in matching-service directory"
+                echo "changes=false" >> "$GITHUB_OUTPUT"
+            else
+                echo "Changes detected in matching-service directory"
+                echo "changes=true" >> "$GITHUB_OUTPUT"
+            fi
+        shell: bash            
+          
       - name: Build, tag, and push ${{ env.MATCHING_CONTAINER_NAME }} image to Amazon ECR
+        if: steps.check-matching-service-changes.outputs.changes == 'true'
         uses: docker/build-push-action@v5
         with: 
           context: backend/${{ env.MATCHING_CONTAINER_NAME }}
@@ -65,8 +91,22 @@ jobs:
             LOG_LEVEL=${{ vars.LOG_LEVEL }}
             CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}
             MATCHING_TIMEOUT=${{ vars.MATCHING_TIMEOUT }} 
+            EVENT_BUS_CONTAINER_NAME=${{ env.EVENT_BUS_CONTAINER_NAME }}
+
+      - name: Check for Changes in auth-service directory
+        id: check-auth-service-changes
+        run: |
+            if git diff --quiet HEAD~1 -- backend/${{ env.AUTH_CONTAINER_NAME }}; then
+                echo "No changes in auth-service directory"
+                echo "changes=false" >> "$GITHUB_OUTPUT"
+            else
+                echo "Changes detected in auth-service directory"
+                echo "changes=true" >> "$GITHUB_OUTPUT"
+            fi
+        shell: bash      
 
       - name: Build, tag, and push ${{ env.AUTH_CONTAINER_NAME }} image to Amazon ECR
+        if: steps.check-auth-service-changes.outputs.changes == 'true'
         uses: docker/build-push-action@v5
         with: 
           context: backend/${{ env.AUTH_CONTAINER_NAME }}
@@ -81,7 +121,20 @@ jobs:
             NM_MAIL=${{ secrets.NM_MAIL }}
             NM_PASS=${{ secrets.NM_PASS }}
 
+      - name: Check for Changes in user-service directory
+        id: check-user-service-changes
+        run: |
+            if git diff --quiet HEAD~1 -- backend/${{ env.USER_CONTAINER_NAME }}; then
+                echo "No changes in user-service directory"
+                echo "changes=false" >> "$GITHUB_OUTPUT"
+            else
+                echo "Changes detected in user-service directory"
+                echo "changes=true" >> "$GITHUB_OUTPUT"
+            fi
+        shell: bash
+
       - name: Build, tag, and push ${{ env.USER_CONTAINER_NAME }} image to Amazon ECR
+        if: steps.check-user-service-changes.outputs.changes == 'true'
         uses: docker/build-push-action@v5
         with: 
           context: backend/${{ env.USER_CONTAINER_NAME }}
@@ -94,7 +147,20 @@ jobs:
             DATABASE_URL=${{ secrets.DATABASE_URL }}
             EMAIL_VERIFICATION_SECRET=${{ secrets.EMAIL_VERIFICATION_SECRET }}
 
+      - name: Check for Changes in collaboration-service directory
+        id: check-collaboration-service-changes
+        run: |
+            if git diff --quiet HEAD~1 -- backend/${{ env.COLLABORATION_CONTAINER_NAME }}; then
+                echo "No changes in collaboration-service directory"
+                echo "changes=false" >> "$GITHUB_OUTPUT"
+            else
+                echo "Changes detected in collaboration-service directory"
+                echo "changes=true" >> "$GITHUB_OUTPUT"
+            fi
+        shell: bash      
+
       - name: Build, tag, and push ${{ env.COLLABORATION_CONTAINER_NAME }} image to Amazon ECR
+        if: steps.check-collaboration-service-changes == 'true'
         uses: docker/build-push-action@v5
         with: 
           context: backend/${{ env.COLLABORATION_CONTAINER_NAME }}
@@ -106,26 +172,77 @@ jobs:
             CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}
             REDIS_URL=${{ secrets.COLLABORATION_CACHE_URL }}
             EVENT_BUS_CONTAINER_NAME=${{ env.EVENT_BUS_CONTAINER_NAME }}
-    
+      
+      - name: Check for Changes in collaboration-cache directory
+        id: check-collaboration-cache-changes
+        run: |
+            if git diff --quiet HEAD~1 -- database/${{ env.COLLABORATION_CACHE_CONTAINER_NAME }}; then
+                echo "No changes in collaboration-cache directory"
+                echo "changes=false" >> "$GITHUB_OUTPUT"
+            else
+                echo "Changes detected in collaboration-cache directory"
+                echo "changes=true" >> "$GITHUB_OUTPUT"
+            fi
+        shell: bash   
+
       - name: Build, tag, and push ${{ env.COLLABORATION_CACHE_CONTAINER_NAME }} image to Amazon ECR
+        if: steps.check-collaboration-cache-changes == 'true'
         uses: docker/build-push-action@v5
         with: 
           context: database/${{ env.COLLABORATION_CACHE_CONTAINER_NAME }}
           push: true
           tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.COLLABORATION_CACHE_CONTAINER_NAME }}
+                    
+      # - name: Check for Changes in history directory
+      #   id: check-history-changes
+      #   run: |
+      #       if git diff --quiet HEAD~1 -- backend/${{ env.HISTORY_CONTAINER_NAME }}; then
+      #           echo "No changes in history directory"
+      #           echo "changes=false" >> "$GITHUB_OUTPUT"
+      #       else
+      #           echo "Changes detected in history directory"
+      #           echo "changes=true" >> "$GITHUB_OUTPUT"
+      #       fi
+      #   shell: bash
+
+      - name: Build, tag, and push ${{ env.HISTORY_CONTAINER_NAME }} image to Amazon ECR
+        # if: steps.check-event-bus-changes == 'true'
+        uses: docker/build-push-action@v5
+        with: 
+          context: backend/${{ env.HISTORY_CONTAINER_NAME }}
+          push: true
+          tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.HISTORY_CONTAINER_NAME }}
+          build-args: |
+            NODE_ENV=${{ vars.BUILD_ENV }}
+            LOG_LEVEL=${{ vars.LOG_LEVEL }}
+            CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+  
+      # - name: Check for Changes in event-bus directory
+      #   id: check-event-bus-changes
+      #   run: |
+      #       if git diff --quiet HEAD~1 -- database/${{ env.EVENT_BUS_CONTAINER_NAME }}; then
+      #           echo "No changes in event-bus directory"
+      #           echo "changes=false" >> "$GITHUB_OUTPUT"
+      #       else
+      #           echo "Changes detected in event-bus directory"
+      #           echo "changes=true" >> "$GITHUB_OUTPUT"
+      #       fi
+      #   shell: bash  
 
       - name: Build, tag, and push ${{ env.EVENT_BUS_CONTAINER_NAME }} image to Amazon ECR
+        # if: steps.check-event-bus-changes == 'true'
         uses: docker/build-push-action@v5
         with: 
           context: database/${{ env.EVENT_BUS_CONTAINER_NAME }}
           push: true
           tags: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.EVENT_BUS_CONTAINER_NAME }}
-    
+
 
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
-    environment: development
+    environment: production
     needs: build
     strategy:
       matrix:
@@ -157,14 +274,14 @@ jobs:
           },
           {
             name: event-bus,
-            ecs_service:  peerprep-development-ServiceEventBus,
-            ecs_task_def: peerprep-development-TaskDefinitionEventBus
+            ecs_service:  peerprep-production-ServiceEventBus,
+            ecs_task_def: peerprep-production-TaskDefinitionEventBus
           },
-          # {
-          #   name: history-service,
-          #   ecs_service:  peerprep-production-ServiceHistory,
-          #   ecs_task_def: peerprep-production-TaskDefinitionHistory
-          # },
+          {
+            name: history-service,
+            ecs_service:  peerprep-production-ServiceHistory,
+            ecs_task_def: peerprep-production-TaskDefinitionHistory
+          },
         ]
 
     steps:
@@ -180,6 +297,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Download ${{ matrix.service.name }} task definition
+        if: steps.check-${{ matrix.service.name }}-changes.outputs.changes == 'true'
         id: download-task-def
         env:
           FAMILY: ${{ matrix.service.ecs_task_def }}
@@ -188,6 +306,7 @@ jobs:
           echo "file=$FAMILY.json" >> "$GITHUB_OUTPUT"
 
       - name: Fill in the ${{ matrix.service.name }} image ID in the Amazon ECS task definition
+        if: steps.check-${{ matrix.service.name }}-changes.outputs.changes == 'true'
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
@@ -196,6 +315,7 @@ jobs:
           image: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ matrix.service.name }}
 
       - name: Deploy Amazon ECS ${{ matrix.service.name }} task definition
+        if: steps.check-${{ matrix.service.name }}-changes.outputs.changes == 'true'
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}

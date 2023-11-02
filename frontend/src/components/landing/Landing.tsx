@@ -10,20 +10,24 @@ const Landing = () => {
     router.push(CLIENT_ROUTES.LOGIN);
   };
 
+
   return (
-    <div className="grid grid-cols-2 gap-5 h-screen">
-      <div className="grid-col-1 relative self-center -left-1/4">
-        <PeerPrepLogo width="100%" />
+    <div className="grid grid-cols-2 gap-5 pt-50 h-[100vh] bg-black">
+      <div className="grid-col-1 flex relative self-center justify-center items-center -left-1/4">
+        <PeerPrepLogo width="100%"/>
       </div>
       <div className="grid-col-2 self-center">
-        <p className="text-[500%] font-semibold"> PeerPrep </p>
-        <div className="flex flex-row justify-left gap-4">
-          <Button
-            className="bg-yellow text-black w-[150px]"
-            onPress={handleLogInButtonPress}
-          >
-            Start Now
-          </Button>
+        <div className="flex flex-col items-left"> {/* Flex the children in a column */}
+          <p className="text-[500%] font-semibold"> PeerPrep </p>
+          <p className=""> Real-time code collaboration with others</p>
+          <div className="flex flex-row justify-left gap-4 mt-10">
+            <Button
+              className="bg-gradient-to-l from-amber-500 to-yellow text-black w-[150px] shadow-md"
+              onPress={handleLogInButtonPress}
+            >
+              <p className="font-semibold">Start Now</p>
+            </Button>
+          </div>
         </div>
       </div>
     </div>

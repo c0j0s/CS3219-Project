@@ -19,8 +19,6 @@ const verifyUserEmail = async (request: Request, response: Response) => {
 
     const decoded = jwt.verify(token, secretKey) as {email: string};
 
-    console.log(decoded)
-
     if (decoded.email != email) {
       response.status(HttpStatusCode.BAD_REQUEST).json({
         error: "BAD REQUEST",

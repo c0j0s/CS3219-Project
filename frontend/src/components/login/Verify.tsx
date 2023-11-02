@@ -47,7 +47,7 @@ export default function VerifyComponent() {
     return (
         <div className="flex items-center justify-center h-screen">
             {!isLoading && !isVerificationFromEmailLink && (
-                <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10">
+                <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10 bg-black">
                     <div className="w-1/2">
                         <PeerPrepLogo />
                         <CardHeader className="justify-center font-bold">
@@ -61,7 +61,7 @@ export default function VerifyComponent() {
                             </p>
                             <Spacer y={5} />
                             <Button
-                                color="primary"
+                                className="bg-sky-600"
                                 onClick={() => {
                                     router.push(CLIENT_ROUTES.LOGIN);
                                 }}
@@ -92,7 +92,7 @@ export default function VerifyComponent() {
                                         </p>
                                         <Spacer y={5} />
                                         <Button
-                                            color="primary"
+                                            className="bg-sky-600"
                                             onClick={() => {
                                                 router.push(CLIENT_ROUTES.LOGIN);
                                             }}
@@ -121,7 +121,7 @@ export default function VerifyComponent() {
                                         <Spacer y={5} />
 
                                         <Button
-                                            color="primary"
+                                            className="bg-sky-600"
                                             onClick={() => {
                                                 router.push(CLIENT_ROUTES.LOGIN);
                                             }}

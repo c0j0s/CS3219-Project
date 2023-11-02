@@ -4,6 +4,7 @@ import ProfilePictureAvatar from "@/components/common/ProfilePictureAvatar";
 import { useRouter } from "next/navigation";
 import { CLIENT_ROUTES } from "@/common/constants";
 import { useAuthContext } from "@/contexts/auth";
+import { Card } from "@nextui-org/react";
 
 const ProfileDashboardCard = () => {
   const { user } = useAuthContext();
@@ -14,7 +15,7 @@ const ProfileDashboardCard = () => {
   };
 
   return (
-    <div className="flex flex-col h-full justify-center items-center bg-black rounded-lg p-6 overflow-hidden">
+    <Card className="flex flex-col h-full justify-center items-center bg-black rounded-lg p-6 overflow-hidden">
       <div
         onClick={handleEditProfileButtonPress}
         className="hover:pointer gap-4 flex flex-col overflow-hidden justify-center items-center"
@@ -27,7 +28,7 @@ const ProfileDashboardCard = () => {
           {user.bio}
         </p>
       </div>
-    </div>
+    </Card>
   );
 };
 

@@ -69,7 +69,13 @@
 }
 
 .bg-cal-heatmap {
-  background-color: #1e1e21 !important;
+  background-color: #1E1E21 !important;
+}
+
+#cal-heatmap {
+  border-radius: 0.75rem;
+  border: 1px solid #0000;
+  padding: 2px;
 }
 
 .partner-cursor {
@@ -83,3 +89,10 @@
   background-color: rgb(2, 147, 84);
   opacity: 0.8;
 }
+
+#landing-page {
+  background-size: 100%;
+}
+
+
+

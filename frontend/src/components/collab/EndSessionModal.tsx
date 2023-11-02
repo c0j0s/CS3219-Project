@@ -15,6 +15,7 @@ import {
 } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { getLogger } from "@/helpers/logger";
 
 interface EndSessionModalProps {
   isOpen: boolean;
@@ -75,7 +76,7 @@ export default function EndSessionModal({
       onClose();
       router.push(CLIENT_ROUTES.HOME);
     } catch (error) {
-      console.log(error);
+      getLogger().error(error);
     } finally {
       setIsSaving(false);
     }

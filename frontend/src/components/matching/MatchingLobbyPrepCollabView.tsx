@@ -55,6 +55,7 @@ export default function MatchingLobbyPrepCollabView({
                 await getQuestionByPreference(preference).then(questions => {
                     if (questions.length > 0) {
                         setQuestionOptions(questions);
+                        setIsloading(false);
                     } else {
                         setNoQuestion(true)
                     }
@@ -74,21 +75,22 @@ export default function MatchingLobbyPrepCollabView({
         if (questionOptions.length > 0) {
             setQuestion([questionOptions[0].id!])
         }
-        if (languageOptions.length > 0) {     
+        if (languageOptions.length > 0) {
             setLanguage([languageOptions[0]])
         }
-        
         if (questionOptions.length === 1 && languageOptions.length === 1) {
             setIsloading(true);
             socketService?.requestStartCollaboration(questionOptions[0].id!, languageOptions[0]);
         }
-        setIsloading(false);
-    }, [questionOptions, languageOptions])    
+    }, [questionOptions, languageOptions, isLoading])
 
     return (
         <>
             <ModalHeader>
-                Setting up Peerprep
+                {noQuestion 
+                    ? (<>No Questions Available</>) 
+                    : (<>Setting up Peerprep</>)
+                }
             </ModalHeader>
             <ModalBody className="p-4 px-6">
                 <div className="flex flex-col gap-2 items-center justify-center">
@@ -137,7 +139,7 @@ export default function MatchingLobbyPrepCollabView({
                             }
                         </div>
                     }
-                    {isLoading &&
+                    {isLoading && !noQuestion &&
                         <CircularProgress
                             classNames={{
                                 svg: "w-24 h-24"
@@ -145,9 +147,8 @@ export default function MatchingLobbyPrepCollabView({
                         </CircularProgress>
                     }
                     {noQuestion &&
-                        <div className="flex flex-col items-center gap-2 text-center pb-4">
+                        <div className="flex flex-col items-center gap-4 text-center">
                             <Icons.FiX className="w-24 h-24  text-danger" />
-                            <p>No questions available!</p>
                             <p>Sorry, unable to find suitable questions, please change your preference.</p>
                             <Button onPress={onClose}>Ok</Button>
                         </div>

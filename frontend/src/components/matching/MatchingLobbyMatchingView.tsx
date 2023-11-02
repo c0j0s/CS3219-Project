@@ -1,4 +1,4 @@
-import { ModalBody, ModalFooter, Button, CircularProgress, Tooltip } from "@nextui-org/react";
+import { ModalBody, ModalFooter, Button, CircularProgress, Tooltip, ModalHeader } from "@nextui-org/react";
 import ComplexityChip from "../question/ComplexityChip";
 import { useEffect, useState } from "react";
 import Preference from "@/types/preference";
@@ -6,6 +6,7 @@ import SocketService from "@/helpers/matching/socket_service";
 import { useAuthContext } from "@/contexts/auth";
 import { Icons } from "../common/Icons";
 import MatchingPreferenceList from "./MatchingPreferenceList";
+import { getLogger } from "@/helpers/logger";
 
 export default function MatchingLobbyMatchingView(
     {
@@ -38,7 +39,7 @@ export default function MatchingLobbyMatchingView(
                 preferences: preference
             });
         } catch (error) {
-            console.log(error);
+            getLogger().error(error);
             onError();
         }
     }
@@ -70,8 +71,11 @@ export default function MatchingLobbyMatchingView(
 
 
     return (
-        <>
-            <ModalBody className="flex flex-col gap-2 p-2 h-full items-center justify-center my-4">
+        <>            
+        <ModalHeader>
+            Looking for a Match
+        </ModalHeader>
+            <ModalBody className="flex flex-col gap-2 p-2 h-full items-center justify-center">
                 <CircularProgress
                     classNames={{
                         svg: "w-24 h-24"
@@ -80,7 +84,6 @@ export default function MatchingLobbyMatchingView(
                     label={timer + "s"}
                 >
                 </CircularProgress>
-                <span>Waiting for a match...</span>
                 <MatchingPreferenceList 
                     languages={preference?.languages || []} 
                     topics={preference?.topics || []} 

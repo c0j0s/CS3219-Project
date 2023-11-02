@@ -183,7 +183,7 @@ export default function ForgotPasswordComponent() {
                 />
                 <Spacer y={5} />
                 {!isSubmitted && (
-                  <Button color="primary" type="submit" isLoading={isLoading}>
+                  <Button className="bg-sky-600" type="submit" isLoading={isLoading}>
                     {isLoading ? null : <>Reset Password</>}
                   </Button>
                 )}
@@ -199,7 +199,7 @@ export default function ForgotPasswordComponent() {
               ) : null}
 
               <Link
-                className="cursor-pointer"
+                className="cursor-pointer hover:underline text-sky-600"
                 onClick={() => {
                   router.push(CLIENT_ROUTES.LOGIN);
                 }}

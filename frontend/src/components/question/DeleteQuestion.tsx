@@ -5,6 +5,7 @@ import { Icons } from "../common/Icons";
 import displayToast from "../common/Toast";
 import { HTTP_METHODS, ToastType } from "@/types/enums";
 import HttpStatusCode from "@/types/HttpStatusCode";
+import { getLogger } from "@/helpers/logger";
 
 export default function DeleteQuestion({ id }: { id: string }) {
   const [isConfirm, setIsConfirm] = useState<boolean>(false);
@@ -23,7 +24,7 @@ export default function DeleteQuestion({ id }: { id: string }) {
         displayToast("Fail to delete question.", ToastType.ERROR);
       }
     } catch (error) {
-      console.log(error);
+      getLogger().error(error);
     }
     setIsLoading(false);
   }
