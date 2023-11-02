@@ -1,8 +1,10 @@
+import { AiFillEdit } from "react-icons/ai";
 import { BsFileEarmarkCode } from "react-icons/bs";
 import { TiTick } from "react-icons/ti";
 import { RxReset, RxCross2 } from "react-icons/rx";
 import { BiExitFullscreen, BiFullscreen } from "react-icons/bi";
 import { FaUserSlash } from "react-icons/fa";
+import { GoLinkExternal } from "react-icons/go";
 import {
   FiCheck,
   FiCodepen,
@@ -70,4 +72,6 @@ export const Icons = {
   RxCross2,
   BsSendFill,
   Anchor,
+  AiFillEdit,
+  GoLinkExternal
 };

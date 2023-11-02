@@ -41,7 +41,7 @@ export default function ProfileComponent({ user }: ProfileComponentProps) {
 
   return (
     <div className="flex flex-col items-center align-middle justify-center h-screen space-y-6">
-      <Card className="flex w-unit-8xl">
+      <Card className="flex w-unit-8xl bg-black">
         <CardBody className="justify-center space-y-5">
           {isChangePassword ? (
             <ChangePassword setIsChangePassword={setIsChangePassword} />

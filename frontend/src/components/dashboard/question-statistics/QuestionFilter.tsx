@@ -25,7 +25,7 @@ const QuestionFilter = () => {
       {topicData.length > maxTopicsToShow && (
         <button
           onClick={() => setShowMore(!showMore)}
-          className="mx-2 text-sm text-cyan-600"
+          className="mx-2 text-sm text-sky-500 hover:underline"
         >
           {showMore ? "Hide" : "Show more..."}
         </button>
