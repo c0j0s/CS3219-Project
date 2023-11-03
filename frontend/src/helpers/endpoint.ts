@@ -7,7 +7,7 @@ import HttpStatusCode from "@/types/HttpStatusCode";
 
 const logger = getLogger("endpoint");
 
-const host = process.env.ENDPOINT || "http://localhost";
+let host = process.env.ENDPOINT || "http://localhost";
 
 /**
  * Configuration object for API calls.
@@ -40,6 +40,10 @@ type ApiResponse = {
 export default async function api(config: ApiConfig): Promise<ApiResponse> {
   // Configure local domain port based on the 'domain' property in the configuration.
   let servicePort = getServicePorts(config.domain);
+
+  if (process.env.CONTAINERIZED == 'true') {
+    host = getServiceGateway(config.domain);
+  }
 
   // Build the final API endpoint URL.
   const endpoint = `${host}${servicePort}/${config.domain}/api/${
@@ -175,6 +179,20 @@ function getServicePorts(domain: DOMAIN) {
     }
 
     return servicePort;
+  }
+  return "";
+}
+
+/**
+ * Builds the gateway in a dockerized environment
+ * @param domain {SERVICE}
+ * @returns 
+ */
+function getServiceGateway(domain: DOMAIN) {
+  if (process.env.BUILD_ENV == "development") {
+    let gateway = "http://";
+    gateway += `${domain.toString()}-service`;
+    return gateway;
   }
   return "";
 }

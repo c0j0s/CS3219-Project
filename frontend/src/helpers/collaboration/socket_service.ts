@@ -105,7 +105,7 @@ class SocketService {
   }
 
   receiveCodeUpdate = (
-    setCurrentCode: React.Dispatch<React.SetStateAction<string>>
+    setCurrentCode: React.Dispatch<React.SetStateAction<string>>,
   ) => {
     this.socket.on(SocketEvent.CODE_UPDATE, (content: string) => {
       setCurrentCode(content);

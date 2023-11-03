@@ -17,41 +17,43 @@ services:
     networks:
       - peerprep
 
-  # user-service:
-  #   container_name: user-service
-  #   build: 
-  #     context: ./backend/user-service
-  #     dockerfile: Dockerfile
-  #   env_file:
-  #     - ./.env
-  #   ports:
-  #     - "5005:5005"
-  #   networks:
-  #     - peerprep
+  user-service:
+    container_name: user-service
+    build: 
+      context: ./backend/user-service
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env
+    ports:
+      - "5005:5005"
+    networks:
+      - peerprep
 
-  # question-service:
-  #   container_name: question-service
-  #   build:
-  #     context: ./backend/question-service
-  #     dockerfile: Dockerfile
-  #   env_file:
-  #     - ./.env
-  #   ports:
-  #     - "5100:5100"
-  #   networks:
-  #     - peerprep
+  question-service:
+    container_name: question-service
+    build:
+      context: ./backend/question-service
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env
+    ports:
+      - "5100:5100"
+    networks:
+      - peerprep
 
-  # auth-service:
-  #   container_name: auth-service
-  #   build:
-  #     context: ./backend/auth-service
-  #     dockerfile: Dockerfile
-  #   env_file:
-  #     - ./.env
-  #   ports:
-  #     - "5050:5050"
-  #   networks:
-  #     - peerprep
+  auth-service:
+    container_name: auth-service
+    build:
+      context: ./backend/auth-service
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env
+    ports:
+      - "5050:5050"
+    networks:
+      - peerprep
+    depends_on:
+      - user-service
 
   matching-service:
     container_name: matching-service
@@ -59,7 +61,9 @@ services:
       context: ./backend/matching-service
       dockerfile: Dockerfile
       args:
-        EVENT_BUS_CONTAINER_NAME: event-bus 
+        EVENT_BUS_CONTAINER_NAME: event-bus
+    env_file:
+      - ./.env
     ports:
       - "5200:5200"
     networks:
@@ -89,16 +93,17 @@ services:
     networks:
       - peerprep
 
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile
-  #   env_file:
-  #     - ./.env
-  #   ports:
-  #     - "3000:3000"
-  #   networks:
-  #     - peerprep
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports: 
+      - "3000:3000"
+    env_file:
+      - ./.env
+    networks:
+      - peerprep
     
 networks:
   peerprep:
