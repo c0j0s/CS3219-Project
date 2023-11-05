@@ -1,4 +1,4 @@
-version: '1.0.0'
+version: '3'
 
 services:
   event-bus:
@@ -26,6 +26,7 @@ services:
       - ./.env
     ports:
       - "5005:5005"
+    restart: always
     networks:
       - peerprep
 
@@ -38,6 +39,7 @@ services:
       - ./.env
     ports:
       - "5100:5100"
+    restart: always
     networks:
       - peerprep
 
@@ -50,6 +52,7 @@ services:
       - ./.env
     ports:
       - "5050:5050"
+    restart: always
     networks:
       - peerprep
     depends_on:
@@ -66,6 +69,7 @@ services:
       - ./.env
     ports:
       - "5200:5200"
+    restart: always
     networks:
       - peerprep
 
@@ -78,6 +82,7 @@ services:
       - ./.env
     ports:
       - "5300:5300"
+    restart: always
     networks:
       - peerprep
 
@@ -90,20 +95,29 @@ services:
       - ./.env
     ports:
       - "5400:5400"
+    restart: always
     networks:
       - peerprep
 
-  # frontend:
-  #   container_name: frontend
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile
-  #   ports: 
-  #     - "3000:3000"
-  #   env_file:
-  #     - ./.env
-  #   networks:
-  #     - peerprep
+  frontend:
+    depends_on:
+      - auth-service
+      - user-service
+      - matching-service
+      - collaboration-service
+      - history-service
+      - question-service
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports: 
+      - "3000:3000"
+    env_file:
+      - ./.env
+    restart: always
+    networks:
+      - peerprep
     
 networks:
   peerprep:

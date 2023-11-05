@@ -63,7 +63,7 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
     Cookie: jwtCookieString,
   };
   logger.info(
-    `[endpoint] ${config.method}: ${endpoint} with header: ${JSON.stringify(
+    `[endpoint:api] ${config.method}: ${endpoint} with header: ${JSON.stringify(
       header
     )}`
   );
@@ -143,10 +143,14 @@ export async function getSocketConfig(domain: DOMAIN) {
   // Configure local domain port.
   let servicePort = getServicePorts(domain);
 
+  if (process.env.CONTAINERIZED == 'true') {
+    host = getServiceGateway(domain);
+  }
+
   // Build the final API endpoint URL.
   const endpoint = `${host}${servicePort}`;
   const path = `/${domain}/socket`;
-  logger.info(`[endpoint] socket: ${endpoint}`);
+  logger.info(`[endpoint:getSocketConfig] socket: ${endpoint}`);
   return { endpoint, path };
 }
 
@@ -194,9 +198,7 @@ function getServicePorts(domain: DOMAIN) {
  */
 function getServiceGateway(domain: DOMAIN) {
   if (process.env.BUILD_ENV == "development") {
-    let gateway = "http://";
-    gateway += `${domain.toString()}-service`;
-    return gateway;
+    return `http://${domain.toString()}-service`;
   }
   return "";
 }
