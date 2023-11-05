@@ -41,21 +41,24 @@ const MatchingCard = () => {
 
   const handleOnSelectionChange = (event: ChangeEvent<HTMLSelectElement>) => {
     if (event.target.value === "") {
-      displayToast(`${event.target.name} is required`);
-      return;
+      setPreferences({
+        ...preferences,
+        [event.target.name]: [],
+      });
+    } else {
+      setPreferences({
+        ...preferences,
+        [event.target.name]: event.target.value.split(","),
+      });
     }
-    setPreferences({
-      ...preferences,
-      [event.target.name]: event.target.value.split(","),
-    });
   };
 
   const handleGetMatched = () => {
     if (Object.values(preferences).some((x) => x.length == 0)) {
       displayToast(`Invalid matching options.`, ToastType.ERROR);
-      return;
+    } else {
+      onOpen();
     }
-    onOpen();
   };
 
   const handleReset = () => {
