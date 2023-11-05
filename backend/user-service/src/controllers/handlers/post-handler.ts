@@ -4,7 +4,6 @@ import { ZodError } from "zod";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import db from "../../lib/db";
 import { formatErrorMessage } from "../../lib/utils/errorUtils";
-import jwt from "jsonwebtoken";
 
 export const postUser = async (request: Request, response: Response) => {
   try {
@@ -44,21 +43,8 @@ export const postUser = async (request: Request, response: Response) => {
       return;
     }
 
-    // generate verification token for email verification
-    const secretKey = process.env.EMAIL_VERIFICATION_SECRET || "secret";
-
-    const verificationToken = jwt.sign(
-      { email: createUserBody.email },
-      secretKey
-    );
-
-    const userData = {
-      ...createUserBody,
-      verificationToken: verificationToken,
-    };
-
     const user = await db.user.create({
-      data: userData,
+      data: createUserBody,
     });
 
     if (!user) {
@@ -77,7 +63,6 @@ export const postUser = async (request: Request, response: Response) => {
     response.status(HttpStatusCode.CREATED).json({
       id: user.id,
       email: user.email,
-      verificationToken: user.verificationToken,
       message: "User created.",
     });
   } catch (error) {

@@ -93,8 +93,8 @@ const AttemptedQuestionTable = ({
         return <ComplexityChip complexity={record.complexity} size="sm" />;
       case "language":
         return (
-          <Chip size="sm" variant="bordered" className="text-sm">
-            {record.language}
+          <Chip size="sm" variant="bordered" className="text-sm capitalize">
+            {record.language.toLowerCase()}
           </Chip>
         );
       case "topics":

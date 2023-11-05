@@ -27,6 +27,7 @@ export const getPostUserPayload = () => {
     image: "https://testimage.com/image.png",
     bio: "Test bio",
     gender: "MALE",
+    verificationToken: "token",
   };
 };
 

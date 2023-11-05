@@ -19,7 +19,9 @@ import bcrypt from "bcryptjs-react";
 import displayToast from "@/components/common/Toast";
 import { CLIENT_ROUTES } from "@/common/constants";
 import z from "zod";
-import { is } from "date-fns/locale";
+import { PeerPrepErrors } from "@/types/PeerPrepErrors";
+import LogoLoadingComponent from "../common/LogoLoadingComponent";
+import InvalidResetLinkComponent from "./InvalidResetLinkComponent";
 
 export default function ForgotPasswordComponent() {
   // States
@@ -31,10 +33,12 @@ export default function ForgotPasswordComponent() {
   const [arePasswordsEqual, setArePasswordsEqual] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isPageLoading, setIsPageLoading] = useState(true);
 
   // Flags
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isChangePassword, setIsChangePassword] = useState(false); // redirected from email
+  const [isResetLinkValid, setIsResetLinkValid] = useState(false); // redirected from email
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isCheckPasswordVisible, setIsCheckPasswordVisible] = useState(false);
 
@@ -46,6 +50,44 @@ export default function ForgotPasswordComponent() {
 
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  // Determines which card to render (send password reset email or change password)
+  useEffect(() => {
+    const userId = searchParams.get("id");
+    const token = searchParams.get("token");
+
+    if (userId && token) {
+      setIsChangePassword(true);
+      verifyPasswordResetLinkValidity(userId, token);
+      setUserId(userId);
+      setToken(token);
+    } else {
+      setIsPageLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    // call api that takes in email and generates a token
+  }, [isSubmitted]);
+
+  async function verifyPasswordResetLinkValidity(
+    userId: string,
+    token: string
+  ) {
+    try {
+      const res = await AuthService.verifyPasswordResetLinkValidity(
+        userId,
+        token
+      );
+      if (res) {
+        setIsResetLinkValid(true);
+      }
+    } catch (error) {
+      setIsResetLinkValid(false);
+    } finally {
+      setIsPageLoading(false);
+    }
+  }
 
   async function sendPasswordResetEmail(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -70,7 +112,14 @@ export default function ForgotPasswordComponent() {
         setIsSubmitted(true);
       }
     } catch (error) {
-      setIsSubmitted(true);
+      if (error instanceof PeerPrepErrors.InternalServerError) {
+        displayToast(
+          "Something went wrong. Please try again.",
+          ToastType.ERROR
+        );
+      } else {
+        setIsSubmitted(true);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -87,10 +136,14 @@ export default function ForgotPasswordComponent() {
       return;
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedNewPassword = await bcrypt.hash(password, 10);
 
     try {
-      let res = await AuthService.changePassword(userId, token, hashedPassword);
+      let res = await AuthService.changePassword({
+        id: userId,
+        token: token,
+        hashedNewPassword: hashedNewPassword,
+      });
       if (res) {
         setIsSubmitted(true);
       }
@@ -103,7 +156,6 @@ export default function ForgotPasswordComponent() {
   }
 
   // Validation
-
   const validateEmail = (value: string) => {
     try {
       z.string().email().min(3).max(254).parse(value);
@@ -138,22 +190,9 @@ export default function ForgotPasswordComponent() {
     arePasswordsEqual,
   ]);
 
-  useEffect(() => {
-    const userId = searchParams.get("id");
-    const token = searchParams.get("token");
-
-    if (userId && token) {
-      setIsChangePassword(true);
-      setUserId(userId);
-      setToken(token);
-    }
-  }, []);
-
-  useEffect(() => {
-    // call api that takes in email and generates a token
-  }, [isSubmitted]);
-
-  return (
+  return isPageLoading ? (
+    <LogoLoadingComponent />
+  ) : (
     <div className="flex items-center justify-center h-screen">
       <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10">
         {!isChangePassword ? (
@@ -181,18 +220,24 @@ export default function ForgotPasswordComponent() {
                   }}
                   isDisabled={isSubmitted}
                 />
-                <Spacer y={5} />
+
                 {!isSubmitted && (
-                  <Button className="bg-sky-600" type="submit" isLoading={isLoading}>
-                    {isLoading ? null : <>Reset Password</>}
-                  </Button>
+                  <>
+                    <Spacer y={5} />
+                    <Button
+                      className="bg-sky-600"
+                      type="submit"
+                      isLoading={isLoading}
+                    >
+                      {isLoading ? null : <>Reset Password</>}
+                    </Button>
+                  </>
                 )}
               </form>
               {isSubmitted ? (
                 <>
-                  <p className="text-success-500 text-sm py-5">
-                    If an account with this email address exists, you will
-                    receive an email with instructions on how to reset your
+                  <p className="text-success-500 text-sm">
+                    Check your email for instructions on how to reset your
                     password.
                   </p>
                 </>
@@ -200,6 +245,37 @@ export default function ForgotPasswordComponent() {
 
               <Link
                 className="cursor-pointer hover:underline text-sky-600"
+                size="sm"
+                onClick={() => {
+                  router.push(CLIENT_ROUTES.LOGIN);
+                }}
+              >
+                Back to login
+              </Link>
+            </CardBody>
+          </div>
+        ) : !isResetLinkValid ? (
+          <div className="w-1/2">
+            <PeerPrepLogo />
+            <CardHeader className="lg font-bold justify-center">
+              Invalid Link
+            </CardHeader>
+            <CardBody className="flex flex-col items-center text-center pt-5 space-y-5 text-sm">
+              If you still need to reset your password, please request for a new
+              link.
+              <Spacer y={5} />
+              <Link
+                className="cursor-pointer hover:underline text-sky-600"
+                size="sm"
+                onClick={() => {
+                  router.push(CLIENT_ROUTES.FORGOT_PASSWORD);
+                }}
+              >
+                Forgot password?
+              </Link>
+              <Link
+                className="cursor-pointer hover:underline text-sky-600"
+                size="sm"
                 onClick={() => {
                   router.push(CLIENT_ROUTES.LOGIN);
                 }}
@@ -223,7 +299,7 @@ export default function ForgotPasswordComponent() {
               <Spacer y={3} />
               <Input
                 type={isPasswordVisible ? "text" : "password"}
-                placeholder="Password"
+                placeholder="Enter new password"
                 isClearable
                 isRequired
                 fullWidth
@@ -291,15 +367,16 @@ export default function ForgotPasswordComponent() {
                 <p className="text-success-500 text-sm py-5">
                   Successfully changed
                 </p>
-                <Button
-                  color="primary"
-                  className="w-1/2"
+
+                <Link
+                  className="cursor-pointer hover:underline text-sky-600"
+                  size="sm"
                   onClick={() => {
                     router.push(CLIENT_ROUTES.LOGIN);
                   }}
                 >
                   Back to login
-                </Button>
+                </Link>
               </>
             ) : null}
           </>

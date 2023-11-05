@@ -93,17 +93,17 @@ services:
     networks:
       - peerprep
 
-  frontend:
-    container_name: frontend
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports: 
-      - "3000:3000"
-    env_file:
-      - ./.env
-    networks:
-      - peerprep
+  # frontend:
+  #   container_name: frontend
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   ports: 
+  #     - "3000:3000"
+  #   env_file:
+  #     - ./.env
+  #   networks:
+  #     - peerprep
     
 networks:
   peerprep:

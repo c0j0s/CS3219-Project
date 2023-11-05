@@ -24,7 +24,6 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className="h-screen bg-background" suppressHydrationWarning={true}>
         <Providers>
-          <NavBar />
           {children}
           <ToastContainer />
         </Providers>

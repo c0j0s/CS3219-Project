@@ -11,6 +11,8 @@ export const UpdateUserValidator = z.object({
   bio: z.string().max(255).optional(),
   gender: z.string().transform(convertStringToGender).optional(),
   passwordResetToken: z.string().optional(),
+  isVerified: z.boolean().optional(),
+  verificationToken: z.string().optional(),
 });
 
 export type UpdateUserValidatorType = z.infer<typeof UpdateUserValidator>;
