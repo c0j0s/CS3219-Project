@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Icons } from "../common/Icons";
 import { Badge, Button, Code, Spacer, useDisclosure } from "@nextui-org/react";
 import CodeEditorNavBarTooltip from "./CodeEditorNavBarTooltip";

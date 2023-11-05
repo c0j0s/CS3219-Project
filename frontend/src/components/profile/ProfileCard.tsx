@@ -1,11 +1,10 @@
 "use client";
-import React, { useState, useRef, useEffect } from "react";
-import { Badge, Card, CardHeader, Spacer, Spinner } from "@nextui-org/react";
+import React, { useState, useRef } from "react";
+import { Badge, Card, CardHeader, Spacer } from "@nextui-org/react";
 import User from "@/types/user";
 import displayToast from "../common/Toast";
 import { HTTP_METHODS, ToastType } from "@/types/enums";
 import ProfilePictureAvatar from "../common/ProfilePictureAvatar";
-import { uploadImageToS3 } from "@/helpers/aws/s3_client";
 import { getLogger } from "@/helpers/logger";
 import { Icons } from "../common/Icons";
 import SpinnerLoadingComponent from "../common/SpinnerLoadingComponent";

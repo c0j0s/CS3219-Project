@@ -53,8 +53,8 @@ export default function RoomPage({ params }: RoomPageProps) {
         <LogoLoadingComponent />
       ) : (
         <>
-          <Workspace />
-          <ChatSpaceToggle />
+            <Workspace />
+            <ChatSpaceToggle />
         </>
       )}
     </div>

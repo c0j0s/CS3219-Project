@@ -1,10 +1,9 @@
 "use client";
-import React, { FormEvent, useState } from "react";
+import React, { useState } from "react";
 import ProfileCard from "./ProfileCard";
 import {
   Card,
   CardBody,
-  CardHeader,
   Button,
   Link,
   useDisclosure,

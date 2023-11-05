@@ -1,7 +1,7 @@
 import { CLIENT_ROUTES } from "@/common/constants";
 import ComplexityChip from "@/components/question/ComplexityChip";
 import { useHistoryContext } from "@/contexts/history";
-import History, { QuestionHistory } from "@/types/history";
+import { QuestionHistory } from "@/types/history";
 import { cn } from "@/utils/classNameUtils";
 import { StringUtils } from "@/utils/stringUtils";
 import {
@@ -19,7 +19,7 @@ import {
   getKeyValue,
 } from "@nextui-org/react";
 import { formatDistanceToNow } from "date-fns";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 interface AttemptedQuestionTableProps {
   isFullPage?: boolean;
@@ -84,7 +84,7 @@ const AttemptedQuestionTable = ({
             )}&completedAt=${encodeURIComponent(completedAt)}`}
             color="foreground"
             size="sm"
-            className="font-normal hover:font-semibold hover:underline text-sm"
+            className="font-normal hover:text-yellow text-sm"
           >
             {record.title}
           </Link>
@@ -208,7 +208,7 @@ const AttemptedQuestionTable = ({
               isCompact
               showControls
               showShadow
-              color="secondary"
+              color="warning"
               page={page}
               total={pages}
               onChange={(page) => setPage(page)}

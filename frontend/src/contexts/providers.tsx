@@ -2,8 +2,6 @@
 
 import { AuthProvider } from "@/contexts/auth";
 import { NextUIProvider } from "@nextui-org/react";
-import { CollabProvider } from "@/contexts/collab";
-import { HistoryProvider } from "@/contexts/history";
 import { TopicProvider } from "./topic";
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -11,9 +9,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <NextUIProvider>
       <AuthProvider>
         <TopicProvider>
-          <CollabProvider>
-            <HistoryProvider>{children}</HistoryProvider>
-          </CollabProvider>
+            {children}
         </TopicProvider>
       </AuthProvider>
     </NextUIProvider>

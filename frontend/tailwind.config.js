@@ -21,6 +21,7 @@ module.exports = {
           colors: {
             background: "#1F1F1F",
             secondary: "#9BC8E3",
+            warning: "#F4BA41",
             yellow: "#F4BA41",
             orange: "#EC8B33",
             blue: "#4D9CB9",
