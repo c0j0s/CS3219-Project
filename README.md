@@ -1,9 +1,9 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/6BOvYMwN)
 
 
-# Setting up our environment locally:
+# Setting up our environment locally
 
-Note: Ensure you have node version v18.18.2 or higher and install Docker Compose: https://docs.docker.com/compose/
+<strong>Note: Ensure you have [npm installed with node version v18.18.2](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) or higher and install [Docker Compose](https://docs.docker.com/compose/).</strong>
 
 ### Local Deployment Architecture
 ![cs3219_overall_architecture-local deployment drawio](https://github.com/CS3219-AY2324S1/ay2324s1-course-assessment-g05/assets/70256674/1effd102-dec3-4ba1-8b4f-04bba5f1e178)
