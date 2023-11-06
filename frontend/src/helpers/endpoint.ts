@@ -144,7 +144,7 @@ export async function getSocketConfig(domain: DOMAIN) {
   let servicePort = getServicePorts(domain);
 
   if (process.env.CONTAINERIZED == 'true') {
-    host = getServiceGateway(domain);
+    host = "http://localhost";
   }
 
   // Build the final API endpoint URL.
