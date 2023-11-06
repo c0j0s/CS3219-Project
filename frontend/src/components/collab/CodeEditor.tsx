@@ -23,7 +23,6 @@ const CodeEditor: FC<CodeEditorProps> = ({
   const decorations = useRef<monaco.editor.IEditorDecorationsCollection | null>(null);
   const isSocketEvent = useRef(false);
   const isHighlightingEvent = useRef(false);
-  const isLoadingFromCache = useRef(true);
   const [receivedEvents, setReceivedEvents] = useState<string[]>([]);
   const [partnerCursor, setPartnerCursor] = useState<Position>(new Position(1, 1));
   const [partnerConnected, setPartnerConnected] = useState<boolean>(false);
@@ -119,8 +118,6 @@ const CodeEditor: FC<CodeEditorProps> = ({
     // Subscribe to model changes
     editor.onDidChangeModelContent((event: monaco.editor.IModelContentChangedEvent) => {
       // Emitting changes only due to keypress and not due to socket service
-      console.log("Trying to emit changes: ", event.changes[0]);
-      console.log("Is loading from cache: ", isLoadingFromCache.current);
       if (!isSocketEvent.current) {
         // Emitting changes: event.changes[0] is the change object that the other editor can execute  
         for (let i = 0; i < event.changes.length; i++) {

@@ -49,7 +49,6 @@ export const SocketHandler = (socket: Socket) => {
   socket.on(
     SocketEvent.SEND_CODE_EVENT,
     (codeDict: { roomId: string; event: string; }) => {
-      console.log(codeDict);
       socket.to(codeDict.roomId).emit(SocketEvent.CODE_EVENT, codeDict.event);
     }
   )

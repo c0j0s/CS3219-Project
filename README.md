@@ -3,10 +3,10 @@
 
 # Setting up our environment locally
 
-<strong>Note: Ensure you have [npm installed with node version v18.18.2](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) or higher and install [Docker Compose](https://docs.docker.com/compose/).</strong>
+<strong>Note: Ensure you have installed [Docker Compose](https://docs.docker.com/compose/).</strong>
 
 ### Local Deployment Architecture
-![cs3219_overall_architecture-local deployment drawio](https://github.com/CS3219-AY2324S1/ay2324s1-course-assessment-g05/assets/70256674/1effd102-dec3-4ba1-8b4f-04bba5f1e178)
+![cs3219_overall_architecture-local deployment drawio](https://github.com/CS3219-AY2324S1/ay2324s1-course-assessment-g05/assets/70256674/0faf97c5-6b50-4d2d-a23c-abd3cf8d9a5f)
 
 
 ### Instructions on setting up local deployment
@@ -17,20 +17,12 @@
 
 ![image](https://github.com/CS3219-AY2324S1/ay2324s1-course-assessment-g05/assets/70256674/ee7ad5b8-d861-40ff-9e34-7e012442bb24)
 
-3. Copy and paste the same .env file into the frontend directory `/frontend/`:
+3. In the root directory `/`, run `docker compose -p peerprep up` to launch the backend services. 
 
-![image](https://github.com/CS3219-AY2324S1/ay2324s1-course-assessment-g05/assets/70256674/164f0701-3a33-4576-abd3-7cf7cab5bcca)
+4. Wait for the containers to stabilize before proceeding with the application.
 
-4. In this `/frontend/` directory, run `npm install`, followed by `npm run build && node .next/standalone/server.js`. This should download all the required packages and start up the frontend.
+Console: (Fully deployed state)
 
-5. In the root directory `/`, run `docker compose -p peerprep up` to launch the backend services. 
+![image](https://github.com/CS3219-AY2324S1/ay2324s1-course-assessment-g05/assets/70256674/c0182291-479d-4165-9e9a-f1cb2bbb5cf6)
 
-6. Wait for both frontend and backend to stabilize before moving forwards with the application.
-
-Frontend:
-
-![image](https://github.com/CS3219-AY2324S1/ay2324s1-course-assessment-g05/assets/70256674/d976ecdf-c016-4010-b00d-c02d1896c501)
-
-Backend: (Fully deployed state of running 8/8 containers)
-
-![image](https://github.com/CS3219-AY2324S1/ay2324s1-course-assessment-g05/assets/70256674/81080754-7524-4fed-a894-ff832bbb0e3d)
+The last container should indicate that frontend is live at [http://localhost:3000](http://localhost:3000).
