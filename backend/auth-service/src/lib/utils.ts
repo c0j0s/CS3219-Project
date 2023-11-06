@@ -15,7 +15,7 @@ const getJWTSecret = (): string => {
 };
 
 const getServiceSecret = (): string => {
-  return process.env.SERVICE_SECRET || "secret";
+  return process.env.USER_SERVICE_SECRET || "secret";
 };
 
 const issueJWT = (userId: string) => {

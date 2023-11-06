@@ -11,14 +11,14 @@ export const authMiddleware = async (
   next: NextFunction
 ) => {
   if (req.headers.bypass) {
-    const serviceSecret = process.env.SERVICE_SECRET || "secret";
+    const serviceSecret = process.env.USER_SERVICE_SECRET || "secret";
     // bypass auth for calls from auth service
     if (req.headers.bypass === serviceSecret) {
       next();
       return;
     }
   }
-  
+
   if (req.url === "/health") {
     next();
     return;
