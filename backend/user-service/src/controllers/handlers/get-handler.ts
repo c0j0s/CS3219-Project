@@ -25,12 +25,20 @@ export const getHealth = async (_: Request, response: Response) => {
 export const getUserById = async (request: Request, response: Response) => {
   try {
     const userId = request.params.userId;
+
     // query database for user with id
     const user = await db.user.findFirst({
       where: {
         id: userId,
       },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        image: true,
+        bio: true,
+        gender: true,
         preferences: {
           select: {
             languages: true,
@@ -38,9 +46,11 @@ export const getUserById = async (request: Request, response: Response) => {
             difficulties: true,
           },
         },
+        createdOn: true,
+        updatedOn: true,
       },
     });
-    
+
     if (!user) {
       response.status(HttpStatusCode.NOT_FOUND).json({
         error: "NOT FOUND",
@@ -79,7 +89,14 @@ export const getUserByEmail = async (request: Request, response: Response) => {
       where: {
         email: parsedEmail,
       },
-      include: {
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        image: true,
+        bio: true,
+        gender: true,
         preferences: {
           select: {
             languages: true,
@@ -87,6 +104,8 @@ export const getUserByEmail = async (request: Request, response: Response) => {
             difficulties: true,
           },
         },
+        createdOn: true,
+        updatedOn: true,
       },
     });
 

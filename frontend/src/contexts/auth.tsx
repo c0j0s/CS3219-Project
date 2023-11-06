@@ -1,18 +1,16 @@
 "use client";
+
 import LogoLoadingComponent from "@/components/common/LogoLoadingComponent";
+import NavBar from "@/components/common/NavBar";
 import { AuthService } from "@/helpers/auth/auth_api_wrappers";
 import { getLogger } from "@/helpers/logger";
-import { getTopics } from "@/helpers/question/question_api_wrappers";
 import { Role } from "@/types/enums";
 import User from "@/types/user";
-import { StringUtils } from "@/utils/stringUtils";
-import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface IAuthContext {
   user: User;
-  mutate: (preventLoading: boolean) => Promise<void>;
-  isAuthenticated: boolean;
+  fetchUser: (preventLoading: boolean) => Promise<void>;
   logIn: (email: string, password: string) => Promise<void>;
   logOut: () => Promise<void>;
 }
@@ -32,8 +30,7 @@ const defaultUser: User = {
 
 const AuthContext = createContext<IAuthContext>({
   user: defaultUser,
-  mutate: () => Promise.resolve(),
-  isAuthenticated: false,
+  fetchUser: () => Promise.resolve(),
   logIn: (email: string, password: string) => Promise.resolve(),
   logOut: () => Promise.resolve(),
 });
@@ -46,8 +43,6 @@ const AuthProvider = ({ children }: IAuthProvider) => {
   const [user, setUser] = useState<User>(defaultUser);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const router = useRouter();
-
   useEffect(() => {
     fetchUser();
   }, []);
@@ -56,6 +51,7 @@ const AuthProvider = ({ children }: IAuthProvider) => {
   const fetchUser = async (preventLoading?: boolean) => {
     !preventLoading && setIsLoading(true);
     try {
+      // POST /validate will not return password
       const rawUser = await AuthService.validateUser();
       updateUser(rawUser);
     } catch (error) {
@@ -81,8 +77,8 @@ const AuthProvider = ({ children }: IAuthProvider) => {
   };
 
   const logIn = async (email: string, password: string) => {
-    await AuthService.logInByEmail(email, password);
-    await fetchUser(true);
+    const user = await AuthService.logInByEmail(email, password);
+    updateUser(user!);
   };
 
   const logOut = async () => {
@@ -95,6 +91,7 @@ const AuthProvider = ({ children }: IAuthProvider) => {
       // this is the loading component that will render in every page when fetching user auth status
       return <LogoLoadingComponent />;
     }
+
     return children;
   };
 
@@ -102,12 +99,12 @@ const AuthProvider = ({ children }: IAuthProvider) => {
     <AuthContext.Provider
       value={{
         user,
-        mutate: fetchUser,
-        isAuthenticated: !!user.id,
+        fetchUser,
         logIn,
         logOut,
       }}
     >
+      {!!user.id && <NavBar />}
       {renderComponents()}
     </AuthContext.Provider>
   );

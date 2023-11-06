@@ -9,6 +9,7 @@ import HttpStatusCode from "@/types/HttpStatusCode";
 import History, { DataItem, QuestionHistory } from "@/types/history";
 import { getError, throwAndLogError } from "@/utils/errorUtils";
 import { StringUtils } from "../../utils/stringUtils";
+import { PeerPrepErrors } from "@/types/PeerPrepErrors";
 
 const logger = getLogger("history_api_wrappers");
 
@@ -234,24 +235,6 @@ const createHistory = async (
   language: string,
   code: string
 ) => {
-  // convert language to API format
-  switch (language.toLowerCase()) {
-    case "cpp":
-      language = "C++";
-      break;
-    case "python":
-      language = "PYTHON";
-      break;
-    case "java":
-      language = "JAVA";
-      break;
-    case "javascript":
-      language = "JAVASCRIPT";
-      break;
-    default:
-      break;
-  }
-
   const response = await api({
     method: HTTP_METHODS.POST,
     domain: historyDomain,
@@ -259,7 +242,7 @@ const createHistory = async (
     body: {
       userId: userId,
       questionId: questionId,
-      language: language,
+      language: convertLanguageToApiFormat(language),
       code: code,
     },
   });
@@ -271,6 +254,33 @@ const createHistory = async (
 
   return throwAndLogError(
     "createHistory",
+    response.message,
+    getError(response.status)
+  );
+};
+
+const updateQuestionCodeSubmission = async (
+  userId: string,
+  questionId: string,
+  language: string,
+  code: string
+) => {
+  const response = await api({
+    method: HTTP_METHODS.PUT,
+    domain: historyDomain,
+    path: baseRoute + `/user/${userId}/question/${questionId}/code`,
+    body: {
+      language: convertLanguageToApiFormat(language),
+      code: code,
+    },
+  });
+
+  if (response.status === HttpStatusCode.NO_CONTENT) {
+    return true;
+  }
+
+  return throwAndLogError(
+    "updateQuestionCodeSubmission",
     response.message,
     getError(response.status)
   );
@@ -294,6 +304,46 @@ const deleteHistory = async (userId: string, questionId: string) => {
   );
 };
 
+const postToHistoryService = async (
+  userId: string,
+  questionId: string,
+  language: string,
+  code: string
+) => {
+  try {
+    await createHistory(userId, questionId, language, code);
+  } catch (error) {
+    if (error instanceof PeerPrepErrors.ConflictError) {
+      await updateQuestionCodeSubmission(userId, questionId, language, code);
+    } else {
+      throw error;
+    }
+  }
+};
+
+const convertLanguageToApiFormat = (language: string) => {
+  let convertedLanguage = language.toUpperCase();
+  // convert language to API format
+  switch (language.toLowerCase()) {
+    case "cpp":
+      convertedLanguage = "C++";
+      break;
+    case "python":
+      convertedLanguage = "PYTHON";
+      break;
+    case "java":
+      convertedLanguage = "JAVA";
+      break;
+    case "javascript":
+      convertedLanguage = "JAVASCRIPT";
+      break;
+    default:
+      break;
+  }
+
+  return convertedLanguage;
+};
+
 export const HistoryService = {
   getAttemptedQuestionsHistory,
   getNumberOfAttemptedQuestionsByComplexity,
@@ -303,4 +353,5 @@ export const HistoryService = {
   getQuestionCodeSubmission,
   createHistory,
   deleteHistory,
+  postToHistoryService,
 };

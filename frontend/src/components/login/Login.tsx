@@ -1,5 +1,6 @@
 "use client";
-import React, { FormEvent, useEffect, useState } from "react";
+
+import React, { FormEvent, useEffect, useMemo, useState } from "react";
 import {
   Card,
   Spacer,
@@ -22,10 +23,13 @@ import { AuthService } from "@/helpers/auth/auth_api_wrappers";
 import { useAuthContext } from "@/contexts/auth";
 import z from "zod";
 import { getLogger } from "@/helpers/logger";
+import SignUpSuccess from "./SignUpSuccess";
 
 export function LoginComponent() {
   const { logIn } = useAuthContext();
   const router = useRouter();
+
+  const logger = getLogger("login");
 
   // States
   const [email, setEmail] = useState("");
@@ -39,6 +43,7 @@ export function LoginComponent() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isCheckPasswordVisible, setIsCheckPasswordVisible] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUpSuccess, setIsSignUpSuccess] = useState(false);
   const [arePasswordsEqual, setArePasswordsEqual] = useState(false);
 
   // Toggles
@@ -59,8 +64,10 @@ export function LoginComponent() {
     }
   };
 
-  const isEmailInvalid = React.useMemo(() => {
-    if (email === "") return false;
+  const isEmailInvalid = useMemo(() => {
+    if (email === "") {
+      return false;
+    }
 
     return validateEmail(email) ? false : true;
   }, [email]);
@@ -116,10 +123,12 @@ export function LoginComponent() {
     };
 
     try {
+      // call auth service POST /registerByEmail to create new user
       await AuthService.registerByEmail(user);
+
       displayToast("Sign up success!", ToastType.SUCCESS);
-      router.push(CLIENT_ROUTES.VERIFY); //TODO: Update with verifying OTP/Email address when auth
-      sessionStorage.setItem("email", email.toString());
+
+      setIsSignUpSuccess(true);
     } catch (error) {
       if (error instanceof PeerPrepErrors.ConflictError) {
         displayToast(
@@ -141,6 +150,7 @@ export function LoginComponent() {
 
   async function getUser(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
     if (isEmailInvalid) {
       displayToast("Please enter a valid email address.", ToastType.ERROR);
       return;
@@ -148,32 +158,36 @@ export function LoginComponent() {
 
     try {
       setIsSubmitted(true);
+
+      // TODO: hash this password to prevent sending raw password outside
       await logIn(email, password);
+
       displayToast("Login success!", ToastType.SUCCESS);
       router.push(CLIENT_ROUTES.HOME);
     } catch (error) {
-      if (error instanceof PeerPrepErrors.NotFoundError) {
-        // User not found
-        displayToast(
-          "Incorrect email/password. Please try again.",
-          ToastType.ERROR
-        );
-      } else if (error instanceof PeerPrepErrors.UnauthorisedError) {
-        // Incorrect password
-        displayToast(
-          "Incorrect email/password. Please try again.",
-          ToastType.ERROR
-        );
-      } else if (error instanceof PeerPrepErrors.ForbiddenError) {
-        displayToast(
-          "Please verify your email before logging in.",
-          ToastType.ERROR
-        );
-      } else {
-        displayToast(
-          "Something went wrong. Please refresh and try again.",
-          ToastType.ERROR
-        );
+      switch (true) {
+        case error instanceof PeerPrepErrors.NotFoundError:
+        case error instanceof PeerPrepErrors.UnauthorisedError:
+          displayToast(
+            "Incorrect email/password. Please try again.",
+            ToastType.ERROR
+          );
+          break;
+
+        case error instanceof PeerPrepErrors.ForbiddenError:
+          displayToast(
+            "Please verify your email before logging in.",
+            ToastType.ERROR
+          );
+          break;
+
+        default:
+          logger.error(error, `[login]`);
+          displayToast(
+            "Something went wrong. Please refresh and try again.",
+            ToastType.ERROR
+          );
+          break;
       }
     } finally {
       // Cleanup
@@ -181,7 +195,9 @@ export function LoginComponent() {
     }
   }
 
-  return (
+  return isSignUpSuccess ? (
+    <SignUpSuccess email={email} setIsSignUpSuccess={setIsSignUpSuccess} />
+  ) : (
     <div className="flex items-center justify-center h-screen">
       <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10 bg-black">
         <form className="w-1/2" onSubmit={isSignUp ? submitNewUser : getUser}>
@@ -277,6 +293,7 @@ export function LoginComponent() {
                   {isSubmitted ? null : <>Sign Up</>}
                 </Button>
                 <Link
+                  size="sm"
                   className="cursor-pointer text-sky-600 hover:underline"
                   onClick={() => {
                     toggleSignUp();
@@ -305,7 +322,11 @@ export function LoginComponent() {
               </div>
               <Spacer y={5} />
               <div className="flex justify-between">
-                <Link className="text-sky-600 hover:underline" size="sm" href="/forgotpassword">
+                <Link
+                  className="text-sky-600 hover:underline"
+                  size="sm"
+                  href="/forgotpassword"
+                >
                   Forgot password?
                 </Link>
                 <Link

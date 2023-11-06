@@ -13,6 +13,7 @@
     "dev:collaboration": "cd ../backend/collaboration-service && npm run dev",
     "dev:matching": "cd ../backend/matching-service && npm run dev",
     "dev:history": "cd ../backend/history-service && npm run dev",
+    "dev:backend": "concurrently \"npm run dev:user\" \"npm run dev:question\" \"npm run dev:matching\" \"npm run dev:collaboration\"  \"npm run dev:auth\" \"npm run dev:history\" ",
     "dev-min": "concurrently \"npm run dev:frontend\" \"npm run dev:user\" \"npm run dev:question\"  \"npm run dev:auth\" \"npm run dev:history\"",
     "dev-all": "concurrently \"npm run dev:frontend\" \"npm run dev:user\" \"npm run dev:question\" \"npm run dev:matching\" \"npm run dev:collaboration\"  \"npm run dev:auth\" \"npm run dev:history\" ",
     "setup:frontend": "npm i",

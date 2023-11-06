@@ -81,7 +81,7 @@ const LanguageDonutChart = ({ width = 160, height = 160 }: DonutChartProps) => {
                     "bg-yellow": index === 3,
                   })}
                 ></div>
-                <p className="capitalize">{item.name}</p>
+                <p className="capitalize">{item.name.toLowerCase()}</p>
               </div>
             );
           })

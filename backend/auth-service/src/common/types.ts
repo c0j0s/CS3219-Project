@@ -1,29 +1,32 @@
-enum Gender {
+export enum Gender {
   MALE = "MALE",
   FEMALE = "FEMALE",
   OTHER = "OTHER",
 }
 
-enum Role {
+export enum Role {
   ADMIN = "ADMIN",
   USER = "USER",
 }
+
+type Preference = {
+  languages: string[];
+  topics: string[];
+  difficulties: string[];
+};
 
 export type UserProfile = {
   id: string;
   name: string;
   email: string;
-  password: string;
   role: Role; //enum
+  image: string | null;
+  bio: string | null;
+  gender: Gender | null;
+  createdOn: Date;
+  updatedOn: Date;
+  preferences: Preference | null;
   isVerified: boolean;
-
-  //optional attributes
-  gender?: Gender;
-  bio?: string;
-  // languages?: Language[];
-  image?: string;
-  createdOn?: Date;
-  updatedOn?: Date;
 };
 
 export type Source = {

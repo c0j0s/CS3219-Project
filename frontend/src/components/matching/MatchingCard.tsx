@@ -81,7 +81,7 @@ const MatchingCard = () => {
     <Card className="flex flex-col h-full bg-black rounded-lg text-sm overflow-hidden p-2">
       <CardHeader className="p-2">
         <div className="flex items-center justify-between w-full">
-          <span>Find a pair programmer</span>
+          <span className="text-base mt-2">Find a pair programmer</span>
           <span>
             <Tooltip content="Reset preferences">
               <Button
@@ -175,6 +175,10 @@ const MatchingCard = () => {
                 </SelectItem>
               ))}
             </Select>
+            <div className="flex flex-row gap-1 text-xs items-center text-slate-400">
+                <Icons.HiOutlineLightBulb size={15} />
+                <p>Tip: You can change your default <span className="text-yellow">preference</span> in user profile.</p>
+            </div>
           </CardBody>
           <CardFooter>
             <Button className="bg-yellow text-black w-full" onPress={handleGetMatched}>

@@ -58,7 +58,11 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
     ...config.header,
     Cookie: jwtCookieString,
   };
-  logger.info(header, `[endpoint] ${config.method}: ${endpoint}`);
+  logger.info(
+    `[endpoint] ${config.method}: ${endpoint} with header: ${JSON.stringify(
+      header
+    )}`
+  );
 
   // Log the request body if it exists.
   if (config.body) {

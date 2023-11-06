@@ -16,7 +16,7 @@ const logInByEmail = async (
   password: string,
   cache: RequestCache = "default"
 ): Promise<User | undefined> => {
-  // call POST /api/auth/loginByEmail from auth domain
+  // call POST /auth/api/loginByEmail from auth domain
   const response = await api({
     method: HTTP_METHODS.POST,
     domain: domain,
@@ -40,7 +40,7 @@ const logInByEmail = async (
 };
 
 const registerByEmail = async (user: User, cache: RequestCache = "default") => {
-  // call POST /api/auth/registerbyEmail from auth domain
+  // call POST /auth/api/registerbyEmail from auth domain
   const response = await api({
     method: HTTP_METHODS.POST,
     domain: domain,
@@ -64,7 +64,7 @@ const registerByEmail = async (user: User, cache: RequestCache = "default") => {
 };
 
 const validateUser = async (cache: RequestCache = "no-cache") => {
-  // call POST /api/auth/validate from auth domain
+  // call POST /auth/api/validate from auth domain
   const response = await api({
     method: HTTP_METHODS.POST,
     domain: domain,
@@ -86,7 +86,7 @@ const validateUser = async (cache: RequestCache = "no-cache") => {
 };
 
 const logOut = async () => {
-  // call POST /api/auth/logout from auth domain, which will also handle the routing
+  // call POST /auth/api/logout from auth domain, which will also handle the routing
   const response = await api({
     method: HTTP_METHODS.POST,
     domain: domain,
@@ -98,7 +98,7 @@ const logOut = async () => {
 };
 
 const verifyEmail = async (email: string, token: string) => {
-  // call PUT /api/auth/verifyEmail/:email/:token from auth domain
+  // call PUT /auth/api/verifyEmail/:email/:token from auth domain
   const response = await api({
     method: HTTP_METHODS.PUT,
     domain: domain,
@@ -117,8 +117,28 @@ const verifyEmail = async (email: string, token: string) => {
   );
 };
 
+const resendVerificationEmail = async (email: string) => {
+  // call PUT /auth/api/resendVerificationEmail/:email from auth domain
+  const response = await api({
+    method: HTTP_METHODS.PUT,
+    domain: domain,
+    path: `resendVerificationEmail/${email}`,
+    tags: scope,
+  });
+
+  if (response.status === HttpStatusCode.NO_CONTENT) {
+    return true;
+  }
+
+  return throwAndLogError(
+    "resendVerificationEmail",
+    response.message,
+    getError(response.status)
+  );
+};
+
 const sendPasswordResetEmail = async (email: string) => {
-  // call PUT /api/auth/sendPasswordResetEmail from auth domain
+  // call PUT /auth/api/sendPasswordResetEmail from auth domain
   const response = await api({
     method: HTTP_METHODS.PUT,
     domain: domain,
@@ -136,17 +156,46 @@ const sendPasswordResetEmail = async (email: string) => {
   );
 };
 
-const changePassword = async (
-  id: string,
-  token: string,
-  hashedPassword: string
-) => {
-  // call PUT /api/auth/changePassword/:id from auth domain
+const verifyPasswordResetLinkValidity = async (id: string, token: string) => {
+  // call GET /auth/api/verifyResetPasswordLinkValidity/:id from auth domain
+  const response = await api({
+    method: HTTP_METHODS.GET,
+    domain: domain,
+    path: `verifyResetPasswordLinkValidity/${id}/${token}`,
+    tags: scope,
+  });
+
+  if (response.status === HttpStatusCode.OK) {
+    return true;
+  }
+
+  return throwAndLogError(
+    "verifyPasswordResetLinkValidity",
+    response.message,
+    getError(response.status)
+  );
+};
+const changePassword = async ({
+  id,
+  token,
+  oldPassword,
+  hashedNewPassword,
+}: {
+  id: string;
+  token?: string;
+  oldPassword?: string;
+  hashedNewPassword: string;
+}) => {
+  // call PUT /auth/api/changePassword/:id from auth domain
   const response = await api({
     method: HTTP_METHODS.PUT,
     domain: domain,
     path: `changePassword/${id}`,
-    body: { token: token, hashedPassword: hashedPassword },
+    body: {
+      ...(token !== undefined && { token }),
+      ...(oldPassword !== undefined && { oldPassword: oldPassword }),
+      hashedNewPassword,
+    },
     tags: scope,
   });
 
@@ -161,7 +210,7 @@ const changePassword = async (
   );
 };
 
-function getError(status: HttpStatusCode, error?: string) {
+function getError(status: HttpStatusCode) {
   switch (status) {
     case HttpStatusCode.BAD_REQUEST:
       return PeerPrepErrors.BadRequestError;
@@ -184,6 +233,8 @@ export const AuthService = {
   validateUser,
   logOut,
   verifyEmail,
+  resendVerificationEmail,
   sendPasswordResetEmail,
+  verifyPasswordResetLinkValidity,
   changePassword,
 };

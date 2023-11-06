@@ -11,38 +11,29 @@ DATABASE_URL=<REPLACE_WITH_SHARED_CLOUD_DATABASE_URL>
 
 ## Endpoint and usage
 
-### `POST /api/history`
-This endpoint creates a user id and question id history to the database if there is no error.
-**Request Body**
-```
-{
-    userId: string | string[] (with max length of 2) 
-    questionId: string
-    language: string
-    code: string
-}
-```
-**Example**:
-```
-POST /api/history
+### `GET /history/api/health`
 
-Request Body:
-{
-    "userId": "exampleUserId789",
-    "questionId": "exampleQuestionId456"
-    "language": "C++",
-    "code": "cout << "Hello World! << endl;"
-}
+This endpoint helps ping the API server and the database connected to ensure it is working perfectly.
+
+**Example**
+```
+GET http://localhost:5400/history/api/health
 ```
 **Response**
 ```
-status: 201 Created
+status: 200 OK
 {
-    "message": "History created successfully" 
+  message: "Healthy"
 }
 ```
 
-### `GET /api/history`
+**Possible Status Code**
+| Status Code | Explanation |
+|-------------|-------------|
+| 200 | The API server is connected to the database and is working. |
+| 500 | The API server/database ran into a problem |
+
+### `GET /history/api/history`
 This endpoint is used to retrieve the attempted questions given a user id, or the users who attempted a given question. If only a specific history is needed, you can provide a pair of user id and a question id.
 
 For a successful call, the endpoint requires at least a query parameter of user id or question id.
@@ -120,7 +111,16 @@ status: 200 OK
 }
 ```
 
-### `GET /api/history/user/:userId/question/:questionId/code`
+**Possible Status Code**
+| Status Code | Explanation |
+|-------------|-------------|
+| 200 | The API server is connected to the database and is working |
+| 400 | The request query parameter is missing, or is invalid |
+| 401 | Unauthorized access, please login first |
+| 404 | The given user id(s) or question id cannot be found |
+| 500 | Server error, please see logs for detailed message |
+
+### `GET /history/api/history/user/:userId/question/:questionId/code`
 
 This endpoint retrieves the code submission history records based on the question that a user has attempted. It accepts a query parameter `language` to only filter code submission based on the specified language.
 
@@ -162,7 +162,58 @@ GET /api/history/user/exampleUserId123/question/exampleQuestionId1/code?language
 }
 ```
 
-### `PUT /api/history/user/:userId/question/:questionId/code`
+**Possible Status Code**
+| Status Code | Explanation |
+|-------------|-------------|
+| 200 | The API server is connected to the database and is working |
+| 400 | The request parameter(s) is invalid |
+| 401 | Unauthorized access, please login first |
+| 404 | The given user id(s) or question id cannot be found, or there is no code submission for the history yet |
+| 500 | Server error, please see logs for detailed message |
+
+
+### `POST /history/api/history`
+This endpoint creates a user id and question id history to the database if there is no error.
+**Request Body**
+```
+{
+    userId: string | string[] (with max length of 2) 
+    questionId: string
+    language: string
+    code: string
+}
+```
+**Example**:
+```
+POST /api/history
+
+Request Body:
+{
+    "userId": "exampleUserId789",
+    "questionId": "exampleQuestionId456"
+    "language": "C++",
+    "code": "cout << "Hello World! << endl;"
+}
+```
+**Response**
+```
+status: 201 Created
+{
+    "message": "History created successfully" 
+}
+```
+
+**Possible Status Code**
+| Status Code | Explanation |
+|-------------|-------------|
+| 201 | The history is created successfully |
+| 400 | The request body is invalid, please refer to the error message for detailed information |
+| 401 | Unauthorized access, please login first |
+| 404 | The given user id(s) or question id cannot be found |
+| 409 | Conflict as the history already exists |
+| 500 | Server error, please see logs for detailed message |
+
+### `PUT /history/api/history/user/:userId/question/:questionId/code`
 This endpoint only supports updating code submission for a language that has already attempted before for the given same question. If you want to add new code with a new language, please use the `POST /api/history` endpoint instead.
 
 **Request Body**
@@ -186,7 +237,17 @@ PUT /api/history/user/exampleUserId123/question/exampleQuestionId1/code
 status: 204 NO CONTENT
 ```
 
-### `DELETE /api/history/user/:userId/question/:questionId`
+**Possible Status Code**
+| Status Code | Explanation |
+|-------------|-------------|
+| 200 | The API server is connected to the database and is working |
+| 400 | The request body is invalid, see the error message for detailed information |
+| 401 | Unauthorized access, please login first |
+| 404 | The given user id(s) or question id cannot be found, or there is no code submission for the history yet |
+| 500 | Server error, please see logs for detailed message |
+
+
+### `DELETE /history/api/history/user/:userId/question/:questionId`
 This endpoint allow deleting a history record.
 **Example**:
 ```
@@ -196,3 +257,12 @@ DELETE /api/history/user/exampleUserId123/question/exampleQuestionId123
 ```
 status: 204 NO CONTENT
 ```
+
+**Possible Status Code**
+| Status Code | Explanation |
+|-------------|-------------|
+| 200 | The API server is connected to the database and is working |
+| 400 | The request parameter(s) is invalid |
+| 401 | Unauthorized access, please login first |
+| 404 | The given user id(s) or question id cannot be found, or the history cannot be found |
+| 500 | Server error, please see logs for detailed message |

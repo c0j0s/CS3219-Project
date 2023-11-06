@@ -118,7 +118,7 @@ describe("PUT /api/users/:userId", () => {
     it("should return 400 with an error message in json", async () => {
       // Arrange
       const userId = "existinguserid123";
-      let requestBody = testPayloads.getPostUserPayload();
+      let requestBody = testPayloads.getUpdateUserPayload();
       requestBody.email = "invalidemail";
 
       // Act
@@ -138,7 +138,7 @@ describe("PUT /api/users/:userId", () => {
       // Arrange
       const userId = "existinguserid123";
       const email = "duplicated@email.com";
-      let requestBody = testPayloads.getPostUserPayload();
+      let requestBody = testPayloads.getUpdateUserPayload();
       requestBody.email = email;
       const user = testPayloads.getUserPayload({ userId: userId });
       dbMock.user.findFirst = jest

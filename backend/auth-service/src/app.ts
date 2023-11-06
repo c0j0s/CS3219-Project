@@ -6,9 +6,9 @@ import HttpStatusCode from "./common/HttpStatusCode";
 import cors from "./middleware/cors";
 import passport from "passport";
 import cookieParser from "cookie-parser";
+import "./config/passport";
 
 dotenv.config();
-import "./config/passport";
 
 const app: Express = express();
 
@@ -22,10 +22,10 @@ app.use(cookieParser());
 app.use(passport.initialize());
 
 // implement routes for API endpoints
-const NODE_ENV = process.env.NODE_ENV || 'development';
+const NODE_ENV = process.env.NODE_ENV || "development";
 app.use(`/auth/api`, router);
 
-app.all("*", (req: Request, res: Response) => {
+app.all("*", (_: Request, res: Response) => {
   res.status(HttpStatusCode.NOT_FOUND).json({
     error: "NOT FOUND",
     message: "The requested resource could not be found.",
@@ -35,5 +35,7 @@ app.all("*", (req: Request, res: Response) => {
 const PORT = process.env.SERVICE_PORT || 5050;
 
 app.listen(process.env.SERVICE_PORT, () => {
-  console.log(`Server listens on port ${PORT} build[${NODE_ENV}] user_gateway[${process.env.USER_GATEWAY}]`);
+  console.log(
+    `Auth Server listens on port ${PORT} build[${NODE_ENV}] user_gateway[${process.env.USER_GATEWAY}]`
+  );
 });
