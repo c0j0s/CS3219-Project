@@ -220,6 +220,7 @@ export async function apiLambda(leetcodeUrl: string): Promise<ApiResponse> {
     status: res.status,
     message: res.statusText,
   };
+}
 
 /**
  * Builds the gateway in a dockerized environment
