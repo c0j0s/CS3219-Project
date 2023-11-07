@@ -92,11 +92,10 @@ class SocketService {
   };
 
   sendCodeEvent = (event: string) => {
-    this.socket.emit(SocketEvent.SEND_CODE_EVENT, {
-      roomId: this.roomId,
-      event: event,
-    });
+    this.socket.emit(SocketEvent.SEND_CODE_EVENT, { roomId: this.roomId, event: event,});
   }
+
+
 
   receiveCodeEvent = (setEvents: React.Dispatch<React.SetStateAction<string[]>>) => {
     this.socket.on(SocketEvent.CODE_EVENT, (event: string) => {

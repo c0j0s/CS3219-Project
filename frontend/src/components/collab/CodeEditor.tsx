@@ -27,7 +27,6 @@ const CodeEditor: FC<CodeEditorProps> = ({
   const [partnerCursor, setPartnerCursor] = useState<Position>(new Position(1, 1));
   const [partnerConnected, setPartnerConnected] = useState<boolean>(false);
   const [partnerHighlight, setPartnerHighlight] = useState<Range>(new Range(1, 1, 1, 1));
-  const [eventQueue, setEventQueue] = useState<string[]>([]);
 
   const handleContentChange = (event: string | null) => {
     if (!event) return;
@@ -121,6 +120,7 @@ const CodeEditor: FC<CodeEditorProps> = ({
       if (!isSocketEvent.current) {
         // Emitting changes: event.changes[0] is the change object that the other editor can execute  
         for (let i = 0; i < event.changes.length; i++) {
+          // setEventQueue([...eventQueue, JSON.stringify(event.changes[i])]);
           if (socketService) 
             socketService.sendCodeEvent(JSON.stringify(event.changes[i]));
         }
@@ -150,7 +150,6 @@ const CodeEditor: FC<CodeEditorProps> = ({
       } else {
 
         // Cursor event
-
         const cursorPosition = {
           lineNumber: event.selection.startLineNumber,
           column: event.selection.startColumn
