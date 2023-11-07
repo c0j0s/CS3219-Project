@@ -13,7 +13,7 @@ dotenv.config();
 const app: Express = express();
 
 // implement cors for CORS protection
-app.use(cors);
+// app.use(cors);
 
 // implement body-parser for parsing request body
 app.use(bodyParser.json());
@@ -34,8 +34,6 @@ app.all("*", (_: Request, res: Response) => {
 
 const PORT = process.env.SERVICE_PORT || 5050;
 
-app.listen(process.env.SERVICE_PORT, () => {
-  console.log(
-    `Auth Server listens on port ${PORT} build[${NODE_ENV}] user_gateway[${process.env.USER_GATEWAY}]`
-  );
+app.listen(PORT, () => {
+  console.log(`Server listens on port ${PORT} build[${NODE_ENV}] user_gateway[${process.env.USER_GATEWAY}]`);
 });

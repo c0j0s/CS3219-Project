@@ -63,10 +63,13 @@ const registerByEmail = async (user: User, cache: RequestCache = "default") => {
   );
 };
 
-const validateUser = async (cache: RequestCache = "no-cache") => {
+const validateUser = async (jwt: string = "", cache: RequestCache = "no-cache") => {
   // call POST /auth/api/validate from auth domain
   const response = await api({
     method: HTTP_METHODS.POST,
+    header: {
+      Cookie: `jwt=${jwt}`,
+    },
     domain: domain,
     path: "validate",
     tags: scope,
