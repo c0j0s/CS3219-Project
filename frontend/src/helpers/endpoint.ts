@@ -182,3 +182,34 @@ function getServicePorts(domain: DOMAIN) {
   }
   return "";
 }
+/**
+* Handle AWS Lambda function API call.
+* @param config {ApiConfig} - Configuration object for the API call.
+* @returns {Promise<ApiResponse>} - Response from the API call.
+*/
+export async function apiLambda(leetcodeUrl: string): Promise<ApiResponse> {
+  const requestData = {
+    link: leetcodeUrl,
+  };
+  
+  const apiUrl = "https://1ht9alhibg.execute-api.ap-southeast-1.amazonaws.com/lambda";
+
+  let jwtCookieString = "";
+  if (cookies().get("jwt")) {
+    jwtCookieString = cookies().toString();
+  }
+
+  const res = await fetch(apiUrl, {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+        Cookie: jwtCookieString,
+    },
+    body: JSON.stringify(requestData), // Convert the request data to JSON
+  })
+
+  return {
+    status: res.status,
+    message: res.statusText,
+  };
+}
