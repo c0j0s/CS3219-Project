@@ -46,28 +46,7 @@ export async function middleware(request: NextRequest) {
 async function authenticate(jwt: string): Promise<boolean> {
   try {
     if (jwt) {
-
-      const host = process.env.ENDPOINT || "http://localhost";
-
-      // Needs to support cloud endpoint deployment without port number
-      const port = host.startsWith("https") ? "" : ":5050";
-
-      let baseUrl = `${host}${port}`;
-
-      if (process.env.CONTAINERIZED == "true") {
-        baseUrl = process.env.AUTH_GATEWAY || "";
-      }
-
-      const authValidateEndpoint = `${baseUrl}/auth/api/validate`;
-
-      const res = await fetch(authValidateEndpoint, {
-        method: "POST",
-        headers: {
-          Cookie: `jwt=${jwt}`,
-        },
-      });
-
-      if (res.status == 200) {
+      if (await AuthService.validateUser(jwt)) {
         return true;
       }
     }
