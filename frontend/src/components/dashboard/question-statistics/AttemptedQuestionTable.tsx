@@ -1,7 +1,7 @@
 import { CLIENT_ROUTES } from "@/common/constants";
 import ComplexityChip from "@/components/question/ComplexityChip";
 import { useHistoryContext } from "@/contexts/history";
-import History, { QuestionHistory } from "@/types/history";
+import { QuestionHistory } from "@/types/history";
 import { cn } from "@/utils/classNameUtils";
 import { StringUtils } from "@/utils/stringUtils";
 import {
@@ -84,7 +84,7 @@ const AttemptedQuestionTable = ({
             )}&completedAt=${encodeURIComponent(completedAt)}`}
             color="foreground"
             size="sm"
-            className="font-normal hover:font-semibold hover:underline text-sm"
+            className="font-normal hover:text-yellow text-sm"
           >
             {record.title}
           </Link>
@@ -93,8 +93,8 @@ const AttemptedQuestionTable = ({
         return <ComplexityChip complexity={record.complexity} size="sm" />;
       case "language":
         return (
-          <Chip size="sm" variant="bordered" className="text-sm">
-            {record.language}
+          <Chip size="sm" variant="bordered" className="text-sm capitalize">
+            {record.language.toLowerCase()}
           </Chip>
         );
       case "topics":
@@ -126,12 +126,23 @@ const AttemptedQuestionTable = ({
 
   const pages = Math.ceil(history.length / rowsPerPage);
 
+  const [sortedHistory, setSortedHistory] = useState<QuestionHistory[]>([]);
+
+  useEffect(() => {
+    setSortedHistory(
+      [...history].sort(
+        (a, b) =>
+          new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+      )
+    );
+  }, [history]);
+
   const historyItems = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
 
-    return history.slice(start, end);
-  }, [page, history]);
+    return sortedHistory.slice(start, end);
+  }, [page, sortedHistory]);
 
   // for table sorting
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
@@ -208,7 +219,7 @@ const AttemptedQuestionTable = ({
               isCompact
               showControls
               showShadow
-              color="secondary"
+              color="warning"
               page={page}
               total={pages}
               onChange={(page) => setPage(page)}

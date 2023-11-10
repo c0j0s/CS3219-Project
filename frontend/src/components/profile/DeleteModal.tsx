@@ -11,6 +11,8 @@ import { UserService } from "@/helpers/user/user_api_wrappers";
 import displayToast from "../common/Toast";
 import { ToastType } from "@/types/enums";
 import { useAuthContext } from "@/contexts/auth";
+import { useRouter } from "next/navigation";
+import { CLIENT_ROUTES } from "@/common/constants";
 
 interface DeleteModalProps {
   userid: string;
@@ -23,13 +25,13 @@ export default function DeleteModal({
   isOpen,
   onClose,
 }: DeleteModalProps) {
-  const { logOut } = useAuthContext();
+  const router = useRouter();
 
   const handleDeleteUser = async () => {
     try {
       let res = await UserService.deleteUser(userid);
       displayToast("User deleted successfully", ToastType.SUCCESS);
-      logOut(); // Push user to login/sign-up again and logout
+      router.push(CLIENT_ROUTES.LOGOUT);
     } catch (error) {
       displayToast(
         "Something went wrong, please try again later.",

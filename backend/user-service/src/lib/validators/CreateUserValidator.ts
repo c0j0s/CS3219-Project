@@ -10,6 +10,7 @@ export const CreateUserValidator = z.object({
   image: z.string().url().optional(),
   bio: z.string().min(3).max(255).optional(),
   gender: z.string().transform(convertStringToGender).optional(),
+  verificationToken: z.string(),
 });
 
 export type CreateUserValidatorType = z.infer<typeof CreateUserValidator>;

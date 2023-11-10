@@ -12,14 +12,14 @@ import {
 } from "@nextui-org/react";
 import User from "@/types/user";
 import { FormEvent, Key, useEffect, useState } from "react";
-import { COMPLEXITY, LANGUAGE, TOPIC } from "@/types/enums";
-import { StringUtils } from "@/utils/stringUtils";
+import { COMPLEXITY, LANGUAGE } from "@/types/enums";
 import { ToastType } from "@/types/enums";
 import displayToast from "@/components/common/Toast";
 import { UserService } from "@/helpers/user/user_api_wrappers";
 import Preference from "@/types/preference";
 import { useAuthContext } from "@/contexts/auth";
 import { getTopics } from "@/helpers/question/question_api_wrappers";
+import { Icons } from "../common/Icons";
 
 interface InformationProps {
   user: User;
@@ -32,7 +32,7 @@ export default function Information({
   imageUrl,
   setIsChangePassword,
 }: InformationProps) {
-  const { mutate } = useAuthContext();
+  const { fetchUser } = useAuthContext();
   const [name, setName] = useState<string>(user.name);
   const [bio, setBio] = useState<string>(user.bio ? user.bio : "");
   const [gender, setGender] = useState(user.gender ? user.gender : "OTHER");
@@ -132,7 +132,7 @@ export default function Information({
 
       await UserService.updateUserPreference(user.id, preferences);
       await UserService.updateUser(user.id, updatedUser);
-      await mutate(true);
+      await fetchUser(true);
       displayToast("Information saved successfully!", ToastType.SUCCESS);
     } catch (error) {
       displayToast(
@@ -153,16 +153,15 @@ export default function Information({
 
   return (
     <div>
-      <header className="justify-center text-m underline">
-        Edit your information:
-      </header>
-      <Spacer y={4} />
       <form
         className="justify-center max-w-xl space-y-4"
         onSubmit={(e) => {
           saveInformation(e, updatedUser, preferences);
         }}
       >
+        <header className=" text-lg">
+          Basic Information:
+        </header>
         <Input
           isRequired
           label="Name"
@@ -215,6 +214,10 @@ export default function Information({
             "flex flex-col h-full justify-start gap-4 text-sm overflow-hidden"
           }
         >
+        <Spacer y={2} />
+        <header className=" text-lg">
+          Matching Preference:
+        </header>
           <Select
             name="languages"
             label="Progamming languages"
@@ -270,14 +273,18 @@ export default function Information({
         </div>
         <div className="flex flex-row justify-between">
           <Link
-            className="cursor-pointer"
+            className="cursor-pointer text-sky-600"
             onClick={() => {
               setIsChangePassword(true);
             }}
           >
             Change password
           </Link>
-          <Button type="submit" color="primary">
+          <Button
+            startContent={<Icons.FiSave/>}
+            type="submit"
+            className="bg-green-500 hover:bg-green-600 transition-colors"
+          >
             Save
           </Button>
         </div>

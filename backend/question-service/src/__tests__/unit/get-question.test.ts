@@ -1,7 +1,7 @@
 import supertest from "supertest";
 import createUnitTestServer from "../utils/server";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
-import * as TestPayload from "../utils/payloads";
+import * as TestPayload from "../utils/payloads/payloads";
 import Topic from "../../lib/enums/Topic";
 import db from "../../models/db";
 
@@ -21,6 +21,44 @@ describe("GET /questions", () => {
       const { body, statusCode } = await supertest(app).get(
         `/${API_PREFIX}/questions`
       );
+
+      // Assert
+      expect(statusCode).toEqual(HttpStatusCode.OK);
+      expect(body).toEqual({ count: 3, data: questions });
+    });
+  });
+
+  describe("Given an authorized API call with array topics query param", () => {
+    it("should return 200 with questions", async () => {
+      // Arrange
+      const questions = TestPayload.getQuestionsPayload();
+      const topic = [Topic.DP, Topic.ARRAY];
+
+      dbMock.question.findMany = jest.fn().mockResolvedValue(questions);
+
+      // Act
+      const { body, statusCode } = await supertest(app)
+        .get(`/${API_PREFIX}/questions`)
+        .query({ topic });
+
+      // Assert
+      expect(statusCode).toEqual(HttpStatusCode.OK);
+      expect(body).toEqual({ count: 3, data: questions });
+    });
+  });
+
+  describe("Given an authorized API call with array complexity query param", () => {
+    it("should return 200 with questions", async () => {
+      // Arrange
+      const questions = TestPayload.getQuestionsPayload();
+      const complexity = ["HARD", "MEDIUM"];
+
+      dbMock.question.findMany = jest.fn().mockResolvedValue(questions);
+
+      // Act
+      const { body, statusCode } = await supertest(app)
+        .get(`/${API_PREFIX}/questions`)
+        .query({ complexity });
 
       // Assert
       expect(statusCode).toEqual(HttpStatusCode.OK);

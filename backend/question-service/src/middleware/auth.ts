@@ -16,28 +16,27 @@ export const authMiddleware = async (
   }
   // Only allow GET requests to /question/questions to pass through with just user rights
   const cookies = req.headers.cookie;
-  
+
   const jwtCookieString = cookies
-  ?.split(";")
-  .find((cookie) => cookie.split("=")[0].trim() == "jwt")
-  ?.split("=")[1];
-  
+    ?.split(";")
+    .find((cookie) => cookie.split("=")[0].trim() == "jwt")
+    ?.split("=")[1];
+
   //If there is no JWT, do not need to go through auth
   if (!jwtCookieString) {
     res.status(HttpStatusCode.UNAUTHORIZED).json({
-      error: "Unauthorised",
+      error: "UNAUTHORISED",
       message: "Unauthorised",
     });
     return;
   }
-  
+
   // Only allow GET requests to /development/user/questions to pass through with just user rights
-  const AUTH_GATEWAY = process.env.AUTH_GATEWAY || "http://localhost:5050"
+  const AUTH_GATEWAY = process.env.AUTH_GATEWAY || "http://localhost:5050";
   const authEndpoint =
     req.method === "GET"
       ? process.env.AUTH_ENDPOINT || `auth/api/validate`
-      : process.env.AUTH_ADMIN_ENDPOINT ||
-      `auth/api/validateAdmin`;
+      : process.env.AUTH_ADMIN_ENDPOINT || `auth/api/validateAdmin`;
 
   try {
     const authRes = await fetch(`${AUTH_GATEWAY}/${authEndpoint}`, {
@@ -52,20 +51,19 @@ export const authMiddleware = async (
     }
 
     if (authRes.status === HttpStatusCode.UNAUTHORIZED) {
-      const message = await authRes.text();
-      res.status(authRes.status).json({
-        error: message,
-        message,
+      res.status(HttpStatusCode.UNAUTHORIZED).json({
+        error: "UNAUTHORISED",
+        message: "Unauthorised",
       });
       return;
     }
 
-    if (
-      authRes.status === HttpStatusCode.FORBIDDEN ||
-      authRes.status === HttpStatusCode.INTERNAL_SERVER_ERROR
-    ) {
-      const message = await authRes.json();
-      res.status(authRes.status).json(message);
+    if (authRes.status === HttpStatusCode.FORBIDDEN) {
+      const { error, message } = await authRes.json();
+      res.status(authRes.status).json({
+        error: error.toUpperCase(),
+        message: message,
+      });
       return;
     }
   } catch (error) {

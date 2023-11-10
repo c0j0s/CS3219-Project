@@ -7,7 +7,7 @@ import HttpStatusCode from "@/types/HttpStatusCode";
 
 const logger = getLogger("endpoint");
 
-const host = process.env.ENDPOINT || "http://localhost";
+let host = process.env.ENDPOINT || "http://localhost";
 
 /**
  * Configuration object for API calls.
@@ -41,6 +41,10 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
   // Configure local domain port based on the 'domain' property in the configuration.
   let servicePort = getServicePorts(config.domain);
 
+  if (process.env.CONTAINERIZED == 'true') {
+    host = getServiceGateway(config.domain);
+  }
+
   // Build the final API endpoint URL.
   const endpoint = `${host}${servicePort}/${config.domain}/api/${
     config.path || ""
@@ -58,7 +62,11 @@ export default async function api(config: ApiConfig): Promise<ApiResponse> {
     ...config.header,
     Cookie: jwtCookieString,
   };
-  logger.info(header, `[endpoint] ${config.method}: ${endpoint}`);
+  logger.info(
+    `[endpoint:api] ${config.method}: ${endpoint} with header: ${JSON.stringify(
+      header
+    )}`
+  );
 
   // Log the request body if it exists.
   if (config.body) {
@@ -135,10 +143,14 @@ export async function getSocketConfig(domain: DOMAIN) {
   // Configure local domain port.
   let servicePort = getServicePorts(domain);
 
+  if (process.env.CONTAINERIZED == 'true') {
+    host = "http://localhost";
+  }
+
   // Build the final API endpoint URL.
   const endpoint = `${host}${servicePort}`;
   const path = `/${domain}/socket`;
-  logger.info(`[endpoint] socket: ${endpoint}`);
+  logger.info(`[endpoint:getSocketConfig] socket: ${endpoint}`);
   return { endpoint, path };
 }
 
@@ -175,6 +187,18 @@ function getServicePorts(domain: DOMAIN) {
     }
 
     return servicePort;
+  }
+  return "";
+}
+
+/**
+ * Builds the gateway in a dockerized environment
+ * @param domain {SERVICE}
+ * @returns 
+ */
+function getServiceGateway(domain: DOMAIN) {
+  if (process.env.BUILD_ENV == "development") {
+    return `http://${domain.toString()}-service`;
   }
   return "";
 }

@@ -1,7 +1,7 @@
 "use strict";
 import ChatMessage from "@/types/chat_message";
 import { SocketEvent } from "@/types/enums";
-import { SetStateAction } from "react";
+import React, { SetStateAction } from "react";
 import { Socket, io } from "socket.io-client";
 import { getCollaborationSocketConfig } from "./collaboration_api_wrappers";
 import { Position, Range } from "monaco-editor";
@@ -92,11 +92,10 @@ class SocketService {
   };
 
   sendCodeEvent = (event: string) => {
-    this.socket.emit(SocketEvent.SEND_CODE_EVENT, {
-      roomId: this.roomId,
-      event: event,
-    });
+    this.socket.emit(SocketEvent.SEND_CODE_EVENT, { roomId: this.roomId, event: event,});
   }
+
+
 
   receiveCodeEvent = (setEvents: React.Dispatch<React.SetStateAction<string[]>>) => {
     this.socket.on(SocketEvent.CODE_EVENT, (event: string) => {
@@ -105,9 +104,11 @@ class SocketService {
   }
 
   receiveCodeUpdate = (
-    setCurrentCode: React.Dispatch<React.SetStateAction<string>>
-  ) => {
+    setCurrentCode: React.Dispatch<React.SetStateAction<string>>,
+    isSocketEvent: React.MutableRefObject<boolean>
+    ) => {
     this.socket.on(SocketEvent.CODE_UPDATE, (content: string) => {
+      isSocketEvent.current = true;
       setCurrentCode(content);
     });
   };

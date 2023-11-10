@@ -6,4 +6,5 @@ export const CLIENT_ROUTES = {
   QUESTIONS: "/questions",
   LOGOUT: "/logout",
   COLLABORATION: "/collaboration/room",
+  FORGOT_PASSWORD: "/forgot-password",
 };

@@ -4,8 +4,8 @@ import bcrypt from "bcryptjs-react";
 import { useAuthContext } from "@/contexts/auth";
 import displayToast from "../common/Toast";
 import { ToastType } from "@/types/enums";
-import { UserService } from "@/helpers/user/user_api_wrappers";
-import User from "@/types/user";
+import { AuthService } from "@/helpers/auth/auth_api_wrappers";
+import { PeerPrepErrors } from "@/types/PeerPrepErrors";
 interface ChangePasswordProps {
   setIsChangePassword: (isChangePassword: boolean) => void;
 }
@@ -13,46 +13,29 @@ interface ChangePasswordProps {
 export default function ChangePassword({
   setIsChangePassword,
 }: ChangePasswordProps) {
-  const { user, mutate } = useAuthContext();
+  const { user, fetchUser } = useAuthContext();
 
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [arePasswordsEqual, setArePasswordsEqual] = useState(false);
-  const [isPasswordWrong, setIsPasswordWrong] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
   const [isOldPasswordVisible, setIsOldPasswordVisible] = useState(false);
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [isCheckPasswordVisible, setIsCheckPasswordVisible] = useState(false);
 
-  const validatePassword = async (password: string, hash: string) => {
-    const correct = await bcrypt.compare(password, hash);
-    setIsPasswordWrong(!correct);
-  };
-
   useEffect(() => {
-    if (oldPassword != "" && user.password) {
-      validatePassword(oldPassword, user.password);
-    }
     setArePasswordsEqual(newPassword === confirmNewPassword);
 
-    if (isPasswordWrong) {
-      setErrorMsg("Old password is incorrect.");
-    } else if (newPassword !== "" && newPassword.length < 8) {
+    if (newPassword !== "" && newPassword.length < 8) {
       setErrorMsg("Password should contain 8 characters or more.");
     } else if (!arePasswordsEqual) {
       setErrorMsg("Passwords do not match.");
     } else {
       setErrorMsg("");
     }
-  }, [
-    oldPassword,
-    newPassword,
-    confirmNewPassword,
-    arePasswordsEqual,
-    isPasswordWrong,
-  ]);
+  }, [newPassword, confirmNewPassword, arePasswordsEqual]);
 
   const toggleOldPasswordVisibility = () =>
     setIsOldPasswordVisible(!isOldPasswordVisible);
@@ -73,22 +56,27 @@ export default function ChangePassword({
 
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
-    const newUser: User = {
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      password: hashedNewPassword,
-    };
-
     try {
-      await UserService.updateUser(user.id!, newUser);
-      await mutate(true);
+      await AuthService.changePassword({
+        id: user.id!,
+        oldPassword: oldPassword,
+        hashedNewPassword: hashedNewPassword,
+      });
+
+      await fetchUser(true);
       displayToast("Password changed successfully.", ToastType.SUCCESS);
     } catch (error) {
-      displayToast(
-        "Something went wrong. Please refresh and try again.",
-        ToastType.ERROR
-      );
+      if (error instanceof PeerPrepErrors.ForbiddenError) {
+        displayToast(
+          "Please check if the old password is correct.",
+          ToastType.ERROR
+        );
+      } else {
+        displayToast(
+          "Something went wrong. Please refresh and try again.",
+          ToastType.ERROR
+        );
+      }
     }
   };
 
@@ -172,14 +160,14 @@ export default function ChangePassword({
         </div>
         <div className="flex flex-row justify-between">
           <Link
-            className="cursor-pointer"
+            className="cursor-pointer text-sky-600"
             onClick={() => {
               setIsChangePassword(false);
             }}
           >
-            Edit information
+            Back to profile
           </Link>
-          <Button type="submit" color="primary">
+          <Button type="submit" className="bg-sky-600">
             Confirm
           </Button>
         </div>

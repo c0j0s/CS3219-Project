@@ -91,7 +91,7 @@ describe("Handlers Test", () => {
 
         let messageDict = {
             roomId: roomId,
-            message: { uuid: "123", content: "Hello", senderId: "abc" }
+            message: { uuid: "123", content: "Hello", senderId: "abc", isAIMessage: false}
         }
 
         const receivedMessagePromise = new Promise<void>((resolve) => {

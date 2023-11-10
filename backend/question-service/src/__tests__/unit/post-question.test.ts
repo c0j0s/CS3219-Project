@@ -1,4 +1,4 @@
-import * as TestPayload from "../utils/payloads";
+import * as TestPayload from "../utils/payloads/payloads";
 import createUnitTestServer from "../utils/server";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import supertest from "supertest";

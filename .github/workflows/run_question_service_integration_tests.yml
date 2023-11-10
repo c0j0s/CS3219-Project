@@ -1,0 +1,107 @@
+name: Run Question Service Integration Tests
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  integration-test:
+    permissions:
+      checks: write
+      pull-requests: write
+      contents: write
+    runs-on: ${{matrix.os}}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node-version: [18.x]
+
+    steps:
+      - name: Checkout current branch
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{matrix.node-version}}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{matrix.node-version}}
+
+      - name: Clean up
+        run: |
+          rm -rf backend/question-service/node_modules
+          rm -rf backend/question-service/coverage
+
+      - name: Install dependencies
+        run: |
+          cd backend/question-service
+          npm ci
+
+      - name: Start User Service
+        run: |
+          cd backend/user-service
+          npm install --save-dev nodemon
+          npm run dev &
+          # Capture the process ID (PID) of the service
+          USER_SERVICE_PID=$!
+        env:
+          DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+          SERVICE_PORT: 5005
+
+      - name: Start Auth Service
+        run: |
+          cd backend/auth-service
+          npm install --save-dev nodemon
+          npm run dev &
+          # Capture the process ID (PID) of the service
+          AUTH_SERVICE_PID=$!
+        env:
+          DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+          SERVICE_PORT: 5050
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
+      - name: Wait for services to start
+        run: |
+          timeout=60
+          until curl --output /dev/null --silent --head --fail http://localhost:5050/auth/api/health; do
+            echo 'Waiting for Auth Service to start...'
+            sleep 1
+            ((timeout--))
+            if [ $timeout -eq 0 ]; then
+              echo 'Auth Service failed to start'
+              # Terminate Auth Service
+              kill $AUTH_SERVICE_PID
+              exit 1
+            fi
+          done
+
+          timeout=60
+          until curl --output /dev/null --silent --head --fail http://localhost:5005/user/api/health; do
+            echo 'Waiting for User Service to start...'
+            sleep 1
+            ((timeout--))
+            if [ $timeout -eq 0 ]; then
+              echo 'User Service failed to start'
+              # Terminate User Service
+              kill $USER_SERVICE_PID
+              exit 1
+            fi
+          done
+
+      - name: Run Integration Tests
+        run: |
+          cd backend/question-service
+          npx prisma generate
+          npm run integration-test
+        env:
+          NODE_ENV: "test"
+          TEST_DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+          TEST_ADMIN_EMAIL: ${{ secrets.TEST_ADMIN_EMAIL }}
+          TEST_ADMIN_PASSWORD: ${{ secrets.TEST_ADMIN_PASSWORD }}
+          TEST_USER_EMAIL: ${{ secrets.TEST_USER_EMAIL }}
+          TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+
+      # Send a termination signal to stop the services
+      - name: Stop User Service
+        run: kill $USER_SERVICE_PID || true
+
+      - name: Stop Auth Service
+        run: kill $AUTH_SERVICE_PID || true

@@ -1,11 +1,16 @@
 import { FC } from "react";
 import PeerPrepLogo from "./PeerPrepLogo";
 
-interface LoadingProps {}
+interface LoadingProps {
+  minHeight?: string;
+}
 
-const LogoLoadingComponent: FC<LoadingProps> = ({}) => {
+const LogoLoadingComponent: FC<LoadingProps> = ({ minHeight }) => {
   return (
-    <div className="flex min-h-screen items-center justify-center">
+    <div
+      style={{ height: minHeight ? `${minHeight}px` : `100vh` }}
+      className="flex items-center justify-center"
+    >
       <div className="">
         <PeerPrepLogo width="5rem" height="5rem" />
       </div>

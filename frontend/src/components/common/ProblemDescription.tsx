@@ -3,7 +3,7 @@
 import Question from "@/types/question";
 import { FC } from "react";
 import ComplexityChip from "../question/ComplexityChip";
-import { Divider } from "@nextui-org/react";
+import { Chip, Divider } from "@nextui-org/react";
 import parse from "html-react-parser";
 
 interface IProblemDescriptionProps {
@@ -11,7 +11,7 @@ interface IProblemDescriptionProps {
 }
 const ProblemDescription: FC<IProblemDescriptionProps> = ({ question }) => {
   return (
-    <div className="flex px-0 py-4 h-[calc(100vh-94px)] overflow-y-auto">
+    <div className="flex px-0 py-4 h-[calc(100vh-55px)] overflow-y-auto">
       <div className="w-full px-5">
         {/* Question title */}
         <div className="flex space-x-4">
@@ -20,10 +20,13 @@ const ProblemDescription: FC<IProblemDescriptionProps> = ({ question }) => {
           </div>
         </div>
         {/* Question complexity */}
-        <div className="flex items-center mt-3">
-          <div className="px-2.5 py-1 text-sm font-medium capitalize bg-green">
+        <div className="flex items-center mt-3 gap-2">
             <ComplexityChip complexity={question.complexity} size="sm" />
-          </div>
+            {
+              question.topics.map(topic => (
+                <Chip key={topic} size="sm" className="capitalize">{topic.toLowerCase()}</Chip>
+              ))
+            }
         </div>
 
         <Divider className="mt-4 mb-2" />

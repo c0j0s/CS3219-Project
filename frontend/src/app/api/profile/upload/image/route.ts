@@ -29,6 +29,13 @@ export async function POST(request: NextRequest) {
       fileBuffer
     );
 
+    if (!imageUrl) {
+      return NextResponse.json(
+        { error: "Failed to upload image" },
+        { status: HttpStatusCode.INTERNAL_SERVER_ERROR }
+      );
+    }
+
     return NextResponse.json({ imageUrl }, { status: HttpStatusCode.OK });
   } catch (error: any) {
     getLogger().error(error);

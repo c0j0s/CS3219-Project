@@ -1,5 +1,5 @@
-import Topic from "../../lib/enums/Topic";
-import Complexity from "../../lib/enums/Complexity";
+import Topic from "../../../lib/enums/Topic";
+import Complexity from "../../../lib/enums/Complexity";
 
 export function getQuestionsPayload() {
   return [

@@ -1,3 +1,5 @@
+"use client";
+
 import { HistoryService } from "@/helpers/history/history_api_wrappers";
 import { CodeSubmission, QuestionHistory } from "@/types/history";
 import User from "@/types/user";

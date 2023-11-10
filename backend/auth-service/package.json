@@ -7,11 +7,17 @@
     "dev": "nodemon src/app.ts",
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/app.js",
-    "test": "jest"
+    "test": "jest",
+    "integration-test": "jest --coverage --runInBand --detectOpenHandles --forceExit --testPathPattern=src/__tests__/integration",
+    "unit-test": "jest --coverage --runInBand --detectOpenHandles --forceExit --testPathPattern=src/__tests__/unit"
+  },
+  "prisma": {
+    "schema": "./src/models/prisma/schema.prisma"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^5.5.2",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
     "cookie-parser": "^1.4.6",
@@ -22,6 +28,7 @@
     "nodemailer": "^6.9.5",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
+    "prisma": "^5.5.2",
     "typescript": "^5.2.2",
     "zod": "^3.22.2"
   },

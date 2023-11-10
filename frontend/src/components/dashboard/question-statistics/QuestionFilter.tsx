@@ -7,7 +7,7 @@ const QuestionFilter = () => {
   const { history } = useHistoryContext();
   const [showMore, setShowMore] = useState(false);
 
-  const maxTopicsToShow = 6;
+  const maxTopicsToShow = 5;
 
   const topicData =
     HistoryService.getNumberOfAttemptedQuestionsByTopic(history);

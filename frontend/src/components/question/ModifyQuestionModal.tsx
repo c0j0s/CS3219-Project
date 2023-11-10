@@ -265,7 +265,7 @@ export default function ModifyQuestionModal({
                       ></QuestionDescription>
                     </div>
                     <div className="flex flex-row gap-2">
-                      <div className="flex flex-col basis-1/2">
+                      <div className="flex flex-col basis-1/2 pt-3">
                         <QuestionConstrainsTable
                           value={constraints}
                           onValueChange={(v) => setConstraints(v)}

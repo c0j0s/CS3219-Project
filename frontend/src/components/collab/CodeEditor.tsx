@@ -4,35 +4,36 @@ import { FC, use, useEffect, useState } from "react";
 import { Position, Range } from "monaco-editor";
 import { useRef } from "react";
 import type monaco from 'monaco-editor';
-import { UUID } from "crypto";
+import { getCodeTemplate } from "@/utils/defaultCodeUtils";
+import { is } from "date-fns/locale";
 
 interface CodeEditorProps {
   currentCode: string;
   handleEditorChange?: (currentContent: string | undefined) => void;
+  isSocketEvent: React.MutableRefObject<boolean>;
 }
 
 const CodeEditor: FC<CodeEditorProps> = ({
   currentCode,
   handleEditorChange,
+  isSocketEvent,
 }) => {
-  const { matchedLanguage, socketService, partner } = useCollabContext();
+  const { matchedLanguage, socketService, partner, question } = useCollabContext();
+
   const language = matchedLanguage || "";
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null);
   const decorations = useRef<monaco.editor.IEditorDecorationsCollection | null>(null);
-  const isSocketEvent = useRef(false);
+  // const isSocketEvent = useRef(false);
   const isHighlightingEvent = useRef(false);
-  const previousEvent = useRef<string>("");
   const [receivedEvents, setReceivedEvents] = useState<string[]>([]);
   const [partnerCursor, setPartnerCursor] = useState<Position>(new Position(1, 1));
   const [partnerConnected, setPartnerConnected] = useState<boolean>(false);
   const [partnerHighlight, setPartnerHighlight] = useState<Range>(new Range(1, 1, 1, 1));
-  const [eventQueue, setEventQueue] = useState<string[]>([]);
 
   const handleContentChange = (event: string | null) => {
     if (!event) return;
     // Execute changes from other editor
     const convertedEvent = JSON.parse(event);
-    previousEvent.current = event;
     isSocketEvent.current = true;
     if (editorRef.current) {
       editorRef.current.executeEdits("my-source", [convertedEvent]);
@@ -114,20 +115,15 @@ const CodeEditor: FC<CodeEditorProps> = ({
 
     let selectedRange: Range | null = null;
 
-    editor.onDidPaste((event: monaco.editor.IPasteEvent) => {
-      console.log(editor)
-      console.log("On did paste", event);
-    })
-
     // Subscribe to model changes
     editor.onDidChangeModelContent((event: monaco.editor.IModelContentChangedEvent) => {
       // Emitting changes only due to keypress and not due to socket service
-      console.log("Trying to emit changes: ", event.changes[0]);
       if (!isSocketEvent.current) {
-        // Emitting changes: event.changes[0] is the change object that the other editor can execute        
-        if (socketService) socketService.sendCodeEvent(JSON.stringify(event.changes[0]));
-        console.log("Emitting changes: ", event.changes[0]);
-        console.log("Setting event queue")
+        // Emitting changes: event.changes[0] is the change object that the other editor can execute  
+        for (let i = 0; i < event.changes.length; i++) {
+          if (socketService) 
+            socketService.sendCodeEvent(JSON.stringify(event.changes[i]));
+        }
       }
       isSocketEvent.current = false;
     })
@@ -154,7 +150,6 @@ const CodeEditor: FC<CodeEditorProps> = ({
       } else {
 
         // Cursor event
-
         const cursorPosition = {
           lineNumber: event.selection.startLineNumber,
           column: event.selection.startColumn
@@ -169,7 +164,7 @@ const CodeEditor: FC<CodeEditorProps> = ({
     <div className="mt-1 p-2">
       <Editor
         width="100%"
-        height="84vh"
+        height="100%"
         theme="vs-dark"
         defaultLanguage={language}
         value={currentCode}

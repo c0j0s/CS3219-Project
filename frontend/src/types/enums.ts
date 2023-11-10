@@ -15,8 +15,9 @@ export enum SERVICE {
   AUTH = "auth",
   MATCHING = "matching",
   COLLABORATION = "collaboration",
-  HISTORY = "history",
   TOPICS = "topics",
+  CODE_EXECUTION = "code_execution",
+  HISTORY = "history",
 }
 
 export enum HTTP_METHODS {

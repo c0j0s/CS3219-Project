@@ -19,8 +19,8 @@ const Landing = () => {
       <div className="grid-col-2 self-center">
         <div className="flex flex-col items-left"> {/* Flex the children in a column */}
           <p className="text-[500%] font-semibold"> PeerPrep </p>
-          <p className=""> Real-time code collaboration with others</p>
-          <div className="flex flex-row justify-left gap-4 mt-10">
+          <p className="ml-1"> Real-time code collaboration with others</p>
+          <div className="flex flex-row justify-left gap-4 mt-10 ml-1">
             <Button
               className="bg-gradient-to-l from-amber-500 to-yellow text-black w-[150px] shadow-md"
               onPress={handleLogInButtonPress}

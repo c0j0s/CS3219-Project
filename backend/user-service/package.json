@@ -8,7 +8,9 @@
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/app.js",
     "db-update": "npx prisma db push && npx prisma generate",
-    "test": "jest"
+    "test": "jest",
+    "integration-test": "jest --coverage --runInBand --detectOpenHandles --forceExit --testPathPattern=src/__tests__/integration",
+    "unit-test": "jest --coverage --runInBand --detectOpenHandles --forceExit --testPathPattern=src/__tests__/unit"
   },
   "prisma": {
     "schema": "./src/models/prisma/schema.prisma"
@@ -22,7 +24,6 @@
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
-    "jsonwebtoken": "^9.0.2",
     "prisma": "^5.4.1",
     "typescript": "^5.2.2",
     "zod": "^3.22.2"

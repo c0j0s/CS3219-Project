@@ -1,3 +1,5 @@
+"use client";
+
 import { getCollaborationSocketConfig } from "@/helpers/collaboration/collaboration_api_wrappers";
 import SocketService from "@/helpers/collaboration/socket_service";
 import { getQuestionById } from "@/helpers/question/question_api_wrappers";

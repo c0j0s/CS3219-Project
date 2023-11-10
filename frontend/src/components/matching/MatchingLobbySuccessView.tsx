@@ -5,7 +5,6 @@ import {
   CardFooter,
   Button,
   ModalFooter,
-  Tooltip,
   ModalHeader,
 } from "@nextui-org/react";
 import ProfilePictureAvatar from "../common/ProfilePictureAvatar";
@@ -15,7 +14,6 @@ import { useAuthContext } from "@/contexts/auth";
 import { Icons } from "../common/Icons";
 import SocketService from "@/helpers/matching/socket_service";
 import Preference from "@/types/preference";
-import ComplexityChip from "../question/ComplexityChip";
 import MatchingPreferenceList from "./MatchingPreferenceList";
 
 export type MatchingSuccessState = {

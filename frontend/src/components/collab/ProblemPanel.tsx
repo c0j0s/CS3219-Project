@@ -12,7 +12,7 @@ const ProblemPanel = () => {
   }
 
   return (
-    <div className="h-[calc(100vh-60px)]">
+    <div className="h-[calc(100vh-55px)]">
       <ProblemDescription question={question} />
     </div>
   );

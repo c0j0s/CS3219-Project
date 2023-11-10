@@ -11,6 +11,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "@nextui-org/react";
 import { CLIENT_ROUTES } from "@/common/constants";
 import { Icons } from "@/components/common/Icons";
+import { Tooltip as NextUiTooltip } from "@nextui-org/react";
 
 function getStartAndEndDates(): {
   startDates: Date[];
@@ -53,8 +54,6 @@ function getStartAndEndDates(): {
 const ActivityHeatMap = () => {
   // we wnat to obtain the actual data from history
   const { history } = useHistoryContext();
-
-  const [heatMapValues, setHeatMapValues] = useState<any[]>([]);
 
   const cal = new CalHeatmap();
 
@@ -140,7 +139,6 @@ const ActivityHeatMap = () => {
 
     const heatMapValues =
       HistoryService.getNumberOfAttemptedQuestionsByDate(history);
-    setHeatMapValues(heatMapValues);
 
     cal.paint(
       {
@@ -216,9 +214,17 @@ const ActivityHeatMap = () => {
     <div className="flex flex-col h-full w-full gap-2 rounded-lg overflow-auto scrollbar-hide">
       <div className="flex justify-between font-semibold py-4 px-2">
         <p>Submission from past 6 months:</p>
-        <Link href={`${CLIENT_ROUTES.QUESTIONS}/history`} className="text-sky-500">
-          <Icons.GoLinkExternal />
-        </Link>
+        <NextUiTooltip
+          content="View all attempted questions"
+          placement="bottom"
+        >
+          <Link
+            href={`${CLIENT_ROUTES.QUESTIONS}/history`}
+            className="text-warning"
+          >
+            <Icons.GoLinkExternal />
+          </Link>
+        </NextUiTooltip>
       </div>
       <div className="flex justify-center items-center p-4 mx-2 bg-cal-heatmap rounded">
         {/* Heatmap */}

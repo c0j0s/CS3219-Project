@@ -7,7 +7,9 @@
     "dev": "nodemon src/app.ts | pino-pretty",
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/app.js",
-    "test": "jest --runInBand --detectOpenHandles --forceExit"
+    "test": "jest --coverage --runInBand --detectOpenHandles --forceExit",
+    "integration-test": "jest --coverage --runInBand --detectOpenHandles --forceExit --testPathPattern=src/__tests__/integration",
+    "unit-test": "jest --coverage --runInBand --detectOpenHandles --forceExit --testPathPattern=src/__tests__/unit"
   },
   "author": "",
   "license": "ISC",

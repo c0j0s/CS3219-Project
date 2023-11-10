@@ -52,7 +52,7 @@ const handleMatched = (socket: Socket, room: Room, requester: Partner) => {
   socket.join(room.id)
 
   // inform owner 
-  socket.to(room.id).emit("matched", {
+  socket.to(room.id).emit(SocketEvent.MATCHED, {
     room: room.id,
     partner: requester,
     owner: room.owner.id,
@@ -60,7 +60,7 @@ const handleMatched = (socket: Socket, room: Room, requester: Partner) => {
   })
 
   // inform self
-  socket.emit("matched", {
+  socket.emit(SocketEvent.MATCHED, {
     room: room.id,
     partner: room.owner,
     owner: room.owner.id,
@@ -77,7 +77,7 @@ const handleCreateRoom = (socket: Socket, room: Room) => {
     if (!room.matched) {
       logger.debug(`[${socket.id}][handleCreateRoom.callback] Timeout(${timeout}), no match found, close Room(${room.id})`);
       activeSockets.delete(socket.id);
-      socket.emit("no_match");
+      socket.emit(SocketEvent.NO_MATCH);
       rm.closeRoom(room.id);
     }
   }, timeout)
@@ -89,7 +89,7 @@ const handleReady = (socket: Socket, ready: boolean) => {
   try {
     socket.rooms.forEach((r) => {
       if (r !== socket.id) {
-        socket.to(r).emit("partner_ready_change", ready);
+        socket.to(r).emit(SocketEvent.PARTNER_READY_CHANGE, ready);
       }
     });
   } catch (error) {
@@ -127,7 +127,7 @@ const handleStart = (socket: Socket, data: {
         // Emit to collaboration service to create the room
         eventBus.publish('matching-collaboration', JSON.stringify({ roomId: roomId, user1: roomConfig.owner, user2: roomConfig.partner }))
 
-        io.sockets.in(r).emit("redirect_collaboration", roomConfig);
+        io.sockets.in(r).emit(SocketEvent.REDIRECT_COLLABORATION, roomConfig);
       }
     }
   });
@@ -150,7 +150,7 @@ const handleCancel = (socket: Socket) => {
           : {};
       }
 
-      io.to(r).emit("room_closed");
+      io.to(r).emit(SocketEvent.ROOM_CLOSED);
       rm.closeRoom(r);
     }
   });
