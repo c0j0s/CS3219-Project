@@ -15,7 +15,7 @@
     - [`POST /auth/api/validate`](#post-authapivalidate)
     - [`POST /auth/api/validateAdmin`](#post-authapivalidateadmin)
     - [`PUT /auth/api/verifyEmail/:email/:token`](#put-authapiverifyemailemailtoken)
-    - [`PUT /auth/api/resendVerificationEmail/:email/`](#put-authapiresendverificationemailemail)
+    - [`PUT /auth/api/resendVerificationEmail/:email`](#put-authapiresendverificationemailemail)
     - [`PUT /auth/api/sendPasswordResetEmail/:email`](#put-authapisendpasswordresetemailemail)
     - [`PUT /auth/api/changePassword/:id`](#put-authapichangepasswordid)
 

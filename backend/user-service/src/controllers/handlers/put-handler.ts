@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import { UpdateUserValidator } from "../../lib/validators/UpdateUserValidator";
-import db from "../../lib/db";
+import db from "../../models/db";
 import { ZodError } from "zod";
 import { UpdateUserPreferencesValidator } from "../../lib/validators/UpdateUserPreferencesValidator";
 import { formatErrorMessage } from "../../lib/utils/errorUtils";

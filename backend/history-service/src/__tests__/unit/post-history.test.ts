@@ -1,7 +1,7 @@
 import supertest from "supertest";
 import createUnitTestServer from "../utils/server";
-import { HistoryPayload, generateCUID } from "../utils/payloads";
-import db from "../../lib/db";
+import { HistoryPayload, generateCUID } from "../utils/payloads/unit.payloads";
+import db from "../../models/db";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 
 const app = createUnitTestServer();

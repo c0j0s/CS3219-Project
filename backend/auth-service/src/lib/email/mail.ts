@@ -34,8 +34,6 @@ class Mail {
 
   async send() {
     try {
-      // if (!Mail.validateEmail(this.recipient)) throw new Error("Invalid email")
-      console.log(this.source);
       const transporter = this.createTransport();
 
       await transporter.sendMail({

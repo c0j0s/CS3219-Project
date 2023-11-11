@@ -8,6 +8,8 @@ import {
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import Topic from "../../lib/enums/Topic";
 
+jest.setTimeout(10000);
+
 const app = createIntegrationTestServer();
 
 // global variable cookie

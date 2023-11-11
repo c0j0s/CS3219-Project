@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
-import db from "../../lib/db";
+import db from "../../models/db";
 import { HistoryQueryParamsValidator } from "../../lib/validators/HistoryQueryParamsValidator";
 import { ZodError } from "zod";
 import { formatErrorMessage } from "../../lib/utils/errorUtils";
@@ -14,7 +14,7 @@ export async function getHealth(_: Request, response: Response) {
       throw new Error("No database connection from the server");
     }
 
-    response.status(HttpStatusCode.OK).json({ message: "Healthy" });
+    response.status(HttpStatusCode.OK).json({ message: "healthy" });
   } catch (error) {
     console.log(error);
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({

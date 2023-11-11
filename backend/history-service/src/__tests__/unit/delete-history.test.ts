@@ -1,6 +1,6 @@
 import supertest from "supertest";
-import { generateCUID } from "../utils/payloads";
-import db from "../../lib/db";
+import { generateCUID } from "../utils/payloads/unit.payloads";
+import db from "../../models/db";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import createUnitTestServer from "../utils/server";
 

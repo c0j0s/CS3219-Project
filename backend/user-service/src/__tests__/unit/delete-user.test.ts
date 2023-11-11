@@ -1,6 +1,6 @@
 import supertest from "supertest";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
-import db from "../../lib/db";
+import db from "../../models/db";
 import createUnitTestServer from "../utils/server";
 
 const app = createUnitTestServer();

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
-import db from "../../lib/db";
+import db from "../../models/db";
 
 export async function deleteHistory(request: Request, response: Response) {
   try {

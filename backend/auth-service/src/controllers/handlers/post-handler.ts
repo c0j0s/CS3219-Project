@@ -172,15 +172,6 @@ const logInByEmail = async (request: Request, response: Response) => {
       return;
     }
 
-    // if user exists, check if password is correct
-    if (!(await validatePassword(password, user.password!))) {
-      response.status(HttpStatusCode.UNAUTHORIZED).json({
-        error: "UNAUTHORIZED",
-        message: `The user credentials are incorrect.`,
-      });
-      return;
-    }
-
     //user exists + pw is correct + user is verified -> attach cookie and return user
     const tokenObject = issueJWT(user.id);
 

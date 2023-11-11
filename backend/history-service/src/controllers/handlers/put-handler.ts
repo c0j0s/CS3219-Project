@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import { ZodError } from "zod";
 import { formatErrorMessage } from "../../lib/utils/errorUtils";
-import db from "../../lib/db";
+import db from "../../models/db";
 import { CodeSubmissionBodyValidator } from "../../lib/validators/CodeSubmissionBodyValidator";
 
 export async function updateQuestionCodeSubmission(

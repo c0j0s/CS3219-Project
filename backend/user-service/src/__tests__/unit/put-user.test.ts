@@ -1,7 +1,7 @@
-import * as testPayloads from "../utils/payloads";
+import * as testPayloads from "../utils/payloads/unit.payloads";
 import supertest from "supertest";
 import createUnitTestServer from "../utils/server";
-import db from "../../lib/db";
+import db from "../../models/db";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 
 const dbMock = db as jest.Mocked<typeof db>;

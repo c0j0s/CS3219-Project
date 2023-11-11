@@ -3,7 +3,7 @@ import { ZodError } from "zod";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 import { formatErrorMessage } from "../../lib/utils/errorUtils";
 import { CreateHistoryBodyValidator } from "../../lib/validators/CreateHistoryBodyValidator";
-import db from "../../lib/db";
+import db from "../../models/db";
 
 export async function postHistory(request: Request, response: Response) {
   try {

@@ -1,6 +1,6 @@
 import supertest from "supertest";
-import db from "../../lib/db";
-import * as testPayloads from "../utils/payloads";
+import db from "../../models/db";
+import * as testPayloads from "../utils/payloads/unit.payloads";
 import createUnitTestServer from "../utils/server";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
 

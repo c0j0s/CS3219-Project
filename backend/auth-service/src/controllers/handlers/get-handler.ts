@@ -11,7 +11,7 @@ async function getHealth(_: Request, response: Response) {
       throw new Error("No database connection from the server");
     }
 
-    response.status(HttpStatusCode.OK).json({ message: "Healthy" });
+    response.status(HttpStatusCode.OK).json({ message: "healthy" });
   } catch (error) {
     console.log(error);
     response.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({

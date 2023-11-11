@@ -21,7 +21,7 @@ export const authMiddleware = async (
   //If there is no JWT, do not need to go through auth
   if (!jwtCookieString) {
     res.status(HttpStatusCode.UNAUTHORIZED).json({
-      error: "Unauthorised",
+      error: "UNAUTHORISED",
       message: "Unauthorised",
     });
     return;
@@ -42,7 +42,7 @@ export const authMiddleware = async (
     if (authRes.status !== HttpStatusCode.OK) {
       const message = await authRes.text();
       res.status(authRes.status).json({
-        error: message,
+        error: message.toUpperCase(),
         message,
       });
       return;

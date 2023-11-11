@@ -1,13 +1,30 @@
 # History Service
 
-## Setting up the service locally
+## Quick Navigation
+- [History Service](#history-service)
+  - [Quick Navigation](#quick-navigation)
+  - [Set up](#set-up)
+  - [Running the service](#running-the-service)
+  - [Endpoint and usage](#endpoint-and-usage)
+    - [`GET /history/api/health`](#get-historyapihealth)
+    - [`GET /history/api/history`](#get-historyapihistory)
+    - [`GET /history/api/history/user/:userId/question/:questionId/code`](#get-historyapihistoryuseruseridquestionquestionidcode)
+    - [`POST /history/api/history`](#post-historyapihistory)
+    - [`PUT /history/api/history/user/:userId/question/:questionId/code`](#put-historyapihistoryuseruseridquestionquestionidcode)
+    - [`DELETE /history/api/history/user/:userId/question/:questionId`](#delete-historyapihistoryuseruseridquestionquestionid)
+## Set up
 First, create a `.env` file directly under the `history-service` path.
-The ``.env`` file should contain:
+The `.env` file should contain:
 ```
 SERVICE_PORT=5400
 
 DATABASE_URL=<REPLACE_WITH_SHARED_CLOUD_DATABASE_URL>
 ```
+
+## Running the service
+To run the history service locally, first run `npm i` to install all the necessary packages directly under the `/history-service` folder, then run `npm run dev` to start the API server.
+
+There are multiple endpoints supported, you may find the detailed documentation of each endpoint in the below section.
 
 ## Endpoint and usage
 

@@ -4,7 +4,7 @@ import { VerificationMail } from "../../lib/email/verificationMail";
 import { UserService } from "../../lib/user_api_helpers";
 import createUnitTestServer from "../utils/server";
 import db from "../../lib/db";
-import { Payloads } from "../utils/payloads";
+import { Payloads } from "../utils/payloads/unit.payloads";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import { ResetPasswordMail } from "../../lib/email/resetPasswordMail";

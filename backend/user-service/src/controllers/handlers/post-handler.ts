@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { CreateUserValidator } from "../../lib/validators/CreateUserValidator";
 import { ZodError } from "zod";
 import HttpStatusCode from "../../lib/enums/HttpStatusCode";
-import db from "../../lib/db";
+import db from "../../models/db";
 import { formatErrorMessage } from "../../lib/utils/errorUtils";
 
 export const postUser = async (request: Request, response: Response) => {
