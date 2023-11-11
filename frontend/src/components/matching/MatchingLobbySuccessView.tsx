@@ -64,7 +64,7 @@ export default function MatchingLobbySuccessView({
       });
     }
     initializeSocket();
-  }, []);
+  }, [partner, preference]);
 
   useEffect(() => {
     if (timer === 0) {
@@ -115,10 +115,12 @@ export default function MatchingLobbySuccessView({
           </div>
           <Card className="flex-1">
             <CardBody className="items-center p-2">
-              <ProfilePictureAvatar
+              { partner &&
+                <ProfilePictureAvatar
                 isMatchingAvatar
-                profileUrl={partner?.image}
+                profileUrl={partner.image}
               />
+              }
               <p className="w-24 truncate text-center">{partner?.name}</p>
             </CardBody>
             <CardFooter className="justify-center p-2">

@@ -7,6 +7,7 @@ import { useAuthContext } from "@/contexts/auth";
 import { Icons } from "../common/Icons";
 import MatchingPreferenceList from "./MatchingPreferenceList";
 import { getLogger } from "@/helpers/logger";
+import Partner from "@/types/partner";
 
 export default function MatchingLobbyMatchingView(
     {
@@ -47,7 +48,7 @@ export default function MatchingLobbyMatchingView(
     useEffect(() => {
         async function initializeSocket() {
             await SocketService.getInstance().then(socket => {
-                socket.onMatched(owner => {
+                socket.onMatched((owner) => {
                     onMatched(user.id === owner)
                 });
                 socket.onNoMatched(onNoMatch);

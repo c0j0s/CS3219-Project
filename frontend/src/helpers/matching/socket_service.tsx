@@ -76,9 +76,6 @@ class SocketService {
   }
 
   requestMatching(request: any) {
-    // Reset room info for new matching request.
-    this.partner = undefined;
-    this.preferences = undefined;
     this.socket.emit(SocketEvent.MATCHING_REQUEST, request);
   }
 
