@@ -98,35 +98,38 @@ const getJudge0LanguageId = (language: string) => {
 const extractInputStringToInputDict = (inputString: string) => {
   const inputDict: { [key: string]: string } = {};
 
-  // Regular expression to match standalone values without =
+  // remove all whitespace after "," if they are inside a bracket []
+  inputString = inputString.replace(/\[(.*?)\]/g, (match) => {
+    return match.replace(/,\s/g, ",");
+  });
 
-  if (inputString.split("=").length === 1) {
-    inputDict["input"] = inputString;
-    return inputDict;
-  }
+  const splitInputString = inputString.split(", ");
 
-  // Regular expression to match variable assignments in the form "a=1, b=2, c=3"
-  const variableRegex =
-    /(\w+)\s*=\s*(?:(?:"([^"]*)")|(?:'([^']*)')|(\[([\s\S]*?)\])|(\[\[([\s\S]*?)\]\])|(`([^`]*)`)|(.*?))(?=\s*(?:,|$))/g;
-
-  // Extract variables from the string
-  inputString.replace(
-    variableRegex,
-    function (
-      _,
-      variable,
-      doubleQuoted,
-      singleQuoted,
-      bracketed,
-      backticked,
-      unquoted
-    ) {
-      const value =
-        doubleQuoted || singleQuoted || bracketed || backticked || unquoted;
-      inputDict[variable] = value;
-      return "";
+  if (splitInputString.length === 1) {
+    const splitByEqualInputString = inputString.split("=");
+    if (splitByEqualInputString.length === 1) {
+      // Case 1.1
+      // Input: "123"
+      // Output: {input: 123}
+      inputDict["input"] = splitInputString[0].trim();
+    } else {
+      // Case 1.2
+      // Input: "a=1"
+      // Output: {a: 1}
+      inputDict[splitByEqualInputString[0].trim()] =
+        splitByEqualInputString[1].trim();
     }
-  );
+  } else {
+    // Case 2
+    // Input: "a=1, b=2, c=3"
+    // Output: {a: 1, b: 2, c: 3}
+    splitInputString.map((inputVariable) => {
+      const [variableName, variableValue] = inputVariable
+        .split("=")
+        .map((x) => x.trim());
+      inputDict[variableName] = variableValue;
+    });
+  }
 
   return inputDict;
 };
