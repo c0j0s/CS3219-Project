@@ -35,10 +35,10 @@ const TestCases = () => {
   const handleModifyTestcase = (
     index: number,
     variableName: string,
-    value: any
+    value: string
   ) => {
     const updatedTestCaseArray = [...testCaseArray];
-    updatedTestCaseArray[index].input[variableName] = value.trim();
+    updatedTestCaseArray[index].input[variableName] = value;
     updatedTestCaseArray[index].output = "";
     // check if input is equal to any existing input in initialTestCaseArray
     // if yes, update output to the corresponding output in initialTestCaseArray, else set output to ""
