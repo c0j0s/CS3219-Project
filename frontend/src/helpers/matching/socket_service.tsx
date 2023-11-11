@@ -11,7 +11,7 @@ class SocketService {
   private preferences?: Preference;
 
   constructor(endpoint: string, path: string) {
-    this.socket = io(endpoint, { path: path, transports: ["polling"] });
+    this.socket = io(endpoint, { path: path, transports: ["polling"]});
   }
 
   public static async getInstance(): Promise<SocketService> {
@@ -21,6 +21,17 @@ class SocketService {
     }
     SocketService.instance.socket.connect();
     return SocketService.instance;
+  }
+
+  public static async newInstance(): Promise<SocketService> {
+    try {
+      const config = await getMatchingSocketConfig();
+      SocketService.instance = new SocketService(config.endpoint, config.path);
+      SocketService.instance.socket.connect();
+      return SocketService.instance;
+    } catch (error) {
+      throw error;
+    }
   }
 
   onConnect(listener: (...args: any[]) => void) {
