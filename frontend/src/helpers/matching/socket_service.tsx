@@ -83,6 +83,8 @@ class SocketService {
   }
 
   disconnect() {
+    this.partner = undefined;
+    this.preferences = undefined;
     this.socket.disconnect();
   }
 
