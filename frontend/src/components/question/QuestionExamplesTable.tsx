@@ -81,7 +81,15 @@ export default function QuestionExamplesTable({
                   <div className="text-tiny font-semibold">
                     Case 2: Multiple Variables
                   </div>
-                  <div className="text-tiny">a = &quot;input1&quot;, b = &quot;input2&quot;</div>
+                  <div className="text-tiny">
+                    a = &quot;input1&quot;, b = &quot;input2&quot;
+                  </div>
+                  <div className="text-tiny font-semibold">Array: [a,b]</div>
+                  <div className="text-tiny font-semibold">String: "ab"</div>
+                  <div className="text-tiny font-semibold">Null: null</div>
+                  <div className="text-tiny font-semibold">
+                    Boolean: true/false
+                  </div>
                 </div>
               </PopoverContent>
             </Popover>
