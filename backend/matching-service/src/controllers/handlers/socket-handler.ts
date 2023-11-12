@@ -14,29 +14,29 @@ dotenv.config();
 
 const timeout = Number(process.env.MATCHING_TIMEOUT) || 60000;
 const rm: RoomManager = RoomManager.getInstance();
-const activeSockets = new Set();
+const connectedSockets: { [key: string]: Socket } = {};
 
 const handleMatching = (socket: Socket, request: {
   user: Partner,
   preferences: Preference,
 }) => {
-  if (!activeSockets.has(socket.id)) {
-    logger.debug(`[${socket.id}][handleMatching] Matching request received.`);
+  if (!rm.getActiveSockets().has(socket.id)) {
+    logger.info(`[${socket.id}][handleMatching] Matching request received.`);
+    rm.getActiveSockets().add(socket.id);
     setTimeout(() => {
       try {
         request.user.socketId = socket.id;
-        rm.findMatchElseCreateRoom(
+        rm.findMatchElseWait(
           request.user,
           request.preferences,
           room => handleMatched(socket, room, request.user),
-          room => handleCreateRoom(socket, room),
+          () => handleNoMatch(socket),
         )
       } catch (error) {
         notifyError(socket, error);
       }
 
-    }, 2000);
-    activeSockets.add(socket.id);
+    }, 1000);
   } else {
     logger.debug(`[${socket.id}][handleMatching] Socket is active, discard duplicate request.`);
   }
@@ -49,10 +49,15 @@ const handleMatched = (socket: Socket, room: Room, requester: Partner) => {
   }
 
   logger.debug(room, `[${socket.id}][handleMatched] Matched room(${room.id}), socket(${socket.id}) joined`);
-  socket.join(room.id)
+  if (!rm.getActiveSockets().has(room.owner.socketId)) {
+    notifyError(socket, "Invalid matching.");
+    return;
+  }
+  socket.join(room.id);
+  connectedSockets[room.owner.socketId].join(room.id);
 
-  // inform owner 
-  socket.to(room.id).emit(SocketEvent.MATCHED, {
+  // inform partner
+  socket.to(room.owner.socketId).emit(SocketEvent.MATCHED, {
     room: room.id,
     partner: requester,
     owner: room.owner.id,
@@ -68,19 +73,10 @@ const handleMatched = (socket: Socket, room: Room, requester: Partner) => {
   })
 }
 
-const handleCreateRoom = (socket: Socket, room: Room) => {
-  logger.debug(`[${socket.id}][handleCreateRoom] Created Room(${room.id}), socket(${socket.id}) joined`);
-  socket.join(room.id);
-
-  // Register timeout handler
-  setTimeout(() => {
-    if (!room.matched) {
-      logger.debug(`[${socket.id}][handleCreateRoom.callback] Timeout(${timeout}), no match found, close Room(${room.id})`);
-      activeSockets.delete(socket.id);
-      socket.emit(SocketEvent.NO_MATCH);
-      rm.closeRoom(room.id);
-    }
-  }, timeout)
+let handleNoMatch = (socket: Socket) => {
+  logger.debug(`[${socket.id}][handleNoMatch.callback] Timeout(${timeout}), no match found.`);
+  rm.getActiveSockets().delete(socket.id);
+  socket.emit(SocketEvent.NO_MATCH);
 }
 
 const handleReady = (socket: Socket, ready: boolean) => {
@@ -143,10 +139,10 @@ const handleCancel = (socket: Socket) => {
       const room = rm.getRoomById(r);
       if (room) {
         room.owner
-          ? activeSockets.delete((room.owner as Partner).socketId)
+          ? rm.getActiveSockets().delete((room.owner as Partner).socketId)
           : {};
         room.partner
-          ? activeSockets.delete((room.partner as Partner).socketId)
+          ? rm.getActiveSockets().delete((room.partner as Partner).socketId)
           : {};
       }
 
@@ -163,6 +159,7 @@ const notifyError = (socket: Socket, error: any) => {
 
 export const SocketHandler = (socket: Socket) => {
   logger.info(`[${socket.id}][Connected]`);
+  connectedSockets[socket.id] = socket;
 
   // Handles matching request, tries to find a room first before creating one
   socket.on(SocketEvent.REQUEST_MATCH, (request: any) => handleMatching(socket, request));
@@ -176,6 +173,7 @@ export const SocketHandler = (socket: Socket) => {
   socket.on(SocketEvent.DISCONNECTING, (data: any) => handleCancel(socket));
   socket.on(SocketEvent.DISCONNECT, () => {
     logger.info(`[${socket.id}][Disconnect]`)
-    activeSockets.delete(socket.id);
+    rm.getActiveSockets().delete(socket.id);
+    delete connectedSockets[socket.id];
   });
 }

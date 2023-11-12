@@ -58,19 +58,13 @@ export default function MatchingLobbySuccessView({
 
         setPreference(socket.getRoomPreference());
         setPartner(socket.getRoomPartner());
+        
         socket.onRoomClosed(() => setPartnerLeft(true));
         socket.onPartnerReadyChange((ready) => setPartnerReady(ready));
       });
     }
     initializeSocket();
-  }, []);
-
-  // useEffect(() => {
-  //   if (userReady && partnerReady && isOwner) {
-  //     // start countdown
-  //     setTimer(timer - 1);
-  //   }
-  // }, [userReady, partnerReady])
+  }, [partner, preference]);
 
   useEffect(() => {
     if (timer === 0) {
@@ -83,8 +77,12 @@ export default function MatchingLobbySuccessView({
       }
     }, 1000);
 
+    if (partnerLeft) {
+      clearTimeout(clock);
+    }
+
     return () => clearTimeout(clock);
-  }, [userReady, partnerReady, isOwner, timer, onStart]);
+  }, [userReady, partnerReady, isOwner, timer, onStart, partnerLeft]);
 
   return (
     <>
@@ -117,10 +115,12 @@ export default function MatchingLobbySuccessView({
           </div>
           <Card className="flex-1">
             <CardBody className="items-center p-2">
-              <ProfilePictureAvatar
+              { partner &&
+                <ProfilePictureAvatar
                 isMatchingAvatar
-                profileUrl={partner?.image!}
+                profileUrl={partner.image}
               />
+              }
               <p className="w-24 truncate text-center">{partner?.name}</p>
             </CardBody>
             <CardFooter className="justify-center p-2">

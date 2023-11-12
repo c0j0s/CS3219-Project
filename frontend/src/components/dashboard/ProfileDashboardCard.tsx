@@ -29,6 +29,7 @@ const ProfileDashboardCard = () => {
           isInvisible={!showBadge}
           content={<Icons.FiEdit />}
           placement="bottom-right"
+          onClick={handleEditProfileButtonPress}
         >
           <div
             onClick={handleEditProfileButtonPress}

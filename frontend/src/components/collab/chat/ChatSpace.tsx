@@ -226,12 +226,12 @@ const ChatSpace = ({
                     </>
                 )}
             </form>
-            <p className="px-4 text-xs text-gray-200 leading-7 flex">
+            <div className="px-4 text-xs text-gray-200 leading-7 flex">
                 <div className="flex flex-col pr-1 justify-center">
                     <Icons.HiOutlineLightBulb size={15} />
                 </div>
                 Tip: Start your message with &quot;/ai&quot; to chat with our AI bot.
-            </p>
+            </div>
         </div>
     );
 };

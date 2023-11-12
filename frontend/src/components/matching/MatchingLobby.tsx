@@ -43,16 +43,16 @@ export default function MatchingLobby({
   /////////////////////////////////////////////
   const initializeSocket = async () => {
     try {
-      socketService?.off(SocketEvent.DISCONNECT);
-      socketService?.disconnect();
-
-      await SocketService.getInstance().then((socket) => {
+      await SocketService.newInstance().then((socket) => {
         setSocketService(socket);
         socket.onConnect(() => setStage(MATCHING_STAGE.MATCHING));
         socket.onDisconnect(() => setStage(MATCHING_STAGE.ERROR));
         socket.onConnectError(() => setStage(MATCHING_STAGE.ERROR));
         // Handles redirect command from the server
         socket.onRedirectCollaboration((room) => handleRedirect(socket, room));
+      }).catch(error => {
+        logger.error(error);
+        setStage(MATCHING_STAGE.ERROR);
       });
     } catch (error) {
       logger.error(error);
@@ -69,15 +69,18 @@ export default function MatchingLobby({
   };
 
   const handleRedirect = (socket: SocketService, room: any) => {
-    const partnerId = socket.getRoomPartner()!.id;
-    const path = `${CLIENT_ROUTES.COLLABORATION}/${
-      room.id
-    }?partnerId=${partnerId}&questionId=${
-      room.questionId
-    }&language=${encodeURIComponent(room.language)}`;
-    onClose();
-    socket.disconnect();
-    router.push(path);
+    if (socket) {
+      const partnerId = socket.getRoomPartner()?.id;
+      const path = `${CLIENT_ROUTES.COLLABORATION}/${
+        room.id
+      }?partnerId=${partnerId}&questionId=${
+        room.questionId
+      }&language=${encodeURIComponent(room.language)}`;
+      handleClose();
+      router.push(path);
+    } else {
+      setStage(MATCHING_STAGE.ERROR);
+    }
   };
 
   /////////////////////////////////////////////

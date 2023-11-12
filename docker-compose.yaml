@@ -17,6 +17,15 @@ services:
     networks:
       - peerprep
 
+  matching-cache:
+    build: ./database/matching-cache
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    container_name: matching-cache
+    networks:
+      - peerprep
+
   user-service:
     container_name: user-service
     build: 
@@ -59,12 +68,16 @@ services:
       - user-service
 
   matching-service:
+    depends_on:
+      - matching-cache
+      - event-bus
     container_name: matching-service
     build: 
       context: ./backend/matching-service
       dockerfile: Dockerfile
       args:
         EVENT_BUS_CONTAINER_NAME: event-bus
+        QUEUE_URL: matching-cache
     env_file:
       - ./.env
     ports:
@@ -74,6 +87,9 @@ services:
       - peerprep
 
   collaboration-service:
+    depends_on:
+      - event-bus
+      - collaboration-cache
     container_name: collaboration-service
     build: 
       context: ./backend/collaboration-service

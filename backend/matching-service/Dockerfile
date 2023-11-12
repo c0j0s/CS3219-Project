@@ -26,6 +26,9 @@ ENV CORS_ALLOWED_ORIGINS=$CORS_ALLOWED_ORIGINS
 ARG EVENT_BUS_CONTAINER_NAME=event-bus
 ENV EVENT_BUS_CONTAINER_NAME=$EVENT_BUS_CONTAINER_NAME
 
+ARG QUEUE_URL=localhost
+ENV QUEUE_URL=$QUEUE_URL
+
 # Copy only the production artifacts from the build stage
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/package*.json ./

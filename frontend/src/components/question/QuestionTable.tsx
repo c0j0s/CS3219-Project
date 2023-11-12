@@ -75,20 +75,13 @@ export default function QuestionTable({
       case "title":
         return (
           <>
-            {(readonly) ? (
-              <p color="foreground" className="text-sm">
-                {cellValue as string}
-              </p>
-            ) : (
-              <Link
-                href={`${CLIENT_ROUTES.QUESTIONS}/${item.id}`}
-                color="foreground"
-                className="hover:text-yellow text-sm"
-              >
-                {cellValue as string}
-              </Link>
-            )
-            }
+            <Link
+              href={`${CLIENT_ROUTES.QUESTIONS}/${item.id}`}
+              color="foreground"
+              className="hover:text-yellow text-sm"
+            >
+              {cellValue as string}
+            </Link>
           </>
         );
       case "complexity":
@@ -155,11 +148,13 @@ export default function QuestionTable({
   const questionItems = useMemo(() => {
     const start = (page - 1) * rowsPerPage;
     const end = start + rowsPerPage;
-    return questions.sort(
-      (a, b) =>
-        complexityOrder.indexOf(a.complexity.toUpperCase()) -
-        complexityOrder.indexOf(b.complexity.toUpperCase())
-    ).slice(start, end);
+    return questions
+      .sort(
+        (a, b) =>
+          complexityOrder.indexOf(a.complexity.toUpperCase()) -
+          complexityOrder.indexOf(b.complexity.toUpperCase())
+      )
+      .slice(start, end);
   }, [page, questions]);
 
   const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
