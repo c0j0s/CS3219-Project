@@ -55,7 +55,7 @@ export default function VerifyComponent() {
       {isVerifiedLoading ? (
         <LogoLoadingComponent />
       ) : isSuccessfulVerification ? (
-        <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10">
+        <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10 bg-black">
           <div className="w-1/2">
             <PeerPrepLogo />
             <CardHeader className="justify-center font-bold">
@@ -80,7 +80,7 @@ export default function VerifyComponent() {
           </div>
         </Card>
       ) : (
-        <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10">
+        <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10 bg-black">
           <div className="w-1/2">
             <PeerPrepLogo />
             <CardHeader className="justify-center font-bold">

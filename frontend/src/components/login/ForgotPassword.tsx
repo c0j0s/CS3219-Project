@@ -21,7 +21,6 @@ import { CLIENT_ROUTES } from "@/common/constants";
 import z from "zod";
 import { PeerPrepErrors } from "@/types/PeerPrepErrors";
 import LogoLoadingComponent from "../common/LogoLoadingComponent";
-import InvalidResetLinkComponent from "./InvalidResetLinkComponent";
 
 export default function ForgotPasswordComponent() {
   // States
@@ -194,7 +193,7 @@ export default function ForgotPasswordComponent() {
     <LogoLoadingComponent />
   ) : (
     <div className="flex items-center justify-center h-screen">
-      <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10">
+      <Card className="items-center justify-center w-96 mx-auto pt-10 pb-10 bg-black">
         {!isChangePassword ? (
           <div className="w-1/2">
             <PeerPrepLogo />
