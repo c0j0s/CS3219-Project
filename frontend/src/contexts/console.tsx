@@ -7,7 +7,6 @@ import { CodeExecutionService } from "@/helpers/code_execution/code_execution_ap
 import { judge0Response } from "@/types/judge0";
 import displayToast from "@/components/common/Toast";
 import { ToastType } from "@/types/enums";
-import { set } from "date-fns";
 
 interface IConsoleContext {
   isQuestionLoaded: boolean;
@@ -67,7 +66,8 @@ const ConsoleProvider = ({ children }: IConsoleProvider) => {
       const initialTestCaseArray = question.examples?.map(
         (example: any, index: number) => ({
           input: CodeExecutorUtils.extractInputStringToInputDict(
-            parse(example.input) as string
+            parse(example.input) as string,
+            matchedLanguage
           ),
           output: parse(example.output),
         })

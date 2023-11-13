@@ -23,7 +23,8 @@ export const getCodeTemplate = (
     const inputVariables = question.examples?.[0]?.input;
 
     const inputDict = CodeExecutorUtils.extractInputStringToInputDict(
-      inputVariables!
+      inputVariables!,
+      language
     );
 
     formattedInputVariables = CodeExecutorUtils.getFormattedInputVariables(

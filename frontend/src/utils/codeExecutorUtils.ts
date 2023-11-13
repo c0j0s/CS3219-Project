@@ -1,4 +1,5 @@
 import { Judge0Language, Judge0Status } from "@/types/judge0";
+import { input } from "@nextui-org/react";
 
 /* -------------------------------------------------------------------------- */
 /*                               Code Execution                               */
@@ -95,13 +96,31 @@ const getJudge0LanguageId = (language: string) => {
 /* -------------------------------------------------------------------------- */
 /*                       Extracting User Input Variables                      */
 /* -------------------------------------------------------------------------- */
-const extractInputStringToInputDict = (inputString: string) => {
+const extractInputStringToInputDict = (
+  inputString: string,
+  language: string
+) => {
   const inputDict: { [key: string]: string } = {};
 
   // remove all whitespace after "," if they are inside a bracket []
   inputString = inputString.replace(/\[(.*?)\]/g, (match) => {
     return match.replace(/,\s/g, ",");
   });
+
+  switch (language.toLowerCase()) {
+    case "python":
+      inputString = inputString
+        .replace(/null/g, "None")
+        .replace(/true/g, "True")
+        .replace(/false/g, "False");
+      break;
+    case "javascript":
+      inputString = inputString
+        .replace(/None/g, "null")
+        .replace(/True/g, "true")
+        .replace(/False/g, "false");
+      break;
+  }
 
   const splitInputString = inputString.split(", ");
 
