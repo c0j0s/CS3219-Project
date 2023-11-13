@@ -2,7 +2,7 @@ import { useCollabContext } from "@/contexts/collab";
 import { useConsoleContext } from "@/contexts/console";
 import { Button, Link, Spacer, Tooltip } from "@nextui-org/react";
 import { FiChevronDown, FiChevronUp } from "react-icons/fi";
-import { AiFillExclamationCircle } from "react-icons/ai";
+import { HiExclamationCircle } from "react-icons/hi";
 
 interface IConsoleBarProps {
   code: string;
@@ -59,7 +59,7 @@ const ConsoleBar = ({
             placement="top-start"
           >
             <div className="flex h-full items-center">
-              <AiFillExclamationCircle size="17px" color="white" />
+              <HiExclamationCircle size="17px" color="white" />
             </div>
           </Tooltip>
         </>
