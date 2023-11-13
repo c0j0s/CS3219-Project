@@ -85,7 +85,9 @@ export default function QuestionExamplesTable({
                     a = &quot;input1&quot;, b = &quot;input2&quot;
                   </div>
                   <div className="text-tiny font-semibold">Array: [a,b]</div>
-                  <div className="text-tiny font-semibold">String: "ab"</div>
+                  <div className="text-tiny font-semibold">
+                    String: &quot;ab&quot;
+                  </div>
                   <div className="text-tiny font-semibold">Null: null</div>
                   <div className="text-tiny font-semibold">
                     Boolean: true/false
