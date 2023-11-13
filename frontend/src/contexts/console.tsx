@@ -151,7 +151,8 @@ const ConsoleProvider = ({ children }: IConsoleProvider) => {
         testCaseArray[i].stderr = result.stderr;
         testCaseArray[i].isCorrect = CodeExecutorUtils.checkCorrectnessOfOutput(
           testCaseArray[i].stdout,
-          testCaseArray[i].output
+          testCaseArray[i].output,
+          language
         );
         testCaseArray[i].description = CodeExecutorUtils.getOutputMessage(
           testCaseArray[i].statusId,

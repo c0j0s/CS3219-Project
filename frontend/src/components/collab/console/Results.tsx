@@ -5,10 +5,13 @@ import { GoDotFill } from "react-icons/go";
 import { BsQuestion } from "react-icons/bs";
 import { Judge0Status } from "@/types/judge0";
 import { cn } from "@/utils/classNameUtils";
+import { CodeExecutorUtils } from "@/utils/codeExecutorUtils";
+import { useCollabContext } from "@/contexts/collab";
 
 const Results = () => {
   const { testCaseArray, isResultsLoading, shouldProcessInputs } =
     useConsoleContext();
+  const { matchedLanguage } = useCollabContext();
   const [selectedCase, setSelectedCase] = useState<number>(0);
 
   useEffect(() => {}, [isResultsLoading, testCaseArray]);
@@ -91,7 +94,10 @@ const Results = () => {
           <div className="text-white text-xs py-1">Expected output: </div>
           {testCaseArray[selectedCase].isDefaultTestCase ? (
             <pre className="bg-gray-600 bg-opacity-50 px-4 py-3 rounded-lg text-white text-xs whitespace-pre-wrap">
-              {testCaseArray[selectedCase].output}
+              {CodeExecutorUtils.standardiseValuesByLanguage(
+                testCaseArray[selectedCase].output,
+                matchedLanguage
+              )}
             </pre>
           ) : (
             <pre className="bg-gray-600 bg-opacity-50 px-4 py-3 rounded-lg text-gray-400 text-xs whitespace-pre-wrap">

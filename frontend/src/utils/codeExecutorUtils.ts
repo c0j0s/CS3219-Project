@@ -18,7 +18,8 @@ const prepareCodeForExecution = (
 
 const checkCorrectnessOfOutput = (
   actualOutput: string,
-  expectedOutput: string
+  expectedOutput: string,
+  language: string
 ) => {
   if (expectedOutput === "") {
     return false;
@@ -27,6 +28,8 @@ const checkCorrectnessOfOutput = (
   if (actualOutput === "" && expectedOutput !== "") {
     return false;
   }
+
+  expectedOutput = standardiseValuesByLanguage(expectedOutput, language);
 
   //standardise "" to '
   actualOutput = actualOutput.replace(/"/g, "'");
@@ -112,21 +115,7 @@ const extractInputStringToInputDict = (
     return match.replace(/,\s/g, ",");
   });
 
-  switch (language.toLowerCase()) {
-    case "python":
-      inputString = inputString
-        .replace(/null/g, "None")
-        .replace(/true/g, "True")
-        .replace(/false/g, "False");
-      break;
-    case "javascript":
-      inputString = inputString
-        .replace(/None/g, "null")
-        .replace(/True/g, "true")
-        .replace(/False/g, "false");
-      break;
-  }
-
+  inputString = standardiseValuesByLanguage(inputString, language);
   const splitInputString = inputString.split(", ");
 
   if (splitInputString.length === 1) {
@@ -238,22 +227,33 @@ const formatGeneralType = (
   value: string,
   language: string
 ) => {
+  value = standardiseValuesByLanguage(value, language);
   switch (language.toLowerCase()) {
     case "python":
-      value = value
-        .replace(/null/g, "None")
-        .replace(/true/g, "True")
-        .replace(/false/g, "False");
       return `${variableName} = ${value}\n`;
     case "javascript":
-      value = value
-        .replace(/None/g, "null")
-        .replace(/True/g, "true")
-        .replace(/False/g, "false");
       return `const ${variableName} = ${value};\n`;
     default:
       return "";
   }
+};
+
+const standardiseValuesByLanguage = (inputString: string, language: string) => {
+  switch (language.toLowerCase()) {
+    case "python":
+      inputString = inputString
+        .replace(/null/g, "None")
+        .replace(/true/g, "True")
+        .replace(/false/g, "False");
+      break;
+    case "javascript":
+      inputString = inputString
+        .replace(/None/g, "null")
+        .replace(/True/g, "true")
+        .replace(/False/g, "false");
+      break;
+  }
+  return inputString;
 };
 
 export const CodeExecutorUtils = {
@@ -264,4 +264,5 @@ export const CodeExecutorUtils = {
   extractInputStringToInputDict,
   getFormattedInputVariables,
   getVariableType,
+  standardiseValuesByLanguage,
 };
