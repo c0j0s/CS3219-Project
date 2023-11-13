@@ -14,7 +14,7 @@ const Results = () => {
   useEffect(() => {}, [isResultsLoading, testCaseArray]);
 
   return (
-    <div className="flex flex-col w-full h-full gap-2">
+    <div className="flex flex-col w-full h-full gap-2 break-words">
       <div className="flex flex-wrap first-letter:justify-start items-center gap-x-2">
         {shouldProcessInputs &&
           testCaseArray?.map((testCase: any, index: number) => (
@@ -47,7 +47,7 @@ const Results = () => {
       </div>
 
       <div
-        className={cn("text-m font-semibold py-1", {
+        className={cn("text-m font-semibold py-1 break-words", {
           "text-red-500":
             testCaseArray[selectedCase].statusId !== Judge0Status.ACCEPTED ||
             (testCaseArray[selectedCase].isDefaultTestCase &&
