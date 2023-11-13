@@ -108,7 +108,6 @@ const ConsoleProvider = ({ children }: IConsoleProvider) => {
       setHasCodeRun(true);
       setIsResultsLoading(true);
       let submissionIds = [];
-      console.log(testCaseArray.length);
       for (let i = 0; i < testCaseArray.length; i++) {
         const id = await CodeExecutionService.executeCode(
           code,
