@@ -36,6 +36,11 @@ const checkCorrectnessOfOutput = (
   actualOutput = actualOutput.trim();
   expectedOutput = expectedOutput.trim();
 
+  if (getVariableType(expectedOutput) === VariableType.STRING) {
+    return (
+      actualOutput === expectedOutput.substring(1, expectedOutput.length - 1)
+    );
+  }
   if (getVariableType(expectedOutput) === VariableType.INTEGER) {
     return parseInt(actualOutput) === parseInt(expectedOutput);
   }
